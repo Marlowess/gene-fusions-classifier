@@ -1,0 +1,46 @@
+{
+  "researcher": "Stefano Brilli",
+  "version": 0.1,
+  "architecture": {
+    "model_name": "LSTM network for proteins' fusions",
+    "layers": [
+      {
+        "layer": "tf.keras.layers.Embedding(23, 100, name='embedding_layer', embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=17))",
+        "name": "embedding_layer"
+      },
+      {
+        "layer": "tf.keras.layers.Dropout(rate=0.5, name='dropout_1')",
+        "name": "dropout_1"
+      },
+      {
+        "layer": "tf.keras.layers.CuDNNLSTM(units=200, return_sequences=False, unit_forget_bias=True, kernel_initializer=tf.keras.initializers.glorot_uniform(seed=17))",
+        "name": "LSTM_layer_1"
+      },
+      {
+        "layer": "tf.keras.layers.Dropout(rate=0.5, name='dropout_2')",
+        "name": "dropout_2"
+      },
+      {
+        "layer": "tf.keras.layers.Dense(units=1, activation='sigmoid', kernel_initializer=tf.keras.initializers.glorot_uniform(seed=17), kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01), name='dense_1')",
+        "name": "dense_layer_1"
+      }
+    ],
+    "optimizer": "ADAM",
+    "learning_rate": 0.001,
+    "clip_norm": 1.0,
+      "metrics": [
+      "accuracy"
+    ],
+    "loss": "binary_crossentropy"
+  },
+  "n_splits": 3,
+  "batch_size": 16,
+  "n_epochs": 10,
+  "seed": 17,
+  "callbacks": [
+    {
+      "callback_name": "tf.keras.callbacks.ReduceLROnPlateau(patience=3, monitor='val_loss', factor=0.98, verbose=1, min_lr=0.0001)"
+    }
+  ],
+  "training_threshold": 70.0
+}
