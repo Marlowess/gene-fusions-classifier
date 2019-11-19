@@ -1,0 +1,7 @@
+{
+    "batch_size": 32,
+    "epochs":30,
+    "lr": 0.001,
+    "dropout_rate": 0.2,
+    "recurrent_dropout_rate": 0.4
+}
