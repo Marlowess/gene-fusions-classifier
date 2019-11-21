@@ -4,6 +4,7 @@ import datetime, os
 from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow import keras
 from tensorflow.keras import backend as K
+from tensorflow.keras.utils import Sequence
 import pandas as pd
 import numpy as np
 import utils as utl
@@ -11,6 +12,7 @@ import logging
 import matplotlib
 import math
 import argparse
+import threading
 from collections import Counter
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from model import Model
@@ -86,7 +88,9 @@ def train(model, data, tokenizer, validation_data, epochs, results_dir):
     """
     data_generator = gen(data, tokenizer)
     steps_per_epoch = math.ceil(len(data.X_tr)/data.batch_size)
-    history = model.model.fit_generator(data_generator, steps_per_epoch, epochs=epochs, validation_data=validation_data)
+    bS = BioSequence(data.X_tr, data.y_tr, data.batch_size, tokenizer)
+    history = model.model.fit_generator(bS, epochs=epochs, shuffle=True, validation_data=validation_data,
+                                        workers=8)
     plot_history(results_dir, history)
     return model
     
@@ -131,12 +135,12 @@ def gen(data, tokenizer):
     and we apply padding to sequences with lenght less the the longest one in the batch.
     :param data: class Dataset with loaded training bins
     """
-    while(True):
-        for X, y in data.train_iter():
-            X = tokenizer.texts_to_sequences(X)
-            X = keras.preprocessing.sequence.pad_sequences(X)
-            y = label_text_to_num(y)
-            yield X, y
+    # while(True):
+    for X, y in data:
+        X = tokenizer.texts_to_sequences(X)
+        X = keras.preprocessing.sequence.pad_sequences(X)
+        y = label_text_to_num(y)
+        yield X, y
 
 def label_text_to_num(y):
     """
@@ -197,6 +201,38 @@ def preprocess_validation_data(X_val, y_val, tokenizer):
     X_val = keras.preprocessing.sequence.pad_sequences(X_val)
     y_val = label_text_to_num(y_val)
     return (X_val, y_val)
+
+class BioSequence(Sequence):
+
+    def __init__(self, x_set, y_set, batch_size, tokenizer, shuffle=True, seed=0):
+        self.x, self.y = x_set, y_set
+        self.batch_size = batch_size
+        self.tokenizer = tokenizer
+
+        idxs = np.arange(self.x.shape[0])
+        if (shuffle):
+            if (seed is not None):
+                np.random.seed(seed)
+            np.random.shuffle(idxs)
+            self.x = self.x[idxs]
+            self.y = self.y[idxs]
+
+        # self.lock = threading.Lock()
+
+    def __len__(self):
+        return math.ceil(len(self.x) / self.batch_size)
+
+    def __getitem__(self, idx):
+        # with self.lock:
+        batch_x = self.x[idx * self.batch_size:(idx + 1) *
+        self.batch_size]
+        batch_y = self.y[idx * self.batch_size:(idx + 1) *
+        self.batch_size]
+        batch_x = self.tokenizer.texts_to_sequences(batch_x)
+        batch_x = keras.preprocessing.sequence.pad_sequences(batch_x)
+        batch_y = label_text_to_num(batch_y)
+        
+        return batch_x, batch_y
 
 if __name__ == "__main__":
     main()
