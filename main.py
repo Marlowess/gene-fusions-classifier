@@ -61,7 +61,9 @@ def main():
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=128,
                       lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
                       recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
-        model = train(model, data, tokenizer, None, params.epochs, results_dir)
+        model, history = train(model, data, tokenizer, None, params.epochs, results_dir)
+        plot_history(results_dir, history, 'loss_train.png')
+
         model.model.save(os.path.join(results_dir, 'model.hdf5'))
     if (params.test == True):
         train_bins = [1, 2, 3, 4]
@@ -89,10 +91,8 @@ def train(model, data, tokenizer, validation_data, epochs, results_dir):
     data_generator = gen(data, tokenizer)
     steps_per_epoch = math.ceil(len(data.X_tr)/data.batch_size)
     bS = BioSequence(data.X_tr, data.y_tr, data.batch_size, tokenizer)
-    history = model.model.fit_generator(bS, epochs=epochs, shuffle=True, validation_data=validation_data,
-                                        workers=8)
-    plot_history(results_dir, history)
-    return model
+    history = model.model.fit_generator(bS, epochs=epochs, shuffle=True, validation_data=validation_data)
+    return model, history
     
 def cross_validate(results_dir, params):
     """
@@ -118,8 +118,8 @@ def cross_validate(results_dir, params):
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=128,
                       lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
                       recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
-        train(model, data, tokenizer, validation_data, params.epochs, results_dir)
-        
+        model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
+        plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
         # scores returns two element: pos0 loss and pos1 accuracy 
         scores = model.model.evaluate(validation_data[0], validation_data[1])
         logger.info("Fold {}".format(i))
@@ -151,7 +151,7 @@ def label_text_to_num(y):
     f = lambda x: 0 if x == 'N' else 1
     return np.array([f(y[i]) for i in range(len(y))])
     
-def plot_history(dir, history):
+def plot_history(dir, history, name='loss.png'):
     """
     Function that plots loss history and if present validation
     :param dir: directory where to save plot
@@ -169,7 +169,7 @@ def plot_history(dir, history):
     else:
         plt.title('Training loss')
     plt.legend()
-    plt.savefig(os.path.join(dir, 'loss.png'))
+    plt.savefig(os.path.join(dir, name))
 
 def _init_logger(log_dir):
     """
