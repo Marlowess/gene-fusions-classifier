@@ -39,7 +39,7 @@ class Model:
         optimizer = tf.keras.optimizers.RMSprop(lr=lr)
         
         self.model = tf.keras.Sequential(name=model_name)
-        self.model.add(tf.keras.layers.Embedding(n_vocab, hidden_size))
+        self.model.add(tf.keras.layers.Embedding(n_vocab, hidden_size, mask_zero=True))
         self.model.add(tf.keras.layers.LSTM(64, dropout=dropout_rate, recurrent_dropout=recurrent_dropout_rate))
 
     #     model.add(tf.keras.layers.CuDNNLSTM(units=n_units,
