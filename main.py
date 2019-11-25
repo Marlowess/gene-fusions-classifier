@@ -25,25 +25,25 @@ logger.setLevel(logging.DEBUG)
 def main():
     base_dir = 'bioinfo_project'
     subdir = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d_%H%M%S')
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--subdir', default=subdir, help='checkpoints directory')
     parser.add_argument('--cv', default=False, help='Perform Cross-Validation for hyperparameter selection', action='store_true')
     parser.add_argument('--train', default=False, help='Train model on whole training data and save it', action='store_true')
     parser.add_argument('--test', default=False, help='Test saved model, in the specified subdir, on test bin', action='store_true')
     params = parser.parse_args()
-    
+
     parameters_path  = './parameters.json'
     json_params = utl.load_parameters(parameters_path)
     for key, value in json_params.items():
         setattr(params, key, value)
-    
+
     results_dir = os.path.join(base_dir, params.subdir)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     _init_logger(results_dir)
     logger.info(params)
-    
+
     if (params.cv == True):
         # Train the new model with CV
         results_dir_cv = os.path.join(results_dir, 'results_cv')
@@ -58,7 +58,7 @@ def main():
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, seed=0)
         tokenizer = keras.preprocessing.text.Tokenizer(lower=True)
         tokenizer.fit_on_texts(data.X_tr)
-        model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=128,
+        model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
                       lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
                       recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
         model, history = train(model, data, tokenizer, None, params.epochs, results_dir)
@@ -76,7 +76,7 @@ def main():
         test_data = preprocess_validation_data(data.X_test, data.y_test, tokenizer)
         scores = model.model.evaluate(test_data[0], test_data[1])
         logger.info("Testing accuracy {}: {}".format(model.model.metrics_names[1], scores[1] * 100))
-    
+
 def train(model, data, tokenizer, validation_data, epochs, results_dir):
     """
     Train model
@@ -93,7 +93,7 @@ def train(model, data, tokenizer, validation_data, epochs, results_dir):
     bS = BioSequence(data.X_tr, data.y_tr, data.batch_size, tokenizer)
     history = model.model.fit_generator(bS, epochs=epochs, shuffle=True, validation_data=validation_data)
     return model, history
-    
+
 def cross_validate(results_dir, params):
     """
     Perform k-cross validation on the training bins and validate on the validation one
@@ -112,23 +112,25 @@ def cross_validate(results_dir, params):
         # todo select bin by correct instance indexes instead of reading again from file
         # and re doing preprocessing
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, validation_bins=val_bins, seed=0)
-        tokenizer = keras.preprocessing.text.Tokenizer(lower=True)
+        tokenizer = keras.preprocessing.text.Tokenizer(lower=True, filters='')
         tokenizer.fit_on_texts(data.X_tr)
+        logger.info("Dictionary: {}".format(tokenizer.index_word))
+        logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
         validation_data = preprocess_validation_data(data.X_val, data.y_val, tokenizer)
-        model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=128,
+        model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
                       lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
                       recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
         model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
         plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
-        # scores returns two element: pos0 loss and pos1 accuracy 
+        # scores returns two element: pos0 loss and pos1 accuracy
         scores = model.model.evaluate(validation_data[0], validation_data[1])
         logger.info("Fold {}".format(i))
         logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
         cv_accuracy.append(scores[1] * 100)
-    
-    logger.info("Mean accuracy: {0:.3f} (+/- {0:.3f})".format(round(np.mean(cv_accuracy), 3),
+
+    logger.info("Mean accuracy: {0:.3f} (+/- {1:.3f})".format(round(np.mean(cv_accuracy), 3),
                                                               round(np.std(cv_accuracy),3)))
-        
+
 def gen(data, tokenizer):
     """
     Generator for preprocessing training data at batch level. Here we translate text in sequences, labels in numbers,
@@ -150,7 +152,7 @@ def label_text_to_num(y):
     """
     f = lambda x: 0 if x == 'N' else 1
     return np.array([f(y[i]) for i in range(len(y))])
-    
+
 def plot_history(dir, history, name='loss.png'):
     """
     Function that plots loss history and if present validation
@@ -188,7 +190,7 @@ def _init_logger(log_dir):
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
     logger.info('logger initialization done!')
-        
+
 def preprocess_validation_data(X_val, y_val, tokenizer):
     """
     preprocess validation data converting text into number sequences and char labels in binary ones
@@ -231,9 +233,8 @@ class BioSequence(Sequence):
         batch_x = self.tokenizer.texts_to_sequences(batch_x)
         batch_x = keras.preprocessing.sequence.pad_sequences(batch_x)
         batch_y = label_text_to_num(batch_y)
-        
+
         return batch_x, batch_y
 
 if __name__ == "__main__":
     main()
-    
