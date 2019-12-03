@@ -1,10 +1,10 @@
 
-import tensorflow as tf
+# import tensorflow as tf
 import datetime, os
 from sklearn.metrics import confusion_matrix, classification_report
-from tensorflow import keras
-from tensorflow.keras import backend as K
-from tensorflow.keras.utils import Sequence
+import keras
+from keras import backend as K
+from keras.utils import Sequence
 import pandas as pd
 import numpy as np
 import utils as utl
@@ -54,14 +54,17 @@ def main():
     if (params.train == True):
         # Train model on all training data
         train_bins = [1, 2, 3, 4]
+        test_bins = [5]
         logger.info('Training model on bins: {}'.format(train_bins))
-        data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, seed=0)
+        data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, test_bins=test_bins, seed=0)
         tokenizer = keras.preprocessing.text.Tokenizer(lower=True)
         tokenizer.fit_on_texts(data.X_tr)
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
-                      lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
-                      recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
-        model, history = train(model, data, tokenizer, None, params.epochs, results_dir)
+                      lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
+                      dropout_rate=params.dropout_rate, recurrent_dropout_rate=params.recurrent_dropout_rate,
+                      seed=42)
+        test_data = preprocess_validation_data(data.X_test, data.y_test, tokenizer) 
+        model, history = train(model, data, tokenizer, test_data, params.epochs, results_dir)
         plot_history(results_dir, history, 'loss_train.png')
 
         model.model.save(os.path.join(results_dir, 'model.hdf5'))
@@ -114,12 +117,13 @@ def cross_validate(results_dir, params):
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, validation_bins=val_bins, seed=0)
         tokenizer = keras.preprocessing.text.Tokenizer(lower=True, filters='')
         tokenizer.fit_on_texts(data.X_tr)
-        logger.info("Dictionary: {}".format(tokenizer.index_word))
+        # logger.info("Dictionary: {}".format(tokenizer.index_word))
         logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
         validation_data = preprocess_validation_data(data.X_val, data.y_val, tokenizer)
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
-                      lr=params.lr, loss='binary_crossentropy', dropout_rate=params.dropout_rate,
-                      recurrent_dropout_rate=params.recurrent_dropout_rate, seed=42)
+                      lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
+                      dropout_rate=params.dropout_rate, recurrent_dropout_rate=params.recurrent_dropout_rate,
+                      seed=42)
         model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
         plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
         # scores returns two element: pos0 loss and pos1 accuracy
@@ -210,7 +214,7 @@ class BioSequence(Sequence):
         self.x, self.y = x_set, y_set
         self.batch_size = batch_size
         self.tokenizer = tokenizer
-
+ 
         idxs = np.arange(self.x.shape[0])
         if (shuffle):
             if (seed is not None):
@@ -233,7 +237,6 @@ class BioSequence(Sequence):
         batch_x = self.tokenizer.texts_to_sequences(batch_x)
         batch_x = keras.preprocessing.sequence.pad_sequences(batch_x)
         batch_y = label_text_to_num(batch_y)
-
         return batch_x, batch_y
 
 if __name__ == "__main__":

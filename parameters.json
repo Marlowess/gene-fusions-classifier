@@ -1,8 +1,9 @@
 {
     "batch_size": 32,
     "epochs":30,
-    "lr": 0.01,
+    "lr": 0.005,
     "embedding_size": 32,
+    "lstm_units":64,
     "dropout_rate": 0.2,
     "recurrent_dropout_rate": 0.2
 }

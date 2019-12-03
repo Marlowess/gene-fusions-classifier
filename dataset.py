@@ -37,6 +37,22 @@ class Dataset(object):
         self.test_bins = test_bins
         self.X_tr, self.y_tr, self.X_val, self.y_val, self.X_test, self.y_test = self._load_training_data()
 
+        for i in range(len(self.X_tr)):
+            # strip spaces
+            # TOdo create method to do that
+            self.X_tr[i] = self.X_tr[i].replace(" ", "")
+            self.X_tr[i] = ' '.join(self.X_tr[i][j:j+3] for j in range(0,len(self.X_tr[i]), 3))
+        if (self.X_val is not None):
+            for i in range(len(self.X_val)):
+                # strip spaces
+                self.X_val[i] = self.X_val[i].replace(" ", "")
+                self.X_val[i] = ' '.join(self.X_val[i][j:j+3] for j in range(0,len(self.X_val[i]), 3))
+        
+        if (self.X_test is not None):
+            for i in range(len(self.X_test)):
+                self.X_test[i] = self.X_test[i].replace(" ", "")
+                self.X_test[i] = ' '.join(self.X_test[i][j:j+3] for j in range(0,len(self.X_test[i]), 3))
+
     # def __iter__(self):
     #     idxs = np.arange(self.X_tr.shape[0])
     #     if self.shuffle:
