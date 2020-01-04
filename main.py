@@ -1,10 +1,10 @@
 
-# import tensorflow as tf
+import tensorflow as tf
 import datetime, os
 from sklearn.metrics import confusion_matrix, classification_report
-import keras
-from keras import backend as K
-from keras.utils import Sequence
+# import keras
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import Sequence
 import pandas as pd
 import numpy as np
 import utils as utl
@@ -29,6 +29,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--subdir', default=subdir, help='checkpoints directory')
     parser.add_argument('--cv', default=False, help='Perform Cross-Validation for hyperparameter selection', action='store_true')
+    parser.add_argument('--holdout', default=False, help='Perform Holdout-Validation for hyperparameter selection', action='store_true')
     parser.add_argument('--train', default=False, help='Train model on whole training data and save it', action='store_true')
     parser.add_argument('--test', default=False, help='Test saved model, in the specified subdir, on test bin', action='store_true')
     params = parser.parse_args()
@@ -51,13 +52,21 @@ def main():
             os.makedirs(results_dir_cv)
         logger.info('Starting cross-validation')
         cross_validate(results_dir_cv, params)
+    if (params.holdout == True):
+        # Train the new model with CV
+        results_dir_cv = os.path.join(results_dir, 'results_cv')
+        if not os.path.exists(results_dir_cv):
+            os.makedirs(results_dir_cv)
+        logger.info('Starting cross-validation')
+        holdout(results_dir_cv, params)
+     
     if (params.train == True):
         # Train model on all training data
         train_bins = [1, 2, 3, 4]
         test_bins = [5]
         logger.info('Training model on bins: {}'.format(train_bins))
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, test_bins=test_bins, seed=0)
-        tokenizer = keras.preprocessing.text.Tokenizer(lower=True)
+        tokenizer = tf.keras.preprocessing.text.Tokenizer(lower=True, filters='')
         tokenizer.fit_on_texts(data.X_tr)
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
                       lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
@@ -74,7 +83,7 @@ def main():
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, test_bins=test_bins, seed=0)
         logger.info('Testing model on bins: {}'.format(test_bins))
         model = Model(log_dir=results_dir, load=True)
-        tokenizer = keras.preprocessing.text.Tokenizer(lower=True)
+        tokenizer = tf.keras.preprocessing.text.Tokenizer(lower=True, filters='')
         tokenizer.fit_on_texts(data.X_tr)
         test_data = preprocess_validation_data(data.X_test, data.y_test, tokenizer)
         scores = model.model.evaluate(test_data[0], test_data[1])
@@ -115,7 +124,7 @@ def cross_validate(results_dir, params):
         # todo select bin by correct instance indexes instead of reading again from file
         # and re doing preprocessing
         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, validation_bins=val_bins, seed=0)
-        tokenizer = keras.preprocessing.text.Tokenizer(lower=True, filters='')
+        tokenizer = tf.keras.preprocessing.text.Tokenizer(lower=True, filters='')
         tokenizer.fit_on_texts(data.X_tr)
         # logger.info("Dictionary: {}".format(tokenizer.index_word))
         logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
@@ -144,7 +153,7 @@ def gen(data, tokenizer):
     # while(True):
     for X, y in data:
         X = tokenizer.texts_to_sequences(X)
-        X = keras.preprocessing.sequence.pad_sequences(X)
+        X = tf.keras.preprocessing.sequence.pad_sequences(X)
         y = label_text_to_num(y)
         yield X, y
 
@@ -204,10 +213,32 @@ def preprocess_validation_data(X_val, y_val, tokenizer):
     :return: preprocessed validation data
     """
     X_val = tokenizer.texts_to_sequences(X_val)
-    X_val = keras.preprocessing.sequence.pad_sequences(X_val)
+    X_val = tf.keras.preprocessing.sequence.pad_sequences(X_val)
     y_val = label_text_to_num(y_val)
     return (X_val, y_val)
 
+def holdout(results_dir, params):
+    train_bins = [1, 2, 3]
+    val_bins = [4]
+    logger.info("Training on bins: {}, validation on {}".format(train_bins, val_bins))
+    # todo select bin by correct instance indexes instead of reading again from file
+    # and re doing preprocessing
+    data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, validation_bins=val_bins, seed=0)
+    tokenizer = tf.keras.preprocessing.text.Tokenizer(lower=True, filters='')
+    tokenizer.fit_on_texts(data.X_tr)
+    # logger.info("Dictionary: {}".format(tokenizer.index_word))
+    logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
+    validation_data = preprocess_validation_data(data.X_val, data.y_val, tokenizer)
+    model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
+                    lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
+                    dropout_rate=params.dropout_rate, recurrent_dropout_rate=params.recurrent_dropout_rate,
+                    seed=42)
+    model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
+    plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
+    # scores returns two element: pos0 loss and pos1 accuracy
+    scores = model.model.evaluate(validation_data[0], validation_data[1])
+    logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
+    
 class BioSequence(Sequence):
 
     def __init__(self, x_set, y_set, batch_size, tokenizer, shuffle=True, seed=0):
@@ -235,7 +266,7 @@ class BioSequence(Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) *
         self.batch_size]
         batch_x = self.tokenizer.texts_to_sequences(batch_x)
-        batch_x = keras.preprocessing.sequence.pad_sequences(batch_x)
+        batch_x = tf.keras.preprocessing.sequence.pad_sequences(batch_x)
         batch_y = label_text_to_num(batch_y)
         return batch_x, batch_y
 
