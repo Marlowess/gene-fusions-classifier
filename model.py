@@ -1,7 +1,6 @@
 import tensorflow as tf
 import logging
 # import keras
-from utils import print_and_write
 import os
 from keras_self_attention import SeqSelfAttention, SeqWeightedAttention
 
@@ -21,7 +20,7 @@ def _init_logger(log_dir):
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-class Model:
+class Model():
     def __init__(self, n_vocab=None, log_dir=".", model_name="", hidden_size=128,
                  lr=0.001, lstm_units=64, loss='binary_crossentropy', dropout_rate=0.0,
                  recurrent_dropout_rate=0.0, load=False, seed=42):

@@ -16,7 +16,8 @@ import threading
 
 class Dataset(object):
 
-    def __init__(self, batch_size, shuffle=True, train_bins=[], validation_bins=[], test_bins=[], data_path='bins_translated/', seed=None):
+    def __init__(self, batch_size, shuffle=True, sequence_type='dna', train_bins=[],
+                 validation_bins=[], test_bins=[], data_path='bins_translated/', seed=None):
         """
         Construct an iterator object over the data
 
@@ -35,23 +36,7 @@ class Dataset(object):
         self.train_bins = train_bins
         self.validation_bins = validation_bins
         self.test_bins = test_bins
-        self.X_tr, self.y_tr, self.X_val, self.y_val, self.X_test, self.y_test = self._load_training_data()
-
-        # for i in range(len(self.X_tr)):
-        #     # strip spaces
-        #     # TOdo create method to do that
-        #     self.X_tr[i] = self.X_tr[i].replace(" ", "")
-        #     self.X_tr[i] = ' '.join(self.X_tr[i][j:j+3] for j in range(0,len(self.X_tr[i]), 3))
-        # if (self.X_val is not None):
-        #     for i in range(len(self.X_val)):
-        #         # strip spaces
-        #         self.X_val[i] = self.X_val[i].replace(" ", "")
-        #         self.X_val[i] = ' '.join(self.X_val[i][j:j+3] for j in range(0,len(self.X_val[i]), 3))
-        
-        # if (self.X_test is not None):
-        #     for i in range(len(self.X_test)):
-        #         self.X_test[i] = self.X_test[i].replace(" ", "")
-        #         self.X_test[i] = ' '.join(self.X_test[i][j:j+3] for j in range(0,len(self.X_test[i]), 3))
+        self.X_tr, self.y_tr, self.X_val, self.y_val, self.X_test, self.y_test = self._load_training_data(sequence_type)
 
     def train_iter(self):
         """
@@ -69,7 +54,7 @@ class Dataset(object):
 
         return iter((self.X_tr[i:i+B], self.y_tr[i:i+B]) for i in range(0, N, B))
 
-    def _load_training_data(self):
+    def _load_training_data(self, sequence_type):
         """
         Load all the training-data or validation-data for the amino-acid data-set.
         Returns the sequence and oncogenic, non-oncogenic class-labels.
@@ -78,48 +63,33 @@ class Dataset(object):
         - train: (optional) List of bins to use as validation set
         - validation: (optional) List of bins to use as validation set
         """
-        # bin_dfs_train = [pd.read_csv(self.data_path + 'bio_translated_' + str(i) +
-        #                        '.csv', header=None) for i in self.train_bins]
-        # bin_dfs_val = [pd.read_csv(self.data_path + 'bio_translated_' + str(i) +
-        #                        '.csv', header=None) for i in self.validation_bins] 
-        # bin_dfs_val = [pd.read_csv(self.data_path + 'bio_translated_' + str(i) +
-        #                        '.csv', header=None) for i in self.test_bins]
-        
-        # Xs_train = [bin_dfs_train[i][0] for i in range(len(bin_dfs_train))]
-        # ys_train = [bin_dfs_train[i][1] for i in range(len(bin_dfs_train))]
-        # Xs_train = pd.concat(Xs_train, axis=0)
-        # ys_train = pd.concat(ys_train, axis=0)
-        # X_train = Xs_train.values
-        # y_train = ys_train.values
-
-        # Xs_val = [bin_dfs_val[i][0] for i in range(len(bin_dfs_val))]
-        # ys_val = [bin_dfs_val[i][1] for i in range(len(bin_dfs_val))]
-        # # Todo testare se funziona con un solo bin di validation
-        # Xs_val = pd.concat(Xs_val, axis=0)
-        # ys_val = pd.concat(ys_val, axis=0)
-        # X_val = Xs_val.values
-        # y_val = ys_val.values
         X_train, y_train, X_val, y_val, X_test, y_test = None, None, None, None, None, None
         if (len(self.train_bins) >= 1):
-            X_train, y_train = self._load_bins(self.train_bins)
+            X_train, y_train = self._load_bins(self.train_bins, sequence_type)
         if (len(self.validation_bins) >= 1):
-            X_val, y_val = self._load_bins(self.validation_bins) 
+            X_val, y_val = self._load_bins(self.validation_bins, sequence_type) 
         if (len(self.test_bins) >= 1):
-            X_test, y_test = self._load_bins(self.test_bins)
+            X_test, y_test = self._load_bins(self.test_bins, sequence_type)
          
         return X_train, y_train, X_val, y_val, X_test, y_test
     
-    def _load_bins(self, bins):
+    def _load_bins(self, bins, sequence_type):
         """
         Load bins from file and concatenate them
         :param bins: bin numbers to read from file
         :return: concatenated data read from file
         """
-        bin_dfs = [pd.read_csv(self.data_path + 'bio_translated_' + str(i) +
-                               '.csv', header=None) for i in bins]
-        
-        Xs = [bin_dfs[i][0] for i in range(len(bin_dfs))]
-        ys = [bin_dfs[i][1] for i in range(len(bin_dfs))]
+        bin_dfs = [pd.read_csv(self.data_path + 'bin_' + str(i) +
+                               '_translated.csv') for i in bins]
+
+        if (sequence_type == 'dna'):
+          Xs = [bin_dfs[i]['Sequences'] for i in range(len(bin_dfs))]
+        elif (sequence_type == 'protein'):
+          Xs = [bin_dfs[i]['Translated_sequences'] for i in range(len(bin_dfs))]
+        else:
+          raise ValueError("sequence_type must be 'protein' or 'dna'")
+      
+        ys = [bin_dfs[i]['Label'] for i in range(len(bin_dfs))]
         Xs = pd.concat(Xs, axis=0)
         ys = pd.concat(ys, axis=0)
         X = Xs.values
