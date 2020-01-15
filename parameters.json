@@ -2,9 +2,15 @@
     "batch_size": 32,
     "epochs":30,
     "lr": 0.01,
-    "embedding_size": 3,
-    "lstm_units":64,
-    "dropout_rate": 0.2,
+    "embedding_size": 16,
+    "lstm_units":8,
+    "embedding_regularizer":1e-6,
+    "l1_regularizer":1e-2,
+    "l2_regularizer":1e-2,
+    "last_dense_l2_regularizer":2e-6,
+    "lstm_1_dropout_rate": 0.2,
+    "lstm_2_dropout_rate": 0.2,
+    "attention_dropout":0.1,
     "recurrent_dropout_rate": 0.2,
     "maxlen": 3219
 }

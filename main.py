@@ -12,10 +12,10 @@ import math
 import argparse
 # import threading
 from ModelFactory import ModelFactory
-from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
 from collections import Counter
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from model import Model
+# from model import Model
 import matplotlib.pyplot as plt
 from dataset import Dataset
 from utils import *
@@ -171,11 +171,11 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
     logger.info("Dictionary: {}".format(tokenizer.index_word))
     logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
     X_tr, y_tr = preprocess_data(data.X_tr, data.y_tr, tokenizer,
-                                model_params['maxlen'], True, len(tokenizer.index_word))
+                                model_params['maxlen'], False, len(tokenizer.index_word))
     X_val, y_val = preprocess_data(data.X_val, data.y_val, tokenizer,
-                                model_params['maxlen'], True, len(tokenizer.index_word))
+                                model_params['maxlen'], False, len(tokenizer.index_word))
     model_params['vocabulary_len'] = len(tokenizer.index_word) + 1
-    model = ModelFactory.getOneHotEncodedLstm(model_params)
+    model = ModelFactory.getEmbeddingBiLstmAttentionProtein(model_params)
     callbacks_list = [
                     keras.callbacks.EarlyStopping(
                         monitor='val_loss',
@@ -197,12 +197,13 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
                         # min_lr=1e-4)
     ]
     model.build()
+    # history = model.fit(X_tr[:,:,0], y_tr, 50, callbacks_list, (X_val[:,:,0], y_val)) 
     history = model.fit(X_tr, y_tr, 50, callbacks_list, (X_val, y_val)) 
     
     # model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
     plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
     # scores returns two element: pos0 loss and pos1 accuracy
-    scores = model.model.evaluate(validation_data[0], validation_data[1])
+    scores = model.model.evaluate(X_val, y_val)
     logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
 
 if __name__ == "__main__":

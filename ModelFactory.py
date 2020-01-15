@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+from ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 
 class ModelFactory():
     def getEmbeddingBiLstmAttentionProtein(params):
-       pass
+       return ModelEmbeddingBidirectProtein(params)
     def getEmbeddingBiLstmAttentionDna(params):
        pass
     def getOneHotEncodedLstm(params):
