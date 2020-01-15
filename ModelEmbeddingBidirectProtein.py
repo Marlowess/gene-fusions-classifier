@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
 from sklearn.metrics import auc as auc_test
 from attlayer import AttentionWeightedAverage
+from metrics import f1_m, precision_m, recall_m
 
 class ModelEmbeddingBidirectProtein():
     """
@@ -22,8 +23,8 @@ class ModelEmbeddingBidirectProtein():
         """
 
         self.seed = 42
-        self.learning_rate = params.learning_rate
-        self.batch_size
+        self.learning_rate = params['learning_rate']
+        self.batch_size = params['batch_size']
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
@@ -85,8 +86,8 @@ class ModelEmbeddingBidirectProtein():
         self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params.pretrained_model as pre_trained_path is not None:
-            self.model.load_weights(pre_trained_path)
+        if params['pretrained_model'] is not None:
+            self.model.load_weights(params['pretrained_model'])
     
 
     def build(self):
@@ -96,7 +97,7 @@ class ModelEmbeddingBidirectProtein():
         optimizer = tf.keras.optimizers.RMSprop(lr=self.learning_rate, clipnorm=1.0)
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
-                            metrics=['accuracy'])
+                            metrics=['accuracy', f1_m, precision_m, recall_m])
         self.model.summary()
         
     def fit(self, X_tr, y_tr, epochs, callback_list, validation_data, shuffle=True):
@@ -113,7 +114,7 @@ class ModelEmbeddingBidirectProtein():
         Outputs:
         - history: it contains the results of the training
         """
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
                     callbacks=callback_list, validation_data=validation_data)
         return history
     
@@ -124,13 +125,20 @@ class ModelEmbeddingBidirectProtein():
         - features: sample of data to validate
         - labels: classes the data belong to
         Outputs:
-        - scores: results of this evaluation
+        - loss
+        - accuracy
+        - f1_score
+        - precision
+        - recall
         """
-        scores = model.evaluate(features, labels, verbose=0)
-        return scores
+        loss, accuracy, f1_score, precision, recall = model.evaluate(features, labels, verbose=0)
+        return loss, accuracy, f1_score, precision, recall
+
+    def print_metric(name, value):
+        print('{}: {}'.format(name, value))
 
     def save_weights(self):
         pass    
 
     def fit_generator(self):
-        pass
+        pass    
