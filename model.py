@@ -2,7 +2,7 @@ import tensorflow as tf
 import logging
 # import keras
 import os
-from keras_self_attention import SeqSelfAttention, SeqWeightedAttention
+# from keras_self_attention import SeqSelfAttention, SeqWeightedAttention
 
 logger= logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

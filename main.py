@@ -12,7 +12,7 @@ import math
 import argparse
 # import threading
 from ModelFactory import ModelFactory
-from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
 from collections import Counter
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from model import Model
@@ -54,10 +54,12 @@ def main():
     parser.add_argument('--num_epochs', default=50, help='Number of epochs before halting the training',type=int)
     parser.add_argument('--learning_rate', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--sequence_type', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
+    parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     params = parser.parse_args()
     
-    parameters_path  = './parameters.json'
+    parameters_path = './parameters.json' if params.network_parameters is None else params.network_parameters
     model_params = load_parameters(parameters_path)
+    
     # for key, value in json_params.items():
     #     setattr(params, key, value)
     
@@ -171,11 +173,13 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
     logger.info("Dictionary: {}".format(tokenizer.index_word))
     logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
     X_tr, y_tr = preprocess_data(data.X_tr, data.y_tr, tokenizer,
-                                model_params['maxlen'], True, len(tokenizer.index_word))
+                                model_params['maxlen'], False, len(tokenizer.index_word))
     X_val, y_val = preprocess_data(data.X_val, data.y_val, tokenizer,
-                                model_params['maxlen'], True, len(tokenizer.index_word))
+                                model_params['maxlen'], False, len(tokenizer.index_word))
     model_params['vocabulary_len'] = len(tokenizer.index_word) + 1
-    model = ModelFactory.getOneHotEncodedLstm(model_params)
+    # model = ModelFactory.getOneHotEncodedLstm(model_params)
+
+    model = ModelFactory.getEmbeddingLstm(model_params)
     callbacks_list = [
                     keras.callbacks.EarlyStopping(
                         monitor='val_loss',
@@ -188,22 +192,26 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
                         save_best_only=True,
                         verbose=1
                     ),
-                    keras.callbacks.CSVLogger(history_filename)
-                    # keras.callbacks.ReduceLROnPlateau(
-                        # patience=3,
-                        # monitor='val_loss',
-                        # factor=0.5,
-                        # verbose=1,
-                        # min_lr=1e-4)
+                    keras.callbacks.CSVLogger(history_filename),
+                    keras.callbacks.ReduceLROnPlateau(
+                        patience=3,
+                        monitor='val_loss',
+                        factor=0.5,
+                        verbose=1,
+                        min_lr=1e-6)
     ]
     model.build()
     history = model.fit(X_tr, y_tr, 50, callbacks_list, (X_val, y_val)) 
     
     # model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
     plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
+    
     # scores returns two element: pos0 loss and pos1 accuracy
-    scores = model.model.evaluate(validation_data[0], validation_data[1])
-    logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
+    scores = model.evaluate(X_val, y_val)
+    metrics_names = model.get_metrics_names()
+    logger.info("{}: {}".format(metrics_names[0], scores[0] * 100))
+    logger.info("{}: {}".format(metrics_names[1], scores[1] * 100))
+    pass
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
-from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
+from ModelEmbeddedLstmOneLayer import ModelEmbeddedLstmOneLayer
 
 class ModelFactory():
-    def getEmbeddingBiLstmAttentionProtein(params):
+    def getEmbeddingBiLstmAttentionProtein(params: dict):
        pass
-    def getEmbeddingBiLstmAttentionDna(params):
+    def getEmbeddingBiLstmAttentionDna(params: dict):
        pass
-    def getOneHotEncodedLstm(params):
-       return ModelOneHotProtein(params)
-    def getEmbeddingLstm(params):
-        pass
+    def getOneHotEncodedLstm(params: dict):
+       # return ModelOneHotProtein(params)
+       pass
+    def getEmbeddingLstm(params: dict):
+       return ModelEmbeddedLstmOneLayer(params)
 
 # class AbstractModel(ABC):
 #     @abstractmethod
