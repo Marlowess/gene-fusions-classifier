@@ -50,6 +50,7 @@ def main():
     parser.add_argument('--num_epochs', default=50, help='Number of epochs before halting the training',type=int)
     parser.add_argument('--learning_rate', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--sequence_type', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
+    parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
     params = parser.parse_args()
     
     parameters_path  = './parameters.json'

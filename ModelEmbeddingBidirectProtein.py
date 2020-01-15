@@ -83,19 +83,20 @@ class ModelEmbeddingBidirectProtein():
 
         # Build the model
         self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
+
+        # Check if the user wants a pre-trained model. If yes load the weights
+        if params.pretrained_model as pre_trained_path is not None:
+            self.model.load_weights(pre_trained_path)
     
 
-    def build(self, lr=5e-4):
+    def build(self):
         """
-        TODO: remove passed lr parameter, it is already defined in the __init__ method
         It compiles the model by defining optimizer, loss and learning rate
         """
         optimizer = tf.keras.optimizers.RMSprop(lr=self.learning_rate, clipnorm=1.0)
-
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy'])
-
         self.model.summary()
         
     def fit(self, X_tr, y_tr, epochs, callback_list, validation_data, shuffle=True):
@@ -114,7 +115,6 @@ class ModelEmbeddingBidirectProtein():
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size
                     callbacks=callback_list, validation_data=validation_data)
-        
         return history
     
     def evaluate(self, features, labels):
@@ -128,3 +128,9 @@ class ModelEmbeddingBidirectProtein():
         """
         scores = model.evaluate(features, labels, verbose=0)
         return scores
+
+    def save_weights(self):
+        pass    
+
+    def fit_generator(self):
+        pass
