@@ -55,9 +55,7 @@ def main():
     
     parameters_path  = './parameters.json'
     model_params = load_parameters(parameters_path)
-    model_params['pretrained_model'] = params.pretrained_model
-    # for key, value in json_params.items():
-    #     setattr(params, key, value)
+    model_params['pretrained_model'] = params.pretrained_model    
     
     results_dir = os.path.join(base_dir, params.subdir)
     if not os.path.exists(results_dir):
