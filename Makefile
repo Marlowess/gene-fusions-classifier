@@ -35,3 +35,8 @@ test_pipeline_for_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_2_TEST)
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_FETCH_ANDPREPROCESS)
 	rm -f $(SCRIPT_2_TEST)
+
+install_libraries_for_graphviz:
+	pip install pydot
+	pip install pydotplus
+	sudo apt-get install graphviz

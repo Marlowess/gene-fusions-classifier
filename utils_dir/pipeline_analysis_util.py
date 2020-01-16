@@ -137,9 +137,13 @@ def _holdout(x_train, y_train, x_val, y_val, conf_load_dict: dict, cmd_line_para
     # Build model.
     _log_info_message(f"> build model (holdout).", logger)
     model.build()
+    model.plot_model()
+    
+    sys.exit(0)
 
     # Train model.
     _log_info_message(f"> train model (holdout)...", logger)
+
     model.fit(
         x_train=x_train,
         y_train=y_train,

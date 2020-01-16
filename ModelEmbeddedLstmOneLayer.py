@@ -134,4 +134,8 @@ class ModelEmbeddedLstmOneLayer():
     
     def get_metrics_names(self,) -> object:
         return copy.deepcopy(self.model.metrics_names)
+    
+    def plot_model(self,) -> None:
+        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+
     pass
