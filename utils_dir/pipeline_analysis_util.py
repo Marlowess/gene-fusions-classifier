@@ -5,6 +5,8 @@ import os
 import sys
 import time
 
+from pprint import pprint
+
 import tensorflow as tf
 
 from tensorflow import keras
@@ -14,8 +16,8 @@ from utils_dir.load_dataset_util import load_dataset
 from utils_dir.setup_analysis_environment_util import setup_analysis_environment
 from utils_dir.preprocess_dataset_util import preprocess_data
 
-from utils.train_util import _holdout
-from utils.train_util import _train
+from utils_dir.train_util import _holdout
+from utils_dir.train_util import _train
 
 from ModelFactory import ModelFactory
 
@@ -170,12 +172,17 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
 def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params, network_params: dict, meta_info_project_dict: dict, main_logger: logging.Logger = None) -> None:
     """Run pipeline."""
     
+    pprint(conf_load_dict)
+
+    pprint(conf_preprocess_dict)
+    
     # Fetch Data.
     data = _pipeline_load_data(conf_load_dict, main_logger=main_logger)
 
     # Preprocessing Data.
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
+    return
 
     # Print for debugging Data.
     _test_dataset(x_train, y_train, x_val, y_val)

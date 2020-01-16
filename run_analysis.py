@@ -26,7 +26,7 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
 
     base_dir: str = 'bioinfo_project'
 
-    pprint(cmd_line_params)
+    # pprint(cmd_line_params)
 
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
