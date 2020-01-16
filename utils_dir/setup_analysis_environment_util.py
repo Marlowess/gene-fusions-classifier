@@ -32,6 +32,10 @@ def _init_logger(log_dir: str) -> logging.Logger:
 def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, params: dict) -> object:
     print(" [*] Creating environment for saving current analysis results...")
 
+    result_dict : dict = dict()
+
+    result_dict['base_dir'] = base_dir
+
     results_dir = os.path.join(base_dir, params.subdir)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
@@ -43,6 +47,7 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
         try:
             val_result_path: str = os.path.join(results_dir, f"results_holdout_validation")
             os.makedirs(val_result_path)
+            result_dict['val_result_path'] = val_result_path
         except:
             pass
     
@@ -50,6 +55,7 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
         try:
             train_result_path: str = os.path.join(results_dir, f"results_train")
             os.makedirs(train_result_path)
+            result_dict['train_result_path'] = val_result_path
         except:
             pass
-    return logger
+    return logger, result_dict

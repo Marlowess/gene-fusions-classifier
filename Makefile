@@ -16,10 +16,10 @@ SCRIPT_TEST_FETCH_ANDPREPROCESS = script_fetch_and_preprocess_test.py
 ARGS_TEST_FETCH_ANDPREPROCESS = --validation --train
 
 # ---------------------------- #
-# Test Load Project's data     #
+# Test Pipeline for Analyses   #
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
-ARGS_TEST_FETCH_ANDPREPROCESS = --validation
+ARGS_TEST_FETCH_ANDPREPROCESS = --validation --load_network EmbeddingLstm
 
 test_setup_environment_for_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_ENVIRONMENT_SETUP) $(SCRIPT_2_TEST)

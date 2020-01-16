@@ -17,6 +17,7 @@ def _get_custom_parser(subdir: str) -> object:
     parser.add_argument('--learning_rate', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--sequence_type', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
     parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
+    parser.add_argument('--load_network', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     params = parser.parse_args()
 
     return params, parser

@@ -122,8 +122,8 @@ class ModelEmbeddedLstmOneLayer():
             optimizer = tf.keras.optimizers.Nadam(lr, clipnorm=clipnorm)
         return optimizer
     
-    def fit(self, X_tr, y_tr, epochs: int = 50, callback_list: list = None, validation_data = None, shuffle: bool = True) -> object:
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=shuffle,
+    def fit(self, x_train, y_train, epochs: int = 50, callback_list: list = None, validation_data = None, shuffle: bool = True) -> object:
+        history = self.model.fit(x=x_train, y=y_train, epochs=epochs, shuffle=shuffle,
             callbacks=callback_list, validation_data=validation_data)
         return history
     

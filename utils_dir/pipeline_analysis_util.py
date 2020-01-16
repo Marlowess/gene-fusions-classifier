@@ -14,6 +14,12 @@ from utils_dir.load_dataset_util import load_dataset
 from utils_dir.setup_analysis_environment_util import setup_analysis_environment
 from utils_dir.preprocess_dataset_util import preprocess_data
 
+from ModelFactory import ModelFactory
+
+# =============================================================================================== #
+# Utils Functions                                                                                 #
+# =============================================================================================== #
+
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
     Params:
@@ -52,14 +58,38 @@ def _test_dataset(x_train, y_train, x_val, y_val) -> None:
     val_dataset = val_dataset.batch(BATCH_SIZE_VAL)
     pass
 
-def _holdout(x_train, y_train, x_val, y_val, conf_load_dict: dict, tokenizer: Tokenizer, logger: logging.Logger, message: str = 'Performing first phase (holdout)...') -> None:
-    print(f" [*] {message}")
+# =============================================================================================== #
+# Load Datasets - Functions                                                                       #
+# =============================================================================================== #
 
-    train_bins, val_bins = conf_load_dict['train_bins'], conf_load_dict['val_bins']
-    logger.info("Training on bins: {}, validation on {}".format(train_bins, val_bins))
+def _pipeline_load_data(conf_load_dict, main_logger) -> object:
 
-    vocabulary_len: int = len(tokenizer.index_word) + 1
-    pass
+    _log_info_message(f"----> Dataset Load.", main_logger)
+
+    data = load_dataset(conf_load_dict, main_logger=main_logger)
+
+    _log_info_message(f" [*] Dataset Load: Done.", main_logger, skip_message=True)
+
+    return data
+
+# =============================================================================================== #
+# Preprocess Datasets - Functions                                                                 #
+# =============================================================================================== #
+
+def _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger):
+
+   _log_info_message(f"----> Preprocess Data.", main_logger)
+
+   x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
+        preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
+
+   _log_info_message(f" [*] Preprocess Data: Done.", main_logger, skip_message=True)
+
+   return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer
+
+# =============================================================================================== #
+# Train Datasets - Functions                                                                      #
+# =============================================================================================== #
 
 def _get_callbacks_list(history_filename: str) -> list:
     callbacks_list: list = [
@@ -84,48 +114,94 @@ def _get_callbacks_list(history_filename: str) -> list:
     ]
     return callbacks_list
 
-def _pipeline_load_data(conf_load_dict, main_logger) -> object:
+def _holdout(x_train, y_train, x_val, y_val, conf_load_dict: dict, cmd_line_params, network_params: dict, meta_info_project_dict: dict, tokenizer: Tokenizer, logger: logging.Logger, message: str = 'Performing first phase (holdout)...') -> None:
+    
+    # Some logs recorded.
+    _log_info_message(f" [*] {message}", logger)
 
-    _log_info_message(f"----> Dataset Load.", main_logger)
+    train_bins, val_bins = conf_load_dict['train_bins'], conf_load_dict['val_bins']
+    _log_info_message("Training on bins: {}, validation on {}".format(train_bins, val_bins), logger)
 
-    data = load_dataset(conf_load_dict, main_logger=main_logger)
+    vocabulary_len: int = len(tokenizer.index_word) + 1
+    network_params['vocabulary_len'] = vocabulary_len
 
-    _log_info_message(f" [*] Dataset Load: Done.", main_logger, skip_message=True)
+    # Get Callbacks.
+    base_dir: str = meta_info_project_dict['base_dir']
+    history_filename: str = os.path.join(base_dir, 'history.csv')
+    callbacks_list = _get_callbacks_list(history_filename)
 
-    return data
+    # Get Model from ModelFactory Static class.
+    network_model_name: str = cmd_line_params.load_network
+    model = ModelFactory.getModelByName(network_model_name, network_params)
 
-def _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger):
+    # Build model.
+    _log_info_message(f"> build model (holdout).", logger)
+    model.build()
 
-   _log_info_message(f"----> Preprocess Data.", main_logger)
+    # Train model.
+    _log_info_message(f"> train model (holdout)...", logger)
+    model.fit(
+        x_train=x_train,
+        y_train=y_train,
+        callback_list=callbacks_list,
+        validation_data=(x_val, y_val))
+    _log_info_message(f"> train model (holdout): Done.", logger)
 
-   x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
-        preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
+    # Eval model.
+    _log_info_message(f"> eval model (holdout).", logger)
+    scores = model.model.evaluate(x_val, y_val)
+    _log_info_message("{}: {}".format(model.model.metrics_names[1], scores[1] * 100), logger)
 
-   _log_info_message(f" [*] Preprocess Data: Done.", main_logger, skip_message=True)
+    _log_info_message(f" [*] {message} Done.", logger)
+    pass
 
-   return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer
-
-def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params, tokenizer, main_logger):
+def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params, network_params, meta_info_project_dict, tokenizer, main_logger):
 
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
     if cmd_line_params.validation is True:
-        _holdout(x_train, y_train, x_val, y_val, conf_load_dict, tokenizer, main_logger)
+        _holdout(x_train,
+            y_train,
+            x_val,
+            y_val,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger)
 
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
 
     pass
 
-def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict, main_logger: logging.Logger = None) -> None:
+# =============================================================================================== #
+# Run pipeline on Datasets - Function                                                             #
+# =============================================================================================== #
 
-    # print(f"----> Dataset Load.")
+def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params, network_params: dict, meta_info_project_dict: dict, main_logger: logging.Logger = None) -> None:
+    """Run pipeline."""
+    
+    # Fetch Data.
     data = _pipeline_load_data(conf_load_dict, main_logger=main_logger)
 
-    # print(f"----> Preprocess Data.")
+    # Preprocessing Data.
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
 
+    # Print for debugging Data.
     _test_dataset(x_train, y_train, x_val, y_val)
 
-    _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params, tokenizer, main_logger)
+    # Train Data.
+    _pipeline_train(
+        x_train,
+        y_train,
+        x_val,
+        y_val,
+        conf_load_dict,
+        cmd_line_params,
+        network_params,
+        meta_info_project_dict,
+        tokenizer,
+        main_logger)
     pass
