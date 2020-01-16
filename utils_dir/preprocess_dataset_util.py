@@ -4,11 +4,36 @@ import numpy as np
 from pprint import pprint
 
 def _labels_text2num(labels_list: list) -> np.array:
+  """Function `_labels_text2num` takes a plain Python list as input,
+  and retrieves a `np.array` object, mapping the values within the list from characters to non-negative integers.
+
+  Params:
+  -------
+    :labels_list: non empty Python list.
+  Return:
+  -------
+    :np.array: a numpy iterable array of non-negative integers.
+  """
+
   char2int = lambda x: 0 if x == 'N' else 1
   mapped_labels: list = list(map(char2int, labels_list))
-  return np.array(mapped_labels)
+  return np.array(mapped_labels, dtype=np.int32)
 
 def _tokenize(data_samples, conf_tok_dict: dict) -> object:
+    """Function `_tokenize` receives as input parameters two objects, which
+    are an iterable made of data samples containing the biological sequences,
+    and a dictionary describing through which modes performing tokenization task.
+
+    Params:
+    -------
+      :data_samples: iterable object, containing biological sequences.
+      :conf_tok_dict: Python dict, with the options describing how to perform tokenization task.
+    Return:
+    -------
+      :tensor: result provided by tokenization task, if specified this result might be onehot-encoded too.
+      :data_tokenizer: `tf.keras.preprocessing.text.Tokenizer` object with the specification describing how tokenization task has been performed.
+    """
+
 
     padding: str = conf_tok_dict['padding']
     maxlen: int = conf_tok_dict['maxlen']
@@ -28,7 +53,19 @@ def _tokenize(data_samples, conf_tok_dict: dict) -> object:
 
     return tensor, data_tokenizer
 
-def preprocess_data(data, conf_tok_dict: dict) -> object:
+def preprocess_data(data: dict, conf_tok_dict: dict) -> object:
+  """Function `preprocess_data` takes as inputs two parameters which are two Python dictionary,
+  which are the former a dictionary of samples and labels for train, val, and test sets, while the latter a dictionary
+  with the specification describing how to carry out the preprocessing step.
+
+  Params:
+  -------
+    :data: a Python dictionary within which there are as keys the train, val and test set of features samples, and as values the related iterable objects,
+    for which there are also the corresponding train, val, test labels iterable objects referring to the related keys.
+    :conf_tok_dict: a Python dictionary containing the specification that describes how to perform preprocessing phase
+  Return:
+    x_train, y_train, x_val, y_val, x_test, y_test
+  """
   
   print(f" [*] Preprocessing data...")
   # pprint(conf_tok_dict)

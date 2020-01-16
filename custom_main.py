@@ -5,7 +5,7 @@ from utils_dir.preprocess_dataset_util import preprocess_data
 def main(conf_load_dict: dict, conf_preprocess_dict: dict):
 
     BATCH_SIZE = 64
-    BUFFER_SIZE = 1000
+    BUFFER_SIZE = 100
     embedding_dim = 256
 
     print(f"----> Dataset Load.")
@@ -40,7 +40,33 @@ if __name__ == "__main__":
         'maxlen': 14000,
         'onehot_flag': False,
     }
-    
+
+    dict_images: dict = {
+        'loss': {
+            'title': 'Training With Validation Loss',
+            'fig_name': 'train_val_loss',
+            'fig_format': 'png',
+            'savefig_flag': True
+        },
+        'acc': {
+            'title': 'Training With Validation Accuracy',
+            'fig_name': 'train_val_acc',
+            'fig_format': 'png',
+            'savefig_flag': True
+        },
+        'roc_curve': {
+            'title': 'Roc Curve',
+            'fig_name': 'roc_curve',
+            'fig_format': 'png',
+            'savefig_flag': True
+        },
+        'confusion_matrix': {
+            'title': 'Confusion Matrix',
+            'fig_name': 'confusion_matrix',
+            'fig_format': 'png',
+            'savefig_flag': True
+        }
+    }
     main(conf_load_dict, conf_preprocess_dict)
     pass
 
