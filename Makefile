@@ -3,6 +3,10 @@ SCRIPT_INTERPETER = python3
 SCRIPT_2_TEST = test_feature.py
 TESTS_DIR = tests
 
+SCRIPT_ANALYSIS = main.py
+NETWORK_NAME = EmbeddingLstm
+ARGS_ANALYSIS = --validation --load_network $(NETWORK_NAME)
+
 # ---------------------------- #
 # Test Seutp Project's subidrs #
 # ---------------------------- #
@@ -20,6 +24,10 @@ ARGS_TEST_FETCH_ANDPREPROCESS = --validation --train
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
 ARGS_TEST_FETCH_ANDPREPROCESS = --validation --load_network EmbeddingLstm
+
+run_analysis:
+	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
+	$(SCRIPT_INTERPETER) $(SCRIPT_ANALYSIS) $(ARGS_ANALYSIS)
 
 test_setup_environment_for_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_ENVIRONMENT_SETUP) $(SCRIPT_2_TEST)
