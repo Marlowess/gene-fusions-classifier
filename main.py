@@ -51,9 +51,10 @@ def main():
     parser.add_argument('--lr', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--sequence_type', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
+    parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     params = parser.parse_args()
     
-    parameters_path  = './parameters.json'
+    parameters_path = './parameters.json' if params.network_parameters is None else params.network_parameters
     model_params = load_parameters(parameters_path)
     model_params['pretrained_model'] = params.pretrained_model    
     
@@ -159,6 +160,7 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
     
     # model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
     plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
+    
     # scores returns two element: pos0 loss and pos1 accuracy
     scores = model.model.evaluate(X_val, y_val)
     logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))

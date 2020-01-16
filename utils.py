@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 import math, os
 
 import json
+import yaml
+
+import math
+import os
+import matplotlib.pyplot as plt
 
 class BioSequence(Sequence):
 
@@ -61,7 +66,7 @@ def preprocess_data(X, y, tokenizer, maxlen, hot_encoded=False, num_classes=None
     """
    X = tokenizer.texts_to_sequences(X)
    X = tf.keras.preprocessing.sequence.pad_sequences(X, maxlen=maxlen, padding='post')
-   if(hot_encoded):
+   if hot_encoded is True:
     X = to_categorical(X, num_classes=21)
    y = label_text_to_num(y)
 
@@ -104,4 +109,9 @@ def load_parameters(file_path="parameters.json"):
     """
 
     with open(file_path, "r") as fp:
-        return json.load(fp)
+        if file_path.endswith('json'):
+            return json.load(fp)
+        elif file_path.endswith('yaml'):
+            return yaml.load(fp)
+        else:
+            raise ValueError('config file format is not allowed')
