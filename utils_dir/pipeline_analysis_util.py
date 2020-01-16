@@ -20,6 +20,27 @@ from ModelFactory import ModelFactory
 # Utils Functions                                                                                 #
 # =============================================================================================== #
 
+def gen(X, y, batch_size=32, shuffle=True, verbose=0, seed=0):
+    """
+    Convert dataset in generator for training model a specific number of step 
+    :param data: class Dataset with loaded training bins
+    """
+
+    N = X.shape[0]
+    idxs = np.arange(N)
+    while(True):
+        if shuffle:
+            if (seed is not None):
+                np.random.seed(seed)
+            np.random.shuffle(idxs)
+            X = X[idxs]
+            y = y[idxs]
+        for i in range(0, N, batch_size):
+            yield (X[i:i+batch_size], y[i:i+batch_size])
+        
+        if (verbose != 0):
+            print("epoch finished")
+
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
     Params:
