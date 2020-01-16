@@ -31,10 +31,16 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
     else:
-        network_params_path = 'parameters.json'
+        raise Exception('[ERROR] Please define a valid parameters\' filename')
+        # network_params_path = 'parameters.json'
 
     network_params = get_network_params(network_params_path)
-    network_params['pretrained_model'] = cmd_line_params.pretrained_model
+
+    # It it exists, weights of a pre-trained model are loaded
+    network_params['pretrained_model'] = cmd_line_params.pretrained_model 
+    
+    # It defines the maximum lenghts of the samples
+    conf_preprocess_dict['maxlen'] = network_params['maxlen']
     
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
@@ -98,6 +104,8 @@ if __name__ == "__main__":
     }
 
     cmd_line_params, _ = get_parsed_params()
+    conf_load_dict['sequence_type'] = cmd_line_params.sequence_type
+    conf_preprocess_dict['onehot_flag'] = cmd_line_params.onehot_flag    
 
     main(conf_load_dict, conf_preprocess_dict, cmd_line_params)
     pass
