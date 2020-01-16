@@ -136,7 +136,8 @@ def _holdout(x_train, y_train, x_val, y_val, conf_load_dict: dict, cmd_line_para
 
     # Build model.
     _log_info_message(f"> build model (holdout).", logger)
-    model.build()
+    summary_model: str = model.build()
+    _log_info_message(f"\n{summary_model}", logger)
     model.plot_model()
 
     # Train model.
@@ -162,7 +163,8 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
     if cmd_line_params.validation is True:
-        _holdout(x_train,
+        _holdout(
+            x_train,
             y_train,
             x_val,
             y_val,

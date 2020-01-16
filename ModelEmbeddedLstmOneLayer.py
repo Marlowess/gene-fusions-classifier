@@ -99,8 +99,8 @@ class ModelEmbeddedLstmOneLayer():
             metrics=metrics)
         
         
-        print(" [!] Display model summary")   
-        print(model.summary())
+        # print(" [!] Display model summary")   
+        # print(model.summary())
 
         self.model = model
         summary_model_str: str = model.summary()
@@ -123,8 +123,13 @@ class ModelEmbeddedLstmOneLayer():
         return optimizer
     
     def fit(self, x_train, y_train, epochs: int = 50, callback_list: list = None, validation_data = None, shuffle: bool = True) -> object:
-        history = self.model.fit(x=x_train, y=y_train, epochs=epochs, shuffle=shuffle,
-            callbacks=callback_list, validation_data=validation_data)
+        history = self.model.fit(
+            x=x_train,
+            y=y_train,
+            epochs=epochs,
+            shuffle=shuffle,
+            callbacks=callback_list,
+            validation_data=validation_data)
         return history
     
     def evaluate(self, X_test, y_test) -> object:
