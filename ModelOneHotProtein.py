@@ -21,7 +21,7 @@ class ModelOneHotProtein():
         self.model = keras.Sequential(name="Unidirection-LSTM-Proteins-One_hot")
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))        
-        self.model.add(keras.layers.CuDNNLSTM(units=32, return_sequences = False,
+        self.model.add(keras.layers.LSTM(units=32, return_sequences = False,
                                     kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01)
                                     kernel_initializer=weight_init                                                                                                          
                                     ))

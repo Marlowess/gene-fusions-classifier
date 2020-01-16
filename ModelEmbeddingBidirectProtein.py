@@ -173,10 +173,10 @@ class ModelEmbeddingBidirectProtein():
             ),
             keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
             keras.callbacks.ReduceLROnPlateau(
-                patience=8,
+                patience=10,
                 monitor='val_loss',
                 factor=0.75,
                 verbose=1,
                 min_lr=5e-6)
-    ]
-    return callbacks_list
+        ]
+        return callbacks_list
