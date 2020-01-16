@@ -25,9 +25,20 @@ ARGS_TEST_FETCH_ANDPREPROCESS = --validation --train
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
 ARGS_TEST_FETCH_ANDPREPROCESS = --validation --load_network EmbeddingLstm
 
+# ---------------------------- ---------------------#
+# Test Analys model embeddign bidirectional protein #
+# ------------------------------------------------- #
+PROGRAM_ENTRY_POINT_M1 = run_analysis.py
+ARGS_VALIDATION_M1 = --validation --load_network ModelEmbeddingBidirectProtein --sequence_type protein --lr 5e-4 
+ARGS_VALIDATION_TRAIN_M1 = 
+ARGS_VALIDATION_TEST_M1 = 
+
 run_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
 	$(SCRIPT_INTERPETER) $(SCRIPT_ANALYSIS) $(ARGS_ANALYSIS)
+
+run_validation_on_model_embedding_bidirectional_protein:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M1) $(ARGS_VALIDATION_M1)
 
 test_setup_environment_for_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_ENVIRONMENT_SETUP) $(SCRIPT_2_TEST)

@@ -80,7 +80,7 @@ def _holdout(
 
     # Build model.
     _log_info_message(f"> build model (holdout).", logger)
-    summary_model: str = model.build()
+    summary_model: str = model.build(logger)
     _log_info_message(f"\n{summary_model}", logger)
     model.plot_model()
 
@@ -88,10 +88,12 @@ def _holdout(
     _log_info_message(f"> train model (holdout)...", logger)
 
     model.fit(
-        x_train=x_train,
-        y_train=y_train,
-        callback_list=callbacks_list,
-        validation_data=(x_val, y_val))
+        X_tr=x_train,
+        y_tr=y_train,
+        epochs=cmd_line_params.num_epochs,
+        callbacks_list=callbacks_list,
+        validation_data=(x_val, y_val)
+        )
     _log_info_message(f"> train model (holdout): Done.", logger)
 
     # Eval model.

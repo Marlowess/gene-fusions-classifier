@@ -48,7 +48,7 @@ class ModelEmbeddingBidirectProtein():
         value_embeddings = tf.keras.layers.Activation('tanh')(embed)
 
         # Section A : embedding --> LSTM_1 --> LSTM_2
-        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM((int)(params['embedding_size']/2), return_sequences=True,
+        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
@@ -58,7 +58,7 @@ class ModelEmbeddingBidirectProtein():
         dropout_lstm_1 = tf.keras.layers.Dropout(params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
 
         # Second LSTM layer
-        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM((int)(params['embedding_size']/2), return_sequences=True,
+        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
@@ -90,7 +90,7 @@ class ModelEmbeddingBidirectProtein():
             self.model.load_weights(params['pretrained_model'])
     
 
-    def build(self):
+    def build(self, logger=None):
         """
         It compiles the model by defining optimizer, loss and learning rate
         """
@@ -98,16 +98,19 @@ class ModelEmbeddingBidirectProtein():
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy', f1_m, precision_m, recall_m])
-        self.model.summary()
-        
-    def fit(self, X_tr, y_tr, epochs, callback_list, validation_data, shuffle=True):
+        if (logger is not None):
+            self.model.summary(print_fn=lambda x: logger.info(x))
+        else:
+            self.model.summary()
+            
+    def fit(self, X_tr, y_tr, epochs, callbacks_list, validation_data, shuffle=True):
         """
         Fit the model with the provided data and returns the results
         Inputs:
         - X_tr: samples
         - y_tr: labels related to the samples
         - epochs: number of epochs before stopping the training
-        - callback_list
+        - callbacks_list
         - validation_data: data the model is validated on each time a epoch is completed
         - shuffle: if the dataset has to be shuffled before being fed into the network
 
@@ -115,7 +118,7 @@ class ModelEmbeddingBidirectProtein():
         - history: it contains the results of the training
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
-                    callbacks=callback_list, validation_data=validation_data)
+                    callbacks=callbacks_list, validation_data=validation_data)
         return history
     
     def evaluate(self, features, labels):
@@ -142,3 +145,6 @@ class ModelEmbeddingBidirectProtein():
 
     def fit_generator(self):
         pass    
+    
+    def plot_model(self,) -> None:
+        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)

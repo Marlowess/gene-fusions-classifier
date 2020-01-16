@@ -81,7 +81,7 @@ def main():
         tokenizer.fit_on_texts(data.X_tr)
         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
                       lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
-                      dropout_rate=params.dropout_rate, recurrent_dropout_rate=params.recurrent_dropout_rate,
+                      dropout_rate=params.dropout_rate, recurrent_dropout_rate=paams.recurrent_dropout_rate,
                       seed=42)
         test_data = preprocess_validation_data(data.X_test, data.y_test, tokenizer) 
         model, history = train(model, data, tokenizer, test_data, params.epochs, results_dir)
