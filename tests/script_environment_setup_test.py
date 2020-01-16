@@ -1,24 +1,27 @@
+import datetime
+import logging
+import os
+import sys
+import time
+
 import tensorflow as tf
+
 from utils_dir.load_dataset_util import load_dataset
-from utils_dir.preprocess_dataset_util import preprocess_data
+from utils_dir.parse_args_util import get_parsed_params
+from utils_dir.setup_analysis_environment_util import setup_analysis_environment
 
-def main(conf_load_dict: dict, conf_preprocess_dict: dict):
 
-    BATCH_SIZE = 64
+def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict):
+
+    base_dir: str = 'bioinfo_project'
+
+    BATCH_SIZE_TRAIN = 64
+    BATCH_SIZE_VAL = 64
     BUFFER_SIZE = 100
     embedding_dim = 256
 
-    print(f"----> Dataset Load.")
-    data = load_dataset(conf_load_dict)
-
-    print(f"----> Preprocess Data.")
-    x_train, y_train, x_val, y_val, x_test, y_test = \
-        preprocess_data(data, conf_preprocess_dict)
-
-    dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-
-    # Shuffle and batch
-    dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
+    print(f"----> Set up analysis environment.")
+    logger = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
 
     pass
 
@@ -67,5 +70,7 @@ if __name__ == "__main__":
             'savefig_flag': True
         }
     }
-    main(conf_load_dict, conf_preprocess_dict)
+
+    cmd_line_params, _ = get_parsed_params()
+    main(conf_load_dict, conf_preprocess_dict, cmd_line_params)
     pass
