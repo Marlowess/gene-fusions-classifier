@@ -1,7 +1,17 @@
 import tensorflow as tf
 
+import logging
+
 import numpy as np
 from pprint import pprint
+
+def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
+    if logger is None:
+        if skip_message is True: return
+        print(message)
+    else:
+        logger.info(message)
+    pass
 
 def _labels_text2num(labels_list: list) -> np.array:
   """Function `_labels_text2num` takes a plain Python list as input,
@@ -19,7 +29,7 @@ def _labels_text2num(labels_list: list) -> np.array:
   mapped_labels: list = list(map(char2int, labels_list))
   return np.array(mapped_labels, dtype=np.int32)
 
-def _tokenize(data_samples, conf_tok_dict: dict) -> object:
+def _tokenize(data_samples, conf_tok_dict: dict, data_tokenizer = None) -> object:
     """Function `_tokenize` receives as input parameters two objects, which
     are an iterable made of data samples containing the biological sequences,
     and a dictionary describing through which modes performing tokenization task.
@@ -38,10 +48,9 @@ def _tokenize(data_samples, conf_tok_dict: dict) -> object:
     padding: str = conf_tok_dict['padding']
     maxlen: int = conf_tok_dict['maxlen']
     onehot_flag: bool = conf_tok_dict['onehot_flag']
-
-    data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True)
-    
-    data_tokenizer.fit_on_texts(data_samples)
+    if data_tokenizer is None:
+      data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True)
+      data_tokenizer.fit_on_texts(data_samples)
     
     tensor = data_tokenizer.texts_to_sequences(data_samples)
     
@@ -53,7 +62,7 @@ def _tokenize(data_samples, conf_tok_dict: dict) -> object:
 
     return tensor, data_tokenizer
 
-def preprocess_data(data: dict, conf_tok_dict: dict) -> object:
+def preprocess_data(data: dict, conf_tok_dict: dict, main_logger: logging.Logger) -> object:
   """Function `preprocess_data` takes as inputs two parameters which are two Python dictionary,
   which are the former a dictionary of samples and labels for train, val, and test sets, while the latter a dictionary
   with the specification describing how to carry out the preprocessing step.
@@ -67,16 +76,16 @@ def preprocess_data(data: dict, conf_tok_dict: dict) -> object:
     x_train, y_train, x_val, y_val, x_test, y_test
   """
   
-  print(f" [*] Preprocessing data...")
+  _log_info_message(f" [*] Preprocessing data...", main_logger)
   # pprint(conf_tok_dict)
   
-  x_train, _ = _tokenize(data['x_train'], conf_tok_dict)
+  x_train, tokenizer = _tokenize(data['x_train'], conf_tok_dict)
   y_train = _labels_text2num(data['y_train'])
 
-  x_val, _ = _tokenize(data['x_val'], conf_tok_dict)
+  x_val, _ = _tokenize(data['x_val'], conf_tok_dict, tokenizer)
   y_val = _labels_text2num(data['y_val'])
 
-  x_test, _ = _tokenize(data['x_test'], conf_tok_dict)
+  x_test, _ = _tokenize(data['x_test'], conf_tok_dict, tokenizer)
   y_test = _labels_text2num(data['y_test'])
   
-  return x_train, y_train, x_val, y_val, x_test, y_test
+  return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer

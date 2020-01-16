@@ -3,10 +3,27 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 
 import os
+import logging
+
 import numpy as np
 import pandas as pd
 
-def load_dataset(conf_load_dict: dict) -> dict:
+def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
+    """
+    Params:
+    -------
+        :message: str,
+        :logger: logging.Logger,
+        :skip_message: bool, default = False
+    """
+    if logger is None:
+        if skip_message is True: return
+        print(message)
+    else:
+        logger.info(message)
+    pass
+
+def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None) -> dict:
     """Function `load_dataset` takes as input parameters a single argument which is just a Python dictionary,
     that is involved into describig how to load or fetch the requested data samples, for performing some kind of
     analysis, later.
@@ -33,21 +50,24 @@ def load_dataset(conf_load_dict: dict) -> dict:
         sequence_type=sequence_type,
         bins_list=train_bins_list,
         names=columns_names,
-        message='Loading Training Bins...')
+        message='Loading Training Bins...',
+        logger=main_logger)
     
     x_val, y_val = _prepared_data(
         path=path,
         sequence_type=sequence_type,
         bins_list=val_bins_list,
         names=columns_names,
-        message='Loading Validation Bins...')
+        message='Loading Validation Bins...',
+        logger=main_logger)
     
     x_test, y_test = _prepared_data(
         path=path,
         sequence_type=sequence_type,
         bins_list=test_bins_list,
         names=columns_names,
-        message='Loading Test Bins...')
+        message='Loading Test Bins...',
+        logger=main_logger)
 
     return {
         'x_train': x_train,
@@ -58,7 +78,7 @@ def load_dataset(conf_load_dict: dict) -> dict:
         'y_test': y_test
     }
 
-def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, message: str) -> object:
+def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, message: str, logger = None) -> object:
     """Functon `_prepared_data` takes as input up tp 5 parametes, which are a path corresponding to the dataset location,
     an argument referring to the kind of biological sequence we are looking for, a list of bins to combine into a single
     pandas dataframe and then extract the pair (sequences, label) necessary for our later analysis, a list of names for referring
@@ -76,15 +96,15 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
         :sequences, labels: pairs of biological sequences, either dna or protein, with their corresponding encoded label, either 0 for not-cancer and 1 for cancer.
     """
 
-    print(f" [*] {message}")
-    df = _get_full_dataframe(path, bins_list, names)
+    _log_info_message(f" [*] {message}", logger)
+    df = _get_full_dataframe(path, bins_list, names, logger)
     sequence_column = 'Sequences' if sequence_type == 'dna' else 'Translated_sequences'
     
     sequences = df[sequence_column].values
     labels = df['Label'].values
     return sequences, labels
 
-def _get_full_dataframe(path: str, bins_list: list, names: list) -> object:
+def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging.Logger = None) -> object:
     """Function `_get_full_dataframe` taking as input parameters a Python str that is the path argument
     which refers to the dataset location used for performing some kind of analysis later, a list of bins to load or fetch and
     then stack or combine into a single pandas df, and finally a list of columns names for both data samples' features and labels.
@@ -105,5 +125,6 @@ def _get_full_dataframe(path: str, bins_list: list, names: list) -> object:
         tmp_df = pd.read_csv(bin_path, skiprows=1, names=names)
         df_list.append(tmp_df)
         print(f" Done.")
+        _log_info_message(f" > Added bin: {bin_path}, Done.", logger, skip_message=True)
     result_df = pd.concat(df_list)
     return result_df
