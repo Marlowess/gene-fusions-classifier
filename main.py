@@ -1,7 +1,6 @@
 import tensorflow as tf
 import datetime, os
 from sklearn.metrics import confusion_matrix, classification_report
-# import keras
 from tensorflow.keras import backend as K
 from tensorflow import keras
 import pandas as pd
@@ -10,12 +9,9 @@ import logging
 import matplotlib
 import math
 import argparse
-# import threading
 from ModelFactory import ModelFactory
-# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
 from collections import Counter
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from model import Model
 import matplotlib.pyplot as plt
 from dataset import Dataset
 from utils import *
@@ -52,16 +48,15 @@ def main():
     parser.add_argument('--test', default=False, help='Test saved model, in the specified subdir, on test bin', action='store_true')
     parser.add_argument('--batch_size', default=10, help='Number of sample for each training step',type=int)
     parser.add_argument('--num_epochs', default=50, help='Number of epochs before halting the training',type=int)
-    parser.add_argument('--learning_rate', default=1e-3, help='Learning rate coefficient',type=float)
+    parser.add_argument('--lr', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--sequence_type', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
+    parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
     parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     params = parser.parse_args()
     
     parameters_path = './parameters.json' if params.network_parameters is None else params.network_parameters
     model_params = load_parameters(parameters_path)
-    
-    # for key, value in json_params.items():
-    #     setattr(params, key, value)
+    model_params['pretrained_model'] = params.pretrained_model    
     
     results_dir = os.path.join(base_dir, params.subdir)
     if not os.path.exists(results_dir):
@@ -122,44 +117,6 @@ def train(model, data, tokenizer, validation_data, epochs, results_dir):
     history = model.model.fit_generator(bS, epochs=epochs, shuffle=True, validation_data=validation_data)
     return model, history
 
-# def cross_validate(results_dir, params):
-#     """
-#     Perform k-cross validation on the training bins and validate on the validation one
-#     :param results_dir: directory where to save model log and loss plot
-#     :params: command line and json parameters
-#     """
-#     num_bins = 5
-#     test_bin = 5
-#     bins = [x for x in range(1, num_bins+1) if x != test_bin]
-#     logger.info('{} bins Cross-Validation'.format(num_bins))
-#     cv_accuracy = []
-#     for i in bins:
-#         train_bins = [x for x in bins if x != i]
-#         val_bins = [i]
-#         logger.info("Training on bins: {}, validation on {}".format(train_bins, val_bins))
-#         # todo select bin by correct instance indexes instead of reading again from file
-#         # and re doing preprocessing
-#         data = Dataset(params.batch_size, shuffle=True, train_bins=train_bins, validation_bins=val_bins, seed=0)
-#         tokenizer = tf.keras.preprocessing.text.Tokenizer(lower=True, filters='')
-#         tokenizer.fit_on_texts(data.X_tr)
-#         # logger.info("Dictionary: {}".format(tokenizer.index_word))
-#         logger.info("Dictionary len: {}".format(len(tokenizer.index_word)))
-#         validation_data = preprocess_validation_data(data.X_val, data.y_val, tokenizer)
-#         model = Model(len(tokenizer.index_word)+1, results_dir, hidden_size=params.embedding_size,
-#                       lstm_units=params.lstm_units, lr=params.lr, loss='binary_crossentropy',
-#                       dropout_rate=params.dropout_rate, recurrent_dropout_rate=params.recurrent_dropout_rate,
-#                       seed=42)
-#         model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
-#         plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
-#         # scores returns two element: pos0 loss and pos1 accuracy
-#         scores = model.model.evaluate(validation_data[0], validation_data[1])
-#         logger.info("Fold {}".format(i))
-#         logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
-#         cv_accuracy.append(scores[1] * 100)
-
-#     logger.info("Mean accuracy: {0:.3f} (+/- {1:.3f})".format(round(np.mean(cv_accuracy), 3),
-#                                                               round(np.std(cv_accuracy),3)))
-
 def holdout(results_dir, params, model_params, history_filename='history.csv'):
     train_bins = [1, 2, 3]
     val_bins = [4]
@@ -177,9 +134,7 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
     X_val, y_val = preprocess_data(data.X_val, data.y_val, tokenizer,
                                 model_params['maxlen'], False, len(tokenizer.index_word))
     model_params['vocabulary_len'] = len(tokenizer.index_word) + 1
-    # model = ModelFactory.getOneHotEncodedLstm(model_params)
-
-    model = ModelFactory.getEmbeddingLstm(model_params)
+    model = ModelFactory.getEmbeddingBiLstmAttentionProtein(model_params)
     callbacks_list = [
                     keras.callbacks.EarlyStopping(
                         monitor='val_loss',
@@ -190,28 +145,25 @@ def holdout(results_dir, params, model_params, history_filename='history.csv'):
                         filepath='my_model.h5',
                         monitor='val_loss',
                         save_best_only=True,
-                        verbose=1
+                        verbose=0
                     ),
                     keras.callbacks.CSVLogger(history_filename),
                     keras.callbacks.ReduceLROnPlateau(
-                        patience=3,
+                        patience=5,
                         monitor='val_loss',
-                        factor=0.5,
+                        factor=0.75,
                         verbose=1,
-                        min_lr=1e-6)
+                        min_lr=5e-6)
     ]
-    model.build()
-    history = model.fit(X_tr, y_tr, 50, callbacks_list, (X_val, y_val)) 
+    model.build()     
+    history = model.fit(X_tr, y_tr, params.num_epochs, callbacks_list, (X_val, y_val)) 
     
     # model, history = train(model, data, tokenizer, validation_data, params.epochs, results_dir)
     plot_history(results_dir, history, 'loss_train ' + str(train_bins) + 'val ' + str(val_bins) + '.png')
     
     # scores returns two element: pos0 loss and pos1 accuracy
-    scores = model.evaluate(X_val, y_val)
-    metrics_names = model.get_metrics_names()
-    logger.info("{}: {}".format(metrics_names[0], scores[0] * 100))
-    logger.info("{}: {}".format(metrics_names[1], scores[1] * 100))
-    pass
+    scores = model.model.evaluate(X_val, y_val)
+    logger.info("{}: {}".format(model.model.metrics_names[1], scores[1] * 100))
 
 if __name__ == "__main__":
     main()

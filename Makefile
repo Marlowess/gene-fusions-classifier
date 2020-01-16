@@ -3,7 +3,7 @@ SCRIPT_INTERPETER = python3
 SCRIPT_2_TEST = test_feature.py
 TESTS_DIR = tests
 
-SCRIPT_ANALYSIS = main.py
+SCRIPT_ANALYSIS = main_2.py
 NETWORK_NAME = EmbeddingLstm
 ARGS_ANALYSIS = --validation --load_network $(NETWORK_NAME)
 
