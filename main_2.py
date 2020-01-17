@@ -26,7 +26,7 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
 
     base_dir: str = 'bioinfo_project'
 
-    # pprint(cmd_line_params)
+    pprint(cmd_line_params)
 
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
@@ -39,6 +39,8 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
     pprint(cmd_line_params)
+
+    cmd_line_params.base_di = base_dir
 
     run_pipeline(
         conf_load_dict=conf_load_dict,
@@ -54,7 +56,7 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
 if __name__ == "__main__":
 
     conf_load_dict: dict = {
-        'sequence_type': 'protein',
+        'sequence_type': 'dna',
         'path': './bins_translated',
         'columns_names': [
             'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
@@ -66,9 +68,8 @@ if __name__ == "__main__":
 
     conf_preprocess_dict: dict = {
         'padding': 'post',
-        'maxlen': 3219,
-        'onehot_flag': True,
-        'num_classes': 21
+        'maxlen': 14000,
+        'onehot_flag': False,
     }
 
     dict_images: dict = {

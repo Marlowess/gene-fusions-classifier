@@ -17,7 +17,7 @@ from utils_dir.setup_analysis_environment_util import setup_analysis_environment
 from utils_dir.preprocess_dataset_util import preprocess_data
 
 from utils_dir.train_util import _holdout
-from utils_dir.train_util import _train
+from utils_dir.train_util import _train, _test
 
 from ModelFactory import ModelFactory
 
@@ -26,27 +26,6 @@ import numpy as np
 # =============================================================================================== #
 # Utils Functions                                                                                 #
 # =============================================================================================== #
-
-def gen(X, y, batch_size=32, shuffle=True, verbose=0, seed=0):
-    """
-    Convert dataset in generator for training model a specific number of step 
-    :param data: class Dataset with loaded training bins
-    """
-
-    N = X.shape[0]
-    idxs = np.arange(N)
-    while(True):
-        if shuffle:
-            if (seed is not None):
-                np.random.seed(seed)
-            np.random.shuffle(idxs)
-            X = X[idxs]
-            y = y[idxs]
-        for i in range(0, N, batch_size):
-            yield (X[i:i+batch_size], y[i:i+batch_size])
-        
-        if (verbose != 0):
-            print("epoch finished")
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
@@ -123,7 +102,7 @@ def _get_callbacks_list(history_filename: str) -> list:
     callbacks_list: list = [
                     keras.callbacks.EarlyStopping(
                         monitor='val_loss',
-                        patience=10,
+                        patience=2,
                         restore_best_weights=True
                     ),
                     keras.callbacks.ModelCheckpoint(
@@ -144,12 +123,14 @@ def _get_callbacks_list(history_filename: str) -> list:
 
 
 
-def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params, network_params, meta_info_project_dict, tokenizer, main_logger):
+def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params,
+                    network_params, meta_info_project_dict, tokenizer, main_logger):
 
+    model = None
     _log_info_message(f"----> Perform Analysis...", main_logger)
-
+    
     if cmd_line_params.validation is True:
-        _holdout(
+        model, epochs_trained = _holdout(
             x_train,
             y_train,
             x_val,
@@ -160,11 +141,52 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             meta_info_project_dict,
             tokenizer,
             main_logger)
-
+        
+        # calculate number of steps for early stopping in training
+        steps = epochs_trained * np.ceil(x_train.shape[0] / network_params['batch_size'])
+        _log_info_message("trained for {} steps".format(steps), main_logger) 
+    if cmd_line_params.train is True:
+        # we take steps from early stopping the holdout validation otherwise must be specified from command line 
+        if ('steps' not in locals()):
+            steps = cmd_line_params.steps 
+       
+        model = _train(
+            x_train,
+            y_train,
+            steps,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger
+        )
+    
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
+    
+    return model
 
-    pass
-
+def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
+                   network_params, meta_info_project_dict, main_logger):
+    
+    if cmd_line_params.test is True:
+        if ('model' not in locals()):
+            if (cmd_line_params.pretrained_model is None):
+                raise ValueError("In order to perform test a pretrained model " \
+                                "must be specified")
+            # Todo check whether the model actually exists
+            model = ModelFactory.getModelByName(cmd_line_params.load_network, network_params)
+        
+        _test(
+            model,
+            x_test,
+            y_test,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            main_logger,
+        )
 # =============================================================================================== #
 # Run pipeline on Datasets - Function                                                             #
 # =============================================================================================== #
@@ -188,7 +210,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # _test_dataset(x_train, y_train, x_val, y_val)
 
     # Train Data.
-    _pipeline_train(
+    model = _pipeline_train(
         x_train,
         y_train,
         x_val,
@@ -199,4 +221,15 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
         meta_info_project_dict,
         tokenizer,
         main_logger)
+    
+    _pipeline_test(
+        model,
+        x_test,
+        y_test,
+        conf_load_dict,
+        cmd_line_params,
+        network_params,
+        meta_info_project_dict,
+        main_logger
+    )
     pass

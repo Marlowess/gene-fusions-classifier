@@ -19,6 +19,7 @@ def _get_custom_parser(subdir: str) -> object:
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
     parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     parser.add_argument('--load_network', default=None, help='File with neural network parameters, either json or yaml format', type=str)
+    parser.add_argument('--steps', default=None, help='Number of steps of training', type=int)
     params = parser.parse_args()
 
     return params, parser
