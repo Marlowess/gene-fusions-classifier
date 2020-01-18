@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.layers import Masking
-from metrics import f1_m, precision_m, recall_m
+from models.metrics import f1_m, precision_m, recall_m
 
 class ModelOneHotProtein():
     """

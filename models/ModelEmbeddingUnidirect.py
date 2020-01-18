@@ -36,7 +36,7 @@ class ModelEmbeddingUnidirect():
             unit_forget_bias=True,
             kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
             bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
-            kernel_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']))
+            kernel_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
             name=f'lstm_1_units{lstm_units}'))  
 
         # Dropout after the lstm layer
@@ -48,7 +48,7 @@ class ModelEmbeddingUnidirect():
             activation='sigmoid',
             kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[3]),
             bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[4]),
-            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']))
+            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']),
             name=f'dense_1_activation_sigmoid'))
 
     def build(self,) -> str:

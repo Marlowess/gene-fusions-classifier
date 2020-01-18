@@ -6,32 +6,32 @@ SCRIPT_2_TEST = test_feature.py
 TESTS_DIR = tests
 
 SCRIPT_ANALYSIS = main_2.py
-NETWORK_NAME = EmbeddingLstm
+NETWORK_NAME = ModelEmbeddingBidirect
 ARGS_ANALYSIS = --validation --load_network $(NETWORK_NAME)
 
 # ---------------------------- #
 # Test Seutp Project's subidrs #
 # ---------------------------- #
 SCRIPT_TEST_ENVIRONMENT_SETUP = script_environment_setup_test.py
-ARGS_TEST_ENVIRONMENT_SETUP = --validation --train --network_parameters parameters.json
+ARGS_TEST_ENVIRONMENT_SETUP = --validation --train --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect
 
 # ---------------------------- #
 # Test Load Project's data     #
 # ---------------------------- #
 SCRIPT_TEST_FETCH_AND_PRE_PROCESS = script_fetch_and_preprocess_test.py
-ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters parameters.json
+ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect
 
 # ---------------------------- #
 # Test Pipeline for Analyses   #
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
-ARGS_TEST_PIPELINE = --validation --load_network EmbeddingLstm
+ARGS_TEST_PIPELINE = --validation --network_parameters models/ModelEmbeddingUnidirect.json --load_network ModelEmbeddingUnidirect --sequence_type protein
 
 # ---------------------------- ---------------------#
 # Test Analys model embeddign bidirectional protein #
 # ------------------------------------------------- #
 PROGRAM_ENTRY_POINT_M1 = run_analysis.py
-ARGS_VALIDATION_M1 = --validation --load_network ModelEmbeddingBidirectProtein --sequence_type protein --lr 5e-4 
+ARGS_VALIDATION_M1 = --validation --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect --sequence_type protein --lr 5e-4 
 ARGS_VALIDATION_TRAIN_M1 = 
 ARGS_VALIDATION_TEST_M1 = 
 

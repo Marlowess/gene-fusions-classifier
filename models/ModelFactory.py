@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 # from ModelOneHotAmminoacid import ModelOneHotAmminoacid
-from ModelEmbeddedLstmOneLayer import ModelEmbeddedLstmOneLayer
-from ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
-from ModelOneHotProtein import ModelOneHotProtein
+from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
+from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
+from models.ModelOneHotProtein import ModelOneHotProtein
 
 class ModelFactory():
    
@@ -20,7 +20,7 @@ class ModelFactory():
       if model_name == 'EmbeddingLstm':
          return ModelFactory.getEmbeddingLstm(params)
       
-      if model_name == "ModelEmbeddingBidirectProtein":
+      if model_name == "ModelEmbeddingBidirect":
          return ModelFactory.getModelEmbeddingBidirectProtein(params)
       raise ValueError(f'ERROR: {model_name} is not allowed!')
    
@@ -30,7 +30,7 @@ class ModelFactory():
    
    @staticmethod
    def getModelEmbeddingBidirectProtein(params: dict):
-      return ModelEmbeddingBidirectProtein(params)
+      return ModelEmbeddingBidirect(params)
    
    @staticmethod
    def getEmbeddingBiLstmAttentionDna(params: dict):
@@ -42,7 +42,7 @@ class ModelFactory():
    
    @staticmethod
    def getEmbeddingLstm(params: dict):
-       return ModelEmbeddedLstmOneLayer(params)
+       return ModelEmbeddingUnidirect(params)
 
 # class AbstractModel(ABC):
 #     @abstractmethod
