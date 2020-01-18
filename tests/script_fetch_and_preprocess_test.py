@@ -75,9 +75,14 @@ def test_setup_env_for_running_project(test_info_dict: dict):
     network_params = test_info_dict['network_params']
     cmd_line_params = test_info_dict['cmd_line_params']
 
-    # Test function
+        # Test function
     print(f"----> Set up analysis environment.")
-    logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
+    logger, meta_info_project_dict =  \
+        setup_analysis_environment(
+            logger_name=__name__,
+            base_dir=base_dir,
+            params=cmd_line_params,
+            flag_test=True)
     logger.info("\n" + json.dumps(network_params, indent=4))
 
     # Print some results
