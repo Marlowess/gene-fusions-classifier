@@ -64,11 +64,11 @@ def preprocess_data(X, y, tokenizer, maxlen, hot_encoded=False, num_classes=None
     :param tokenizer: tokenizer already fitted with all the training set
     :return: preprocessed validation data
     """
-   X = tokenizer.texts_to_sequences(X)
-   X = tf.keras.preprocessing.sequence.pad_sequences(X, maxlen=maxlen, padding='post')
-   if hot_encoded is True:
-    X = to_categorical(X, num_classes=21)
-   y = label_text_to_num(y)
+    X = tokenizer.texts_to_sequences(X)
+    X = tf.keras.preprocessing.sequence.pad_sequences(X, maxlen=maxlen, padding='post')
+    if hot_encoded is True:
+        X = to_categorical(X, num_classes=21)
+    y = label_text_to_num(y)
 
    return X, y
 

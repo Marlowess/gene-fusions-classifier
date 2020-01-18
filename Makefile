@@ -35,11 +35,16 @@ ARGS_VALIDATION_M1 = --validation --load_network ModelEmbeddingBidirectProtein -
 ARGS_VALIDATION_TRAIN_M1 = 
 ARGS_VALIDATION_TEST_M1 = 
 
-
-
 # ---------------------------- ---------------------#
-# RUN ANALYSIS TASK                                 #
+# Test Analys model one hot encoding protein        #
 # ------------------------------------------------- #
+PROGRAM_ENTRY_POINT_M2 = run_analysis.py
+ARGS_VALIDATION_M2 = --validation --load_network OneHotEncodedLstm --sequence_type protein 
+ARGS_VALIDATION_TRAIN_M2 = --validation --train --load_network OneHotEncodedLstm --sequence_type protein 
+ARGS_TRAIN_M2 = --train --load_network OneHotEncodedLstm --sequence_type protein steps 200
+ARGS_VALIDATION_TRAIN_TEST_M2 = --validation --train --test --load_network OneHotEncodedLstm --sequence_type protein
+ARGS_TRAIN_TEST_M2 = --train --test --load_network OneHotEncodedLstm --sequence_type protein --steps 10
+
 run_analysis: setup_before_run_task
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
 	$(SCRIPT_INTERPETER) $(SCRIPT_ANALYSIS) $(ARGS_ANALYSIS)
@@ -47,10 +52,18 @@ run_analysis: setup_before_run_task
 run_validation_on_model_embedding_bidirectional_protein:
 	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M1) $(ARGS_VALIDATION_M1)
 
+run_validation_on_model_one_hot_encoding_protein:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_M2)
 
-# ---------------------------- ---------------------#
-# PERFORM TESTS - SECTION                           #
-# ------------------------------------------------- #
+run_validation_train_on_model_one_hot_encoding_protein:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_TRAIN_M2)
+
+run_validation_train_test_on_model_one_hot_encoding_protein:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_TRAIN_TEST_M2)
+
+run_train_test_on_model_one_hot_encoding_protein:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_TRAIN_TEST_M2)
+
 test_setup_environment_for_analysis: setup_before_run_task
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_ENVIRONMENT_SETUP) $(SCRIPT_2_TEST)
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_ENVIRONMENT_SETUP)
