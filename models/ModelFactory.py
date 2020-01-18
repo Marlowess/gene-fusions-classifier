@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 # from ModelOneHotAmminoacid import ModelOneHotAmminoacid
-from ModelEmbeddedLstmOneLayer import ModelEmbeddedLstmOneLayer
-from ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
-from ModelOneHotProtein import ModelOneHotProtein
+from models.ModelEmbeddedLstmOneLayer import ModelEmbeddedLstmOneLayer
+from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 
 class ModelFactory():
    
@@ -38,7 +37,8 @@ class ModelFactory():
    
    @staticmethod
    def getOneHotEncodedLstm(params: dict):
-       return ModelOneHotProtein(params)
+       # return ModelOneHotProtein(params)
+       return None
    
    @staticmethod
    def getEmbeddingLstm(params: dict):
