@@ -1,4 +1,5 @@
 import tensorflow as tf
+import os
 from tensorflow import keras
 from tensorflow.keras.layers import Masking
 from models.metrics import f1_m, precision_m, recall_m
@@ -11,10 +12,8 @@ class ModelOneHotProtein():
 
     def __init__(self, params):
         self.params = params
-        self.seed = 42
-        self.learning_rate = params['learning_rate']
-        print(self.learning_rate)
         self.batch_size = params['batch_size']
+        self.results_base_dir = params['result_base_dir']
 
         # It defines the initialization setup of weights
 
@@ -36,7 +35,7 @@ class ModelOneHotProtein():
         """
         It compiles the model by defining optimizer, loss and learning rate
         """
-        optimizer = tf.keras.optimizers.RMSprop(lr=self.params['learning_rate'], clipnorm=1.0)
+        optimizer = tf.keras.optimizers.RMSprop(lr=self.params['lr'], clipnorm=1.0)
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy'])#, f1_m, precision_m, recall_m])
@@ -58,7 +57,7 @@ class ModelOneHotProtein():
         - history: it contains the results of the training
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
-                    callbacks=self._getcallbacks(), validation_data=validation_data)
+                    callbacks=self._get_callbacks(), validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch if callbacks_list[0].stopped_epoch != 0 else epochs
         
         return history, trained_epochs
