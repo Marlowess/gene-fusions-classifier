@@ -75,3 +75,23 @@ class ModelOneHotUnidirect():
         """
         loss, accuracy, f1_score, precision, recall = model.evaluate(features, labels, verbose=0)
         return loss, accuracy, f1_score, precision, recall
+
+    def _get_callbacks(self):
+        """
+        It defines the callbacks for this specific architecture
+        """
+        callbacks_list = [            
+            keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=10,
+                restore_best_weights=True
+            ),
+            keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                monitor='val_loss',
+                save_best_only=True,
+                verbose=0
+            ),
+            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv'))            
+        ]
+        return callbacks_list
