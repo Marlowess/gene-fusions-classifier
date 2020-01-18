@@ -1,6 +1,8 @@
 # https://www.tensorflow.org/tutorials/text/text_generation
 import tensorflow as tf
 from tensorflow import keras
+from models.attlayer import AttentionWeightedAverage
+from models.metrics import f1_m, precision_m, recall_m
 
 import copy
 
@@ -61,9 +63,9 @@ class ModelEmbeddingUnidirect():
             lr=lr,
             clipnorm=clip_norm)
 
-        self.model.compile(loss=loss,
-            optimizer=optimizer_obj,
-            metrics=metrics)
+        self.model.compile(loss='binary_crossentropy',
+                            optimizer=optimizer_obj,
+                            metrics=['accuracy', f1_m, precision_m, recall_m])
         
         
         summary_model_str: str = self.model.summary()

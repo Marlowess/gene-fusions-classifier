@@ -7,10 +7,10 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
 from sklearn.metrics import auc as auc_test
-from attlayer import AttentionWeightedAverage
-from metrics import f1_m, precision_m, recall_m
+from models.attlayer import AttentionWeightedAverage
+from models.metrics import f1_m, precision_m, recall_m
 
-class ModelEmbeddingBidirectProtein():
+class ModelEmbeddingBidirect():
     """
     This architecture is based on https://arxiv.org/abs/1708.00524
     Two bidirectional LSTM layers and one attention layer in order to focus the attention
