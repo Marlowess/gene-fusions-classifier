@@ -12,24 +12,7 @@ from utils_dir.parse_args_util import get_parsed_params
 from utils_dir.pipeline_analysis_util import run_pipeline
 from utils_dir.setup_analysis_environment_util import setup_analysis_environment
 
-# =============================================================================================== #
-# MAIN UTILS                                                                                      #
-# =============================================================================================== #
-
-def read_neural_network_params(cmd_line_params):
-    if cmd_line_params.network_parameters is not None:
-        network_params_path = cmd_line_params.network_parameters
-    else:
-        raise Exception('[ERROR] Please define a valid parameters\' filename')        
-    
-    # Parameters read from file
-    network_params = get_neural_network_params_from_file(network_params_path)
-
-    # It it exists, weights of a pre-trained model are loaded
-    network_params['pretrained_model'] = cmd_line_params.pretrained_model
-    return network_params
-
-def get_neural_network_params_from_file(network_params_path: str) -> dict:
+def get_network_params(network_params_path: str) -> dict:
     result_dict: dict = None
 
     with open(network_params_path, "r") as f:
@@ -39,36 +22,19 @@ def get_neural_network_params_from_file(network_params_path: str) -> dict:
             result_dict = yaml.load(f)
     return result_dict
 
-def run_test_decorator(a_test):
-    def wrapper_function(a_dict):
-        flag_test_passed: bool = True 
-        try:
-            message: str = f" [*] Running TEST for function {a_test.__name__}"
-            print()
-            print(f"{message}", '-' * len(message), sep='\n')
-
-            result = a_test(a_dict)
-        except Exception as err:
-            print(f'ERROR: {str(err)}')
-            flag_test_passed = False
-            sys.exit(-1)
-        finally:
-            status_test: str = 'PASSED' if flag_test_passed is True else 'FAILED'
-            message: str = f" [*] TEST on function {a_test.__name__} ended with STATUS = {status_test}"
-            print()
-            print(f"{message}", '-' * len(message), sep='\n')
-        return result
-    return wrapper_function
-
-# =============================================================================================== #
-# TESTS SECTION                                                                                   #
-# =============================================================================================== #
-
 def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'
 
-    network_params = read_neural_network_params(cmd_line_params)
+    pprint(cmd_line_params)
+
+    if cmd_line_params.network_parameters is not None:
+        network_params_path = cmd_line_params.network_parameters
+    else:
+        network_params_path = 'parameters.json'
+
+    network_params = get_network_params(network_params_path)
+    network_params['pretrained_model'] = cmd_line_params.pretrained_model
     
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)

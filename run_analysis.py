@@ -8,11 +8,28 @@ import time
 
 from pprint import pprint
 
-from utils_dir.parse_args_util import get_parsed_params
-from utils_dir.pipeline_analysis_util import run_pipeline
-from utils_dir.setup_analysis_environment_util import setup_analysis_environment
+from utils.parse_args_util import get_parsed_params
+from utils.pipeline_analysis_util import run_pipeline
+from utils.setup_analysis_environment_util import setup_analysis_environment
 
-def get_network_params(network_params_path: str) -> dict:
+# =============================================================================================== #
+# UTILITY FUNCTIONS                                                                               #
+# =============================================================================================== #
+
+def read_neural_network_params(cmd_line_params):
+    if cmd_line_params.network_parameters is not None:
+        network_params_path = cmd_line_params.network_parameters
+    else:
+        raise Exception('[ERROR] Please define a valid parameters\' filename')        
+    
+    # Parameters read from file
+    network_params = get_neural_network_params_from_file(network_params_path)
+
+    # It it exists, weights of a pre-trained model are loaded
+    network_params['pretrained_model'] = cmd_line_params.pretrained_model
+    return network_params
+
+def get_neural_network_params_from_file(network_params_path: str) -> dict:
     result_dict: dict = None
 
     with open(network_params_path, "r") as f:
@@ -22,20 +39,15 @@ def get_network_params(network_params_path: str) -> dict:
             result_dict = yaml.load(f)
     return result_dict
 
+# =============================================================================================== #
+# MAIN FUNCTION                                                                                   #
+# =============================================================================================== #
+
 def main(cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'        
 
-    if cmd_line_params.network_parameters is not None:
-        network_params_path = cmd_line_params.network_parameters
-    else:
-        raise Exception('[ERROR] Please define a valid parameters\' filename')        
-    
-    # Parameters read from file
-    network_params = get_network_params(network_params_path)
-
-    # It it exists, weights of a pre-trained model are loaded
-    network_params['pretrained_model'] = cmd_line_params.pretrained_model 
+    network_params = read_neural_network_params(cmd_line_params) 
     
     # It defines the output file-system
     print(f"----> Set up analysis environment.")
@@ -46,7 +58,7 @@ def main(cmd_line_params: dict):
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,
-        'path': './bins_translated',
+        'path': './data/bins_translated',
         'columns_names': [
             'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
         ],
@@ -72,7 +84,13 @@ def main(cmd_line_params: dict):
     )
     pass
 
+
+# =============================================================================================== #
+# ENTRY - POINT                                                                                   #
+# =============================================================================================== #
+
 if __name__ == "__main__":
+    # Useless rigth now. Just ignore
     dict_images: dict = {
         'loss': {
             'title': 'Training With Validation Loss',
