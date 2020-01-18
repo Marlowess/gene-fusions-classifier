@@ -11,19 +11,19 @@ ARGS_ANALYSIS = --validation --load_network $(NETWORK_NAME)
 # Test Seutp Project's subidrs #
 # ---------------------------- #
 SCRIPT_TEST_ENVIRONMENT_SETUP = script_environment_setup_test.py
-ARGS_TEST_ENVIRONMENT_SETUP = --validation --train
+ARGS_TEST_ENVIRONMENT_SETUP = --validation --train --network_parameters parameters.json
 
 # ---------------------------- #
 # Test Load Project's data     #
 # ---------------------------- #
-SCRIPT_TEST_FETCH_ANDPREPROCESS = script_fetch_and_preprocess_test.py
-ARGS_TEST_FETCH_ANDPREPROCESS = --validation --train
+SCRIPT_TEST_FETCH_AND_PRE_PROCESS = script_fetch_and_preprocess_test.py
+ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters parameters.json
 
 # ---------------------------- #
 # Test Pipeline for Analyses   #
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
-ARGS_TEST_FETCH_ANDPREPROCESS = --validation --load_network EmbeddingLstm
+ARGS_TEST_PIPELINE = --validation --load_network EmbeddingLstm
 
 # ---------------------------- ---------------------#
 # Test Analys model embeddign bidirectional protein #
@@ -46,13 +46,13 @@ test_setup_environment_for_analysis:
 	rm -f $(SCRIPT_2_TEST)
 
 test_fetch_data_and_preprocess_for_analysis:
-	cp $(TESTS_DIR)/$(SCRIPT_TEST_FETCH_ANDPREPROCESS) $(SCRIPT_2_TEST)
-	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_FETCH_ANDPREPROCESS)
+	cp $(TESTS_DIR)/$(SCRIPT_TEST_FETCH_AND_PRE_PROCESS) $(SCRIPT_2_TEST)
+	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_FETCH_AND_PREPROCESS)
 	rm -f $(SCRIPT_2_TEST)
 
 test_pipeline_for_analysis:
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_2_TEST)
-	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_FETCH_ANDPREPROCESS)
+	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_PIPELINE)
 	rm -f $(SCRIPT_2_TEST)
 
 install_libraries_for_graphviz:
