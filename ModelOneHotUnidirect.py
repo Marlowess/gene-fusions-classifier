@@ -3,7 +3,7 @@ from tensorflow import keras
 from tensorflow.keras.layers import Masking
 from metrics import f1_m, precision_m, recall_m
 
-class ModelOneHotProtein():
+class ModelOneHotUnidirect():
     """
     This class defines the architecture used when the data are proteins, encoded
     by using one-hot encoding
@@ -11,7 +11,7 @@ class ModelOneHotProtein():
 
     def __init__(self, params):
 
-        self.seed = 42
+        self.seed = params['seed']
         self.learning_rate = params['learning_rate']
         self.batch_size = params['batch_size']
 
@@ -22,7 +22,7 @@ class ModelOneHotProtein():
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))        
         self.model.add(keras.layers.LSTM(units=32, return_sequences = False,
-                                    kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01)
+                                    kernel_regularizer=keras.regularizers.l2(params['l2_regularizer'])
                                     kernel_initializer=weight_init                                                                                                          
                                     ))
         self.model.add(keras.layers.Dropout(0.2, seed=self.seed))
@@ -75,3 +75,23 @@ class ModelOneHotProtein():
         """
         loss, accuracy, f1_score, precision, recall = model.evaluate(features, labels, verbose=0)
         return loss, accuracy, f1_score, precision, recall
+
+    def _get_callbacks(self):
+        """
+        It defines the callbacks for this specific architecture
+        """
+        callbacks_list = [            
+            keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=10,
+                restore_best_weights=True
+            ),
+            keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                monitor='val_loss',
+                save_best_only=True,
+                verbose=0
+            ),
+            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv'))            
+        ]
+        return callbacks_list
