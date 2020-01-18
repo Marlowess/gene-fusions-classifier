@@ -101,8 +101,26 @@ def test_load_data_from_pipeline_util(test_info_dict: dict):
     conf_load_dict = test_info_dict['conf_load_dict']
     main_logger = test_info_dict['main_logger']
 
+    # Load Data.
     data = _pipeline_load_data(conf_load_dict, main_logger=main_logger)
     return data
+
+@run_test_decorator
+def test_data_preprocessing_from_pipeline_util(test_info_dict: dict):
+
+    # Data to let function to be tested
+    data = test_info_dict['data']
+    main_logger = test_info_dict['main_logger']
+    conf_preprocess_dict = test_info_dict['conf_preprocess_dict']
+
+    # Preprocessing Data.
+    x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
+        _pipeline_preprocess_data(
+            data,
+            conf_preprocess_dict,
+            main_logger=main_logger)
+    
+    return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer 
 
 
 # =============================================================================================== #
@@ -141,12 +159,31 @@ def main(cmd_line_params: dict):
         'test_bins': [5],
     }
 
-    test_setup_project_dict = {
+    test_load_data_dict = {
         'conf_load_dict': conf_load_dict,
         'main_logger': logger,
     }
-    data = test_load_data_from_pipeline_util(test_setup_project_dict)
+    data = test_load_data_from_pipeline_util(test_load_data_dict)
 
+    # ------------------------------------------------------ #
+    # Here - Test data preprocessing
+
+    conf_preprocess_dict: dict = {
+        'padding': 'post',
+        'maxlen': network_params['maxlen'],
+        'onehot_flag': cmd_line_params.onehot_flag,
+    }
+    
+    test_preprocess_data_dict: dict = {
+        'data': data,
+        'main_logger': logger,
+        'conf_preprocess_dict': conf_preprocess_dict
+    }
+
+    x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
+        test_data_preprocessing_from_pipeline_util(
+            test_preprocess_data_dict
+        )
     pass
 
 

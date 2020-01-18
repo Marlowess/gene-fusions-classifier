@@ -97,17 +97,10 @@ def main(cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'        
 
-    if cmd_line_params.network_parameters is not None:
-        network_params_path = cmd_line_params.network_parameters
-    else:
-        raise Exception('[ERROR] Please define a valid parameters\' filename')        
-    
-    # Parameters read from file
-    network_params = get_network_params(network_params_path)
+    network_params = read_neural_network_params(cmd_line_params)
 
-    # It it exists, weights of a pre-trained model are loaded
-    network_params['pretrained_model'] = cmd_line_params.pretrained_model
-
+    # ------------------------------------------------------ # 
+    # Here - Test setup project: create subdirs for store results
     test_setup_project_dict = {
         'base_dir': base_dir,
         'network_params': network_params,
