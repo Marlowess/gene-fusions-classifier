@@ -54,7 +54,6 @@ def main(cmd_line_params: dict):
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
     pprint(cmd_line_params)
     logger.info("\n" + json.dumps(network_params, indent=4))
-    sys.exit(-1)
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,

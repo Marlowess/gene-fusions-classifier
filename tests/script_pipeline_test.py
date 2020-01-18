@@ -64,26 +64,62 @@ def run_test_decorator(a_test):
 # TESTS SECTION                                                                                   #
 # =============================================================================================== #
 
-def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict):
+@run_test_decorator
+def test_pipeline_util(test_info_dict: dict):
 
-    base_dir: str = 'bioinfo_project'
+    # Data to let function to be tested
+    conf_load_dict = test_info_dict['conf_load_dict']
+    conf_preprocess_dict = test_info_dict['conf_preprocess_dict']
+    cmd_line_params = test_info_dict['cmd_line_params']
+    network_params = test_info_dict['network_params']
+    meta_info_project_dict = test_info_dict['meta_info_project_dict']
+    main_logger = test_info_dict['main_logger']
 
-    network_params = read_neural_network_params(cmd_line_params)
-    
-    print(f"----> Set up analysis environment.")
-    logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
-    pprint(cmd_line_params)
-
-    cmd_line_params.base_di = base_dir
-
+    # Load Data.
     run_pipeline(
         conf_load_dict=conf_load_dict,
         conf_preprocess_dict=conf_preprocess_dict,
         cmd_line_params=cmd_line_params,
         network_params=network_params,
         meta_info_project_dict=meta_info_project_dict,
-        main_logger=logger
+        main_logger=main_logger
     )
+    pass
+
+# =============================================================================================== #
+# MAIN FUNCTION                                                                                   #
+# =============================================================================================== #
+
+def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict):
+
+    base_dir: str = 'bioinfo_project'
+    network_params = read_neural_network_params(cmd_line_params)
+    
+
+    print(f"----> Set up analysis environment.")
+    logger, meta_info_project_dict =  \
+        setup_analysis_environment(
+            logger_name=__name__,
+            base_dir=base_dir,
+            params=cmd_line_params,
+            flag_test=True)
+    logger.info("\n" + json.dumps(network_params, indent=4))
+
+    
+    # ------------------------------------------------------ # 
+    # Here - Test pipeline util
+
+    pipeline_info_dict : dict = {
+        'conf_load_dict': conf_load_dict,
+        'conf_preprocess_dict': conf_preprocess_dict,
+        'cmd_line_params': cmd_line_params,
+        'network_params': network_params,
+        'meta_info_project_dict': meta_info_project_dict,
+        'main_logger': logger,
+
+    }
+
+    test_pipeline_util(pipeline_info_dict)
 
     pass
 
@@ -91,7 +127,7 @@ if __name__ == "__main__":
 
     conf_load_dict: dict = {
         'sequence_type': 'dna',
-        'path': './bins_translated',
+        'path': './data/bins_translated',
         'columns_names': [
             'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
         ],

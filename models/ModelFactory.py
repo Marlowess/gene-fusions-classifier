@@ -2,47 +2,55 @@ from abc import ABC, abstractmethod
 # from ModelOneHotAmminoacid import ModelOneHotAmminoacid
 from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
+from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
+# from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 
 class ModelFactory():
    
    @staticmethod
    def getModelByName(model_name: str, params: dict) -> object:
-      if model_name == 'EmbeddingBiLstmAttentionProtein':
-         return ModelFactory.getEmbeddingBiLstmAttentionProtein(params)
       
-      if model_name == 'EmbeddingBiLstmAttentionDna':
-         return ModelFactory.getEmbeddingBiLstmAttentionDna(params)
-      
-      if model_name == 'OneHotEncodedLstm':
-         return ModelFactory.getOneHotEncodedLstm(params)
+      if model_name == 'ModelEmbeddingUnidirect':
+         return ModelFactory.getModelEmbeddingUnidirect(params)
 
-      if model_name == 'EmbeddingLstm':
-         return ModelFactory.getEmbeddingLstm(params)
+      if model_name == 'ModelEmbeddingBidirect':
+         return ModelFactory.getModelEmbeddingBidirect(params)
       
-      if model_name == "ModelEmbeddingBidirect":
+      if model_name == 'ModelEmbeddingBidirectProtein':
          return ModelFactory.getModelEmbeddingBidirectProtein(params)
+      
+      if model_name == 'ModelOneHotProtein':
+         return ModelFactory.getModelOneHotProtein(params)
+
+      if model_name == 'ModelOneHotUnidirect':
+         return ModelFactory.getModelOneHotUnidirect(params)
+   
       raise ValueError(f'ERROR: {model_name} is not allowed!')
    
    @staticmethod
-   def getEmbeddingBiLstmAttentionProtein(params: dict):
-       return None
+   def getModelEmbeddingBidirect(params: dict):
+       return ModelEmbeddingBidirect(params)
+
+   @staticmethod
+   def getModelEmbeddingUnidirect(params: dict):
+       return ModelEmbeddingUnidirect(params)
    
    @staticmethod
    def getModelEmbeddingBidirectProtein(params: dict):
-      return ModelEmbeddingBidirect(params)
+      return ModelEmbeddingBidirectProtein(params)
    
    @staticmethod
-   def getEmbeddingBiLstmAttentionDna(params: dict):
-       return None
+   def getModelOneHotProtein(params: dict):
+       return ModelOneHotProtein(params)
    
    @staticmethod
    def getOneHotEncodedLstm(params: dict):
        return ModelOneHotProtein(params)
    
    @staticmethod
-   def getEmbeddingLstm(params: dict):
-       return ModelEmbeddingUnidirect(params)
+   def getModelOneHotUnidirect(params: dict):
+       return None # ModelOneHotUnidirect(params)
 
 # class AbstractModel(ABC):
 #     @abstractmethod

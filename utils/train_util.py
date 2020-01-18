@@ -90,7 +90,7 @@ def _holdout(
     # It plots on a file the model's structure
     model.plot_model()
 
-    sys.exit(-1)
+    sys.exit(0)
 
     # Train model.
     _log_info_message(f"> train model (holdout)...", logger)

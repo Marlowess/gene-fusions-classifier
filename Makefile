@@ -25,7 +25,7 @@ ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters model
 # Test Pipeline for Analyses   #
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
-ARGS_TEST_PIPELINE = --validation --network_parameters models/ModelEmbeddingUnidirect.json --load_network ModelEmbeddingUnidirect --sequence_type protein
+ARGS_TEST_PIPELINE = --validation --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect --sequence_type protein
 
 # ---------------------------- ---------------------#
 # Test Analys model embeddign bidirectional protein #
