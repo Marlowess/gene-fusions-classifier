@@ -54,6 +54,7 @@ class ModelEmbeddingBidirect():
 
         # Section A : embedding --> LSTM_1 --> LSTM_2
         lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,
+                                                                    dropout=params['lstm_input_dropout'],
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
@@ -63,7 +64,7 @@ class ModelEmbeddingBidirect():
         dropout_lstm_1 = tf.keras.layers.Dropout(params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
 
         # Second LSTM layer
-        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,
+        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,                                                                    
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
@@ -80,12 +81,12 @@ class ModelEmbeddingBidirect():
         attention_layer = AttentionWeightedAverage(name='attlayer', return_attention=False)(concatenation)
 
         # Attention dropout
-        dropout_attention = tf.keras.layers.Dropout(params['attention_dropout'], seed=self.seed)(attention_layer)
+        # dropout_attention = tf.keras.layers.Dropout(params['attention_dropout'], seed=self.seed)(attention_layer)
 
         # Prediction layer
         prediction = tf.keras.layers.Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init,
-                                            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']))(dropout_attention)
+                                            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']))(attention_layer)
 
         # Build the model
         self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])

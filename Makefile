@@ -31,7 +31,7 @@ ARGS_TEST_PIPELINE = --validation --network_parameters models/ModelEmbeddingBidi
 # Test Analys model embeddign bidirectional protein #
 # ------------------------------------------------- #
 PROGRAM_ENTRY_POINT_M1 = run_analysis.py
-ARGS_VALIDATION_M1 = --validation --network_parameters models/ModelEmbeddingUnidirect.json --load_network ModelEmbeddingUnidirect --sequence_type protein --lr 5e-4 
+ARGS_VALIDATION_M1 = --validation --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect --sequence_type protein --lr 5e-4 
 ARGS_VALIDATION_TRAIN_M1 = 
 ARGS_VALIDATION_TEST_M1 = 
 
