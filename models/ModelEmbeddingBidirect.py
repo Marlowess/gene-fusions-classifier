@@ -1,4 +1,6 @@
 import tensorflow as tf
+from tensorflow import keras
+import os
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
@@ -121,7 +123,7 @@ class ModelEmbeddingBidirect():
         - history: it contains the results of the training
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
-                    callbacks=_get_callbacks(), validation_data=validation_data)
+                    callbacks=self._get_callbacks(), validation_data=validation_data)
         return history
     
     def evaluate(self, features, labels):

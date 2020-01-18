@@ -58,7 +58,7 @@ class ModelOneHotProtein():
         - history: it contains the results of the training
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
-                    callbacks=callbacks_list, validation_data=validation_data)
+                    callbacks=self._getcallbacks(), validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch if callbacks_list[0].stopped_epoch != 0 else epochs
         
         return history, trained_epochs
@@ -89,3 +89,29 @@ class ModelOneHotProtein():
     
     def plot_model(self) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+
+    def _get_callbacks(self):
+        """
+        It defines the callbacks for this specific architecture
+        """
+        callbacks_list = [            
+            keras.callbacks.EarlyStopping(
+                monitor='val_loss',
+                patience=10,
+                restore_best_weights=True
+            ),
+            keras.callbacks.ModelCheckpoint(
+                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                monitor='val_loss',
+                save_best_only=True,
+                verbose=0
+            ),
+            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+            keras.callbacks.ReduceLROnPlateau(
+                patience=10,
+                monitor='val_loss',
+                factor=0.75,
+                verbose=1,
+                min_lr=5e-6)
+        ]
+        return callbacks_list

@@ -92,7 +92,7 @@ class ModelEmbeddingUnidirect():
             y=y_train,
             epochs=epochs,
             shuffle=shuffle,
-            callbacks=callback_list,
+            callbacks=self._getcallbacks(),
             validation_data=validation_data)
         return history
     

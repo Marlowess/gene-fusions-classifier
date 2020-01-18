@@ -90,7 +90,7 @@ def test_pipeline_util(test_info_dict: dict):
 # MAIN FUNCTION                                                                                   #
 # =============================================================================================== #
 
-def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict):
+def main(conf_load_dict: dict, cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'
     network_params = read_neural_network_params(cmd_line_params)
@@ -108,6 +108,12 @@ def main(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params: dict
     
     # ------------------------------------------------------ # 
     # Here - Test pipeline util
+
+    conf_preprocess_dict: dict = {
+        'padding': 'post',
+        'maxlen': network_params['maxlen'],
+        'onehot_flag': False,
+    }
 
     pipeline_info_dict : dict = {
         'conf_load_dict': conf_load_dict,
@@ -136,11 +142,6 @@ if __name__ == "__main__":
         'test_bins': [5],
     }
 
-    conf_preprocess_dict: dict = {
-        'padding': 'post',
-        'maxlen': 14000,
-        'onehot_flag': False,
-    }
 
     dict_images: dict = {
         'loss': {
@@ -171,5 +172,5 @@ if __name__ == "__main__":
 
     cmd_line_params, _ = get_parsed_params()
 
-    main(conf_load_dict, conf_preprocess_dict, cmd_line_params)
+    main(conf_load_dict, cmd_line_params)
     pass
