@@ -10,7 +10,7 @@ from sklearn.metrics import auc as auc_test
 from attlayer import AttentionWeightedAverage
 from metrics import f1_m, precision_m, recall_m
 
-class ModelEmbeddingBidirectProtein():
+class ModelEmbeddingBidirect():
     """
     This architecture is based on https://arxiv.org/abs/1708.00524
     Two bidirectional LSTM layers and one attention layer in order to focus the attention

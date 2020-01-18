@@ -7,8 +7,8 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
 from sklearn.metrics import auc as auc_test
-from attlayer import AttentionWeightedAverage
-from metrics import f1_m, precision_m, recall_m
+from models.attlayer import AttentionWeightedAverage
+from models.metrics import f1_m, precision_m, recall_m
 
 class ModelEmbeddingBidirectProtein():
     """
@@ -24,10 +24,7 @@ class ModelEmbeddingBidirectProtein():
 
         self.seed = 42
         self.learning_rate = params['learning_rate']
-        self.batch_size = params['batch_size']                  
-
-        # defines where to save the model's checkpoints 
-        self.results_base_dir = params['result_base_dir']  
+        self.batch_size = params['batch_size']
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
@@ -121,7 +118,7 @@ class ModelEmbeddingBidirectProtein():
         - history: it contains the results of the training
         """
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
-                    callbacks=_get_callbacks(), validation_data=validation_data)
+                    callbacks=callbacks_list, validation_data=validation_data)
         return history
     
     def evaluate(self, features, labels):
@@ -137,11 +134,8 @@ class ModelEmbeddingBidirectProtein():
         - precision
         - recall
         """
-        loss, accuracy, f1_score, precision, recall = self.model.evaluate(features, labels, verbose=0)
-        metrics_value = [loss, accuracy, f1_score, precision, recall]
-
-        results_dict = dict(zip(self.model.metrics, metrics_value))
-        return results_dict
+        loss, accuracy, f1_score, precision, recall = model.evaluate(features, labels, verbose=0)
+        return loss, accuracy, f1_score, precision, recall
 
     def print_metric(name, value):
         print('{}: {}'.format(name, value))
@@ -154,29 +148,3 @@ class ModelEmbeddingBidirectProtein():
     
     def plot_model(self,) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
-
-    def _get_callbacks(self):
-        """
-        It defines the callbacks for this specific architecture
-        """
-        callbacks_list = [            
-            keras.callbacks.EarlyStopping(
-                monitor='val_loss',
-                patience=10,
-                restore_best_weights=True
-            ),
-            keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
-                monitor='val_loss',
-                save_best_only=True,
-                verbose=0
-            ),
-            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
-            keras.callbacks.ReduceLROnPlateau(
-                patience=10,
-                monitor='val_loss',
-                factor=0.75,
-                verbose=1,
-                min_lr=5e-6)
-        ]
-        return callbacks_list

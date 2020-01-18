@@ -120,6 +120,9 @@ def _holdout(
     # Get Callbacks.
     base_dir: str = meta_info_project_dict['base_dir']
     history_filename: str = os.path.join(base_dir, 'history.csv')
+    network_params['result_base_dir'] = meta_info_project_dict['val_result_path']    
+
+    # TODO: callbacks are defined for each model --> remove them from all dictionaries
     callbacks_list = _get_callbacks_list(history_filename)
 
     # Get Model from ModelFactory Static class.
@@ -128,8 +131,11 @@ def _holdout(
 
     # Build model.
     _log_info_message(f"> build model (holdout).", logger)
-    summary_model: str = model.build(logger)
-    _log_info_message(f"\n{summary_model}", logger)
+    
+    # It compiles the model and print its summary (architecture's structure)
+    model.build(logger)
+
+    # It plots on a file the model's structure
     model.plot_model()
 
     # Train model.
@@ -149,9 +155,11 @@ def _holdout(
     
     # Eval model.
     _log_info_message(f"> eval model (holdout).", logger)
-    scores = model.model.evaluate(x_val, y_val)
-    _log_info_message("{}: {}".format(model.model.metrics_names[1], scores[1] * 100), logger)
 
+    # scores contains [loss, accuracy, f1_score, precision, recall]
+    results_dict = model.evaluate(x_val, y_val)
+    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
+    _log_info_message("{}".format(results_str), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
     return model, trained_epochs
