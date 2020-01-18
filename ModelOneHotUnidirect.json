@@ -6,5 +6,7 @@
     "lstm_units":64,
     "dropout_rate": 0.2,
     "recurrent_dropout_rate": 0.2,
+    "l2_regularizer":1e-2,
+    "seed":42,
     "maxlen": 3219
 }

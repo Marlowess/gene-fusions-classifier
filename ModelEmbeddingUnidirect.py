@@ -31,12 +31,14 @@ class ModelEmbeddingUnidirect():
         self.model.add(tf.keras.layers.LSTM(
             units=lstm_units,
             return_sequences=False,
-            dropout=params['lstm_dropout_rate'],
             unit_forget_bias=True,
             kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
             bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
             kernel_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']))
-            name=f'lstm_1_units{lstm_units}'))        
+            name=f'lstm_1_units{lstm_units}'))  
+
+        # Dropout after the lstm layer
+        self.model.add(tf.keras.layers.Dropout(self.params['lstm_output_dropout'], seed=seed[0]))
 
         # Fully connected (prediction) layer
         self.model.add(tf.keras.layers.Dense(

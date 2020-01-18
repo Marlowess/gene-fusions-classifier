@@ -11,7 +11,7 @@ class ModelOneHotUnidirect():
 
     def __init__(self, params):
 
-        self.seed = 42
+        self.seed = params['seed']
         self.learning_rate = params['learning_rate']
         self.batch_size = params['batch_size']
 
@@ -22,7 +22,7 @@ class ModelOneHotUnidirect():
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))        
         self.model.add(keras.layers.LSTM(units=32, return_sequences = False,
-                                    kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01)
+                                    kernel_regularizer=keras.regularizers.l2(params['l2_regularizer'])
                                     kernel_initializer=weight_init                                                                                                          
                                     ))
         self.model.add(keras.layers.Dropout(0.2, seed=self.seed))
