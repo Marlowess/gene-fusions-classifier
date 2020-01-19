@@ -149,4 +149,8 @@ install_libraries_for_graphviz:
 clear_result_dirs: setup_before_run_task
 	rm -fr $(BASE_DIR_RESULTS)
 
+# different runs with their results.
+clear_result_dirs_from_tests: setup_before_run_task
+	bash ./scripts/script_clear_results_dir_from_tests.sh ./bioinfo_project --not-cancel
+
 
