@@ -5,11 +5,13 @@ import os
 import sys
 import time
 import numpy as np
+import pickle
 
 from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
+from utils.plot_functions import plot_loss, plot_accuracy
 
 def gen(X, y, batch_size=32, shuffle=True, verbose=0, seed=None):
     """
@@ -120,8 +122,9 @@ def _holdout(
 
     # Get Callbacks.
     base_dir: str = meta_info_project_dict['base_dir']
+    results_dir = meta_info_project_dict['val_result_path']
     history_filename: str = os.path.join(base_dir, 'history.csv')
-    network_params['result_base_dir'] = meta_info_project_dict['val_result_path']    
+    network_params['result_base_dir'] = results_dir   
 
     # TODO: callbacks are defined for each model --> remove them from all dictionaries
     # callbacks_list = _get_callbacks_list(history_filename)
@@ -157,10 +160,19 @@ def _holdout(
     # Eval model.
     _log_info_message(f"> eval model (holdout).", logger)
 
+    # plot graph of loss and accuracy
+    plot_loss(history, results_dir, "Training and validation losses", "loss",
+              savefig_flag=True, showfig_flag=False)
+    plot_accuracy(history, results_dir, "Training and validation accuracies", "accuracy",
+                  savefig_flag=True, showfig_flag=False)
+    # serialize history
+    with open(os.path.join(results_dir, "history"), 'wb') as history_pickle:
+        pickle.dump(history.history, history_pickle)
+    
     # scores contains [loss, accuracy, f1_score, precision, recall]
     results_dict = model.evaluate(x_val, y_val)
     res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
-    _log_info_message("{}".format(results_str), logger)
+    _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
     return model, trained_epochs
@@ -204,7 +216,9 @@ def _train(
 
     # Get Callbacks.
     base_dir: str = meta_info_project_dict['base_dir']
+    results_dir = meta_info_project_dict['train_result_path']
     history_filename: str = os.path.join(base_dir, 'history.csv')
+    network_params['result_base_dir'] = results_dir   
     # callbacks_list = _get_callbacks_list(history_filename)
 
     # Get Model from ModelFactory Static class.
@@ -221,10 +235,18 @@ def _train(
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
     history = model.fit_generator(
-        generator=gen(x_train, y_train),
+        generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
         steps=steps,
         callbacks_list=[],
         )
+
+    # plot graph of loss and accuracy
+    plot_loss(history, results_dir, "Training loss", "loss", savefig_flag=True, showfig_flag=False)
+    # plot_accuracy(history, base_dir, "Training and validation accuracies", "accuracy", save_fig_flag=True)
+    # serialize history
+    with open(os.path.join(results_dir, "history"), 'wb') as history_pickle:
+        pickle.dump(history.history, history_pickle)
+        
     _log_info_message(f"> train model: Done.", logger)
     _log_info_message(f" [*] {message} Done.", logger)
     

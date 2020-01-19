@@ -1,7 +1,7 @@
 {
-    "batch_size": 32,
+    "batch_size": 8,
     "epochs":30,
-    "lr": 0.01,
+    "lr": 5e-4,
     "embedding_size": 3,
     "lstm_units":64,
     "dropout_rate": 0.2,

@@ -20,6 +20,8 @@ def _get_custom_parser(subdir: str) -> object:
     parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     parser.add_argument('--load_network', default=None, help='Architecture\'s name. According to this a different model is loaded', type=str)
     parser.add_argument('--onehot_flag', default=False, help='If true, it encodes data by using one-hot encodin, otherwise embedding representation is used', action='store_true')
+    parser.add_argument('--steps', default=None, help='Number of steps of training', type=int)
+ 
     params = parser.parse_args()
 
     return params, parser

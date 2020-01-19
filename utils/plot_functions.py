@@ -35,7 +35,7 @@ dark_ppt = True # False
 # =============================================================================================== #
 #                              PLOTS: VALIDATION LOSS & ACCURACY                                  #
 # =============================================================================================== #
-def plot_loss(history, epochs: int, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+def plot_loss(history, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
     plt.clf()
 
     loss = history.history['loss']
@@ -60,7 +60,7 @@ def plot_loss(history, epochs: int, fig_dir: str, title: str, fig_name: str = No
         plt.show()
     pass
 
-def plot_accuracy(history, epochs: int, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+def plot_accuracy(history, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
     plt.clf()
 
     acc = history.history['accuracy']
