@@ -32,4 +32,7 @@ def get_parsed_params() -> dict:
     subdir: str = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d_%H%M%S')
 
     params, parser = _get_custom_parser(subdir)
+
+    if params.subdir != subdir:
+        params.subdir = f"{params.subdir}_{subdir}"
     return params, parser
