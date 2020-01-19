@@ -6,6 +6,21 @@
 # VARIABLES SECTION                                                                               #
 # =============================================================================================== #
 
+PROJECT_CODEBASE = ./
+ARCHIVE_PROJECT_NAME_COLAB = project-genes-fusions-classifier.zip
+EXCLUDED_FILES = \
+	'*.vscode/*' \
+	'*.git/*' \
+	.gitignore \
+	'*__pycache__/*' \
+	./README.md \
+	./test_feature.py \
+	'*notebooks/*' \
+	'*tmp/*' \
+	'*data/*' \
+	'*tests/*' \
+	*.png
+
 # Here - Specify which python interpreter to employ.
 SCRIPT_INTERPETER = python3 
 
@@ -152,5 +167,10 @@ clear_result_dirs: setup_before_run_task
 # different runs with their results.
 clear_result_dirs_from_tests: setup_before_run_task
 	bash ./scripts/script_clear_results_dir_from_tests.sh ./bioinfo_project --not-cancel
+
+build_zip_to_run_on_colab: clear_result_dirs
+	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
+	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
+
 
 
