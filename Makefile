@@ -91,7 +91,7 @@ run_help_classifier_tool: setup_before_run_task
 	# cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
 	cp -sfn $(SCRIPT_ANALYSIS) $(PROGRAM_ANALYSIS)
 	chmod u+x $(PROGRAM_ANALYSIS)
-	$(SCRIPT_INTERPETER) $(PROGRAM_ANALYSISs) -h
+	$(SCRIPT_INTERPETER) $(PROGRAM_ANALYSIS) -h
 
 run_analysis: setup_before_run_task
 	# cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
