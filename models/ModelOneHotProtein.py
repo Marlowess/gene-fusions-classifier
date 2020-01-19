@@ -20,11 +20,22 @@ class ModelOneHotProtein():
         self.model = keras.Sequential(name="Unidirection-LSTM-Proteins-One_hot")
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))        
-        self.model.add(keras.layers.LSTM(units=32, return_sequences = False,
-                                    kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01),
-                                    kernel_initializer=tf.keras.initializers.glorot_uniform(seed=0)                                                                                                          
-                                    ))
-        self.model.add(keras.layers.Dropout(0.2, seed=10))
+        self.model.add(keras.layers.LSTM(units=32, return_sequences = True,
+                                         dropout=.5,
+                                         # kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01),
+                                         # kernel_initializer=tf.keras.initializers.glorot_uniform(seed=0) 
+                                         ))
+        self.model.add(keras.layers.LSTM(units=64, return_sequences = True,
+                                         dropout=.5,
+                                        #  kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01),
+                                         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=0)
+                                         ))
+        self.model.add(keras.layers.LSTM(units=128, return_sequences = False,
+                                         dropout=.5,
+                                        #  kernel_regularizer=keras.regularizers.l1_l2(l1=0.01, l2=0.01),
+                                         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=0)
+                                         ))
+        self.model.add(keras.layers.Dropout(0.5, seed=10))
         # self.model.add(keras.layers.Dense(units=1, activation='sigmoid',
         #                                   kernel_initializer=tf.keras.initializers.glorot_uniform(seed=13),
         #                                   kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer'])))
@@ -35,7 +46,7 @@ class ModelOneHotProtein():
         """
         It compiles the model by defining optimizer, loss and learning rate
         """
-        optimizer = tf.keras.optimizers.RMSprop(lr=self.params['lr'], clipnorm=1.0)
+        optimizer = tf.keras.optimizers.Adam(lr=self.params['lr'], clipnorm=1.0)
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy'])#, f1_m, precision_m, recall_m])
@@ -56,14 +67,15 @@ class ModelOneHotProtein():
         Outputs:
         - history: it contains the results of the training
         """
+        callbacks_list = self._get_callbacks()
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
-                    callbacks=self._get_callbacks(), validation_data=validation_data)
-        trained_epochs = callbacks_list[0].stopped_epoch if callbacks_list[0].stopped_epoch != 0 else epochs
+                    callbacks=callbacks_list, validation_data=validation_data)
+        trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
         
         return history, trained_epochs
     
     def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
-        history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=callbacks_list,
+        history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),
                                            validation_data=validation_data)
         return history
     
@@ -89,28 +101,36 @@ class ModelOneHotProtein():
     def plot_model(self) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
 
-    def _get_callbacks(self):
+    def _get_callbacks(self, train=False):
         """
         It defines the callbacks for this specific architecture
         """
-        callbacks_list = [            
-            keras.callbacks.EarlyStopping(
-                monitor='val_loss',
-                patience=10,
-                restore_best_weights=True
-            ),
-            keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
-                monitor='val_loss',
-                save_best_only=True,
-                verbose=0
-            ),
-            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
-            keras.callbacks.ReduceLROnPlateau(
-                patience=10,
-                monitor='val_loss',
-                factor=0.75,
-                verbose=1,
-                min_lr=5e-6)
-        ]
+        if (not train):
+            callbacks_list = [
+                keras.callbacks.EarlyStopping(
+                    monitor='val_loss',
+                    patience=10,
+                    restore_best_weights=True
+                ),
+                keras.callbacks.ModelCheckpoint(
+                    filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                    monitor='val_loss',
+                    save_best_only=True,
+                    verbose=0
+                ),
+                keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+                # keras.callbacks.ReduceLROnPlateau(
+                #     patience=10,
+                #     monitor='val_loss',
+                #     factor=0.75,
+                #     verbose=1,
+                #     min_lr=5e-6)
+            ]
+
+        else:
+            callbacks_list = [
+                keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+            ]
+
         return callbacks_list
+

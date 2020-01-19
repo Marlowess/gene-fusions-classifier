@@ -30,7 +30,7 @@ class ModelOneHotUnidirect():
                                             kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer'])))
     
 
-    def build(self):
+    def build(self, logger=None):
         """
         It compiles the model by defining optimizer, loss and learning rate
         """
@@ -39,7 +39,10 @@ class ModelOneHotUnidirect():
                             optimizer=optimizer,
                             metrics=['accuracy', f1_m, precision_m, recall_m])
 
-        self.model.summary()
+        if logger is not None:
+            self.model.summary(print_fn=lambda x: logger.info(x))
+        else:
+            self.model.summary()
         
     def fit(self, X_tr, y_tr, epochs, callback_list, validation_data, shuffle=True):
         """
