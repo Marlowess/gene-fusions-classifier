@@ -1,16 +1,50 @@
-SCRIPT_INTERPETER = python3
+# =============================================================================================== #
+#                                       SRC: Makefile                                             #
+# =============================================================================================== #
 
-BASE_DIR_RESULTS = bioinfo_project
+# =============================================================================================== #
+# VARIABLES SECTION                                                                               #
+# =============================================================================================== #
 
+# Here - Specify which python interpreter to employ.
+SCRIPT_INTERPETER = python3 
+
+# Here - Specify which is the root directory where all results
+# from different analyses will be stored, for later investingations 
+# about  results, logs and image files.
+BASE_DIR_RESULTS = bioinfo_project 
+
+# Here - There are some variable exploited in order
+# to run some local tests.
+#
+# See tasks related to test for more details.
 SCRIPT_2_TEST = test_feature.py
 TESTS_DIR = tests
 
-SCRIPT_ANALYSIS = main_2.py
+# Here - There are two variable used to run the
+# classifier tool for genes fusions recognizing:
+# - SCRIPT_ANALYSIS, standas for the `main.py` file which is used to
+#   write the program;
+# - PROGRAM_ANALYSIS, is a symbolic link that can be used to run
+#   the program written above without taking care about how it was implemented
+#   as weel as without knowing which kind of programming language has been adopted.
+#
+# See task named `run_analysis` for details how both them have been employed.
+SCRIPT_ANALYSIS = main.py
+PROGRAM_ANALYSIS = genes_fusions_classifier
+
+# =============================================================================================== #
+# VARIABLES DEFINED TO RUN TESTS WITHIN PROPER TASKS                                              #
+# =============================================================================================== #
+
+# ---------------------------- #
+# A Test                       #
+# ---------------------------- #
 NETWORK_NAME = ModelEmbeddingBidirect
 ARGS_ANALYSIS = --validation --load_network $(NETWORK_NAME)
 
 # ---------------------------- #
-# Test Seutp Project's subidrs #
+# Test Setup Project's subidrs #
 # ---------------------------- #
 SCRIPT_TEST_ENVIRONMENT_SETUP = script_environment_setup_test.py
 ARGS_TEST_ENVIRONMENT_SETUP = --validation --train --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect
@@ -45,8 +79,24 @@ ARGS_TRAIN_M2 = --train --load_network --network_parameters models/ModelOneHotPr
 ARGS_VALIDATION_TRAIN_TEST_M2 = --validation --train --test --load_network ModelOneHotProtein --network_parameters models/ModelOneHotProtein.json --sequence_type protein --onehot_flag
 ARGS_TRAIN_TEST_M2 = --train --test --load_network ModelOneHotProtein --sequence_type protein --network_parameters models/ModelOneHotProtein.json --steps 10 --onehot_flag
 
+# =============================================================================================== #
+# TASKS SECTION                                                                                   #
+# =============================================================================================== #
+
+# ---------------------------- ---------------------#
+# RUN ANALYSES - SECTION                            #
+# ------------------------------------------------- #
+
+run_help_classifier_tool: setup_before_run_task
+	# cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
+	cp -sfn $(SCRIPT_ANALYSIS) $(PROGRAM_ANALYSIS)
+	chmod u+x $(PROGRAM_ANALYSIS)
+	$(SCRIPT_INTERPETER) $(PROGRAM_ANALYSISs) -h
+
 run_analysis: setup_before_run_task
-	cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
+	# cp $(TESTS_DIR)/$(SCRIPT_TEST_PIPELINE) $(SCRIPT_ANALYSIS)
+	cp -sfn $(SCRIPT_ANALYSIS) $(PROGRAM_ANALYSIS)
+	chmod u+x $(PROGRAM_ANALYSIS)
 	$(SCRIPT_INTERPETER) $(SCRIPT_ANALYSIS) $(ARGS_ANALYSIS)
 
 run_validation_on_model_embedding_bidirectional_protein:
@@ -64,6 +114,9 @@ run_validation_train_test_on_model_one_hot_encoding_protein:
 run_train_test_on_model_one_hot_encoding_protein:
 	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_TRAIN_TEST_M2)
 
+# ---------------------------- ---------------------#
+# TESTS - SECTION                                   #
+# ------------------------------------------------- #
 test_setup_environment_for_analysis: setup_before_run_task
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_ENVIRONMENT_SETUP) $(SCRIPT_2_TEST)
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_ENVIRONMENT_SETUP)
@@ -92,7 +145,7 @@ install_libraries_for_graphviz:
 	sudo apt-get install graphviz
 
 # Clear directory with subdirectories corresponind to
-# different runs with their results
+# different runs with their results.
 clear_result_dirs: setup_before_run_task
 	rm -fr $(BASE_DIR_RESULTS)
 
