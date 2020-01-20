@@ -21,7 +21,8 @@ def _get_custom_parser(subdir: str) -> object:
     parser.add_argument('--load_network', default=None, help='Architecture\'s name. According to this a different model is loaded', type=str)
     parser.add_argument('--onehot_flag', default=False, help='If true, it encodes data by using one-hot encodin, otherwise embedding representation is used', action='store_true')
     parser.add_argument('--steps', default=None, help='Number of steps of training', type=int)
-    parser.add_argument('--path_source_data', default='./data/bins_translated', help='Number of steps of training', type=str)
+    parser.add_argument('--path_source_data', default='./data/bins_translated', help='Path that specifies the location of source datasets.', type=str)
+    parser.add_argument('--create_spredsheet_report', default=False, help='Flag that allows to automatically generate a spredsheet-like report, when included esplicitly before running the program.', action='store_true')
  
     params = parser.parse_args()
 
