@@ -6,6 +6,25 @@
 # VARIABLES SECTION                                                                               #
 # =============================================================================================== #
 
+REQUIREMNTES_FILE  = requirements.txt
+LOCAL_PIP = pip3
+CONDA_PIP = '...'
+
+PROJECT_CODEBASE = ./
+ARCHIVE_PROJECT_NAME_COLAB = project-genes-fusions-classifier.zip
+EXCLUDED_FILES = \
+	'*.vscode/*' \
+	'*.git/*' \
+	.gitignore \
+	'*__pycache__/*' \
+	./README.md \
+	./test_feature.py \
+	'*notebooks/*' \
+	'*tmp/*' \
+	'*data/*' \
+	'*tests/*' \
+	*.png
+
 # Here - Specify which python interpreter to employ.
 SCRIPT_INTERPETER = python3 
 
@@ -60,6 +79,12 @@ ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters model
 # ---------------------------- #
 SCRIPT_TEST_PIPELINE = script_pipeline_test.py
 ARGS_TEST_PIPELINE = --validation --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect --sequence_type protein
+
+# ---------------------------- #
+# Test Spredsheet for Analyses #
+# ---------------------------- #
+SCRIPT_TEST_SPREDSHEET = script_create_spredsheet.py
+ARGS_TEST_SPREDSHEET = --validation --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect --sequence_type protein
 
 # ---------------------------- ---------------------#
 # Test Analys model embeddign bidirectional protein #
@@ -132,12 +157,21 @@ test_pipeline_for_analysis: setup_before_run_task
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_PIPELINE)
 	rm -f $(SCRIPT_2_TEST)
 
+test_spredsheet_creation_for_analysis: setup_before_run_task
+	cp $(TESTS_DIR)/$(SCRIPT_TEST_SPREDSHEET) $(SCRIPT_2_TEST)
+	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_SPREDSHEET)
+	rm -f $(SCRIPT_2_TEST)
 
 # ---------------------------- ---------------------#
 # MANAGEMENT - SECTION                              #
 # ------------------------------------------------- #
 setup_before_run_task:
 	clear
+
+install_requirements_via_pip:
+	$(LOCAL_PIP) install -r $(REQUIREMNTES_FILE)
+install_requirements_via_conda:	
+	$(CONDA_PIP) install -r $(REQUIREMNTES_FILE)
 
 install_libraries_for_graphviz:
 	pip install pydot
@@ -148,5 +182,14 @@ install_libraries_for_graphviz:
 # different runs with their results.
 clear_result_dirs: setup_before_run_task
 	rm -fr $(BASE_DIR_RESULTS)
+
+# different runs with their results.
+clear_result_dirs_from_tests: setup_before_run_task
+	bash ./scripts/script_clear_results_dir_from_tests.sh ./bioinfo_project --not-cancel
+
+build_zip_to_run_on_colab: clear_result_dirs
+	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
+	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
+
 
 

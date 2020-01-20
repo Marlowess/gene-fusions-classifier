@@ -60,7 +60,7 @@ def main(cmd_line_params: dict):
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,
-        'path': './data/bins_translated',
+        'path': cmd_line_params.path_source_data,
         'columns_names': [
             'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
         ],
