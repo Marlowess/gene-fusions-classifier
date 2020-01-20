@@ -146,7 +146,7 @@ class ModelEmbeddingBidirect():
         results_dict = dict(zip(self.model.metrics, metrics_value))
         return results_dict
 
-    def print_metric(name, value):
+    def print_metric(self, name, value):
         print('{}: {}'.format(name, value))
 
     def save_weights(self):

@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import os
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasClassifier
@@ -143,7 +144,7 @@ class ModelEmbeddingBidirectProtein():
         results_dict = dict(zip(self.model.metrics, metrics_value))
         return results_dict
 
-    def print_metric(name, value):
+    def print_metric(self, name, value):
         print('{}: {}'.format(name, value))
 
     def save_weights(self):
@@ -160,19 +161,19 @@ class ModelEmbeddingBidirectProtein():
         It defines the callbacks for this specific architecture
         """
         callbacks_list = [            
-            keras.callbacks.EarlyStopping(
+            tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
                 patience=10,
                 restore_best_weights=True
             ),
-            keras.callbacks.ModelCheckpoint(
+            tf.keras.callbacks.ModelCheckpoint(
                 filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
                 monitor='val_loss',
                 save_best_only=True,
                 verbose=0
             ),
-            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
-            keras.callbacks.ReduceLROnPlateau(
+            tf.keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+            tf.keras.callbacks.ReduceLROnPlateau(
                 patience=10,
                 monitor='val_loss',
                 factor=0.75,

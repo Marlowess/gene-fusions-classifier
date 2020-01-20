@@ -1,6 +1,7 @@
 # https://www.tensorflow.org/tutorials/text/text_generation
 import tensorflow as tf
 from tensorflow import keras
+import os
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
 
@@ -15,47 +16,45 @@ class ModelEmbeddingUnidirect():
         self.params: dict = copy.deepcopy(params)        
         
         # Initialize the keras sequencial model
-        self.model = keras.Sequential(name="Sequential LSTM network -- one layer")
+        self.model = keras.Sequential()
 
         # Embedding layer
         self.model.add(tf.keras.layers.Embedding(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            mask_zero=mask_zero,
-            embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[0]),
+            input_dim=self.params['input_dim'],
+            output_dim=self.params['output_dim'],
+            mask_zero=self.params['mask_zero'],
+            embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][0]),
             embeddings_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
-            name=f'embedding_layer_in{input_dim}_out{output_dim}'))
+            name=f'embedding_layer_in{self.params["input_dim"]}_out{self.params["output_dim"]}'))
         
         # Dropout after the embedding layer
-        self.model.add(tf.keras.layers.Dropout(self.params['embedding_dropout_rate'], seed=seed[0]))
+        self.model.add(tf.keras.layers.Dropout(self.params['embedding_dropout_rate'], seed=self.params['seeds'][0]))
 
         # First LSTM layer
         self.model.add(tf.keras.layers.LSTM(
-            units=lstm_units,
+            units=self.params['lstm_units'],
             return_sequences=False,
             unit_forget_bias=True,
-            kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
-            bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
+            kernel_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][1]),
+            bias_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][2]),
             kernel_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
-            name=f'lstm_1_units{lstm_units}'))  
+            name=f'lstm_1_units{self.params["lstm_units"]}'))  
 
         # Dropout after the lstm layer
-        self.model.add(tf.keras.layers.Dropout(self.params['lstm_output_dropout'], seed=seed[0]))
+        self.model.add(tf.keras.layers.Dropout(self.params['lstm_output_dropout'], seed=self.params['seeds'][0]))
 
         # Fully connected (prediction) layer
         self.model.add(tf.keras.layers.Dense(
             units=1,
             activation='sigmoid',
-            kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[3]),
-            bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[4]),
+            kernel_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][3]),
+            bias_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][4]),
             kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']),
             name=f'dense_1_activation_sigmoid'))
 
-    def build(self,) -> str:
-        loss: str = self.params['loss']
+    def build(self, logger=None) -> str:        
         optimizer: str = self.params['optimizer']
         clip_norm: float = self.params['clip_norm']
-        metrics: list = self.params['metrics']
         lr: float = self.params['lr']
         
         optimizer_obj = self.get_optimizer(
@@ -86,13 +85,13 @@ class ModelEmbeddingUnidirect():
             optimizer = tf.keras.optimizers.Nadam(lr, clipnorm=clipnorm)
         return optimizer
     
-    def fit(self, x_train, y_train, epochs: int = 50, callback_list: list = None, validation_data = None, shuffle: bool = True) -> object:
+    def fit(self, X_tr, y_tr, epochs: int = 50, callbacks_list: list = None, validation_data = None, shuffle: bool = True) -> object:
         history = self.model.fit(
-            x=x_train,
-            y=y_train,
+            x=X_tr,
+            y=y_tr,
             epochs=epochs,
             shuffle=shuffle,
-            callbacks=self._getcallbacks(),
+            callbacks=self._get_callbacks(),
             validation_data=validation_data)
         return history
     
@@ -118,12 +117,12 @@ class ModelEmbeddingUnidirect():
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                filepath=os.path.join(self.params['result_base_dir'], 'my_model.h5'),
                 monitor='val_loss',
                 save_best_only=True,
                 verbose=0
             ),
-            keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+            keras.callbacks.CSVLogger(os.path.join(self.params['result_base_dir'], 'history.csv')),
             keras.callbacks.ReduceLROnPlateau(
                 patience=10,
                 monitor='val_loss',
