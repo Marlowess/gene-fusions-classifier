@@ -1,0 +1,5 @@
+{
+    "maxlen": 14000,
+    "epochs":30,
+    "batch_size": 32
+}

@@ -23,6 +23,7 @@ def _get_custom_parser(subdir: str) -> object:
     parser.add_argument('--steps', default=None, help='Number of steps of training', type=int)
     parser.add_argument('--path_source_data', default='./data/bins_translated', help='Path that specifies the location of source datasets.', type=str)
     parser.add_argument('--create_spredsheet_report', default=False, help='Flag that allows to automatically generate a spredsheet-like report, when included esplicitly before running the program.', action='store_true')
+    parser.add_argument('--experimental_mode', default=False, help='Flag that allows to run analysis tool in a experimental manner, when included esplicitly before running the program.', action='store_true')
  
     params = parser.parse_args()
 

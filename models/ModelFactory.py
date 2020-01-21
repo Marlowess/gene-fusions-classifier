@@ -4,6 +4,7 @@ from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
 from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
+from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model_v1
 # from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 
 class ModelFactory():
@@ -25,6 +26,9 @@ class ModelFactory():
 
       if model_name == 'ModelOneHotUnidirect':
          return ModelFactory.getModelOneHotUnidirect(params)
+      
+      if model_name == 'ExperimentalModels':
+         return ModelFactory.getExperimentalModels()
    
       raise ValueError(f'ERROR: {model_name} is not allowed!')
    
@@ -51,6 +55,10 @@ class ModelFactory():
    @staticmethod
    def getModelOneHotUnidirect(params: dict):
        return None # ModelOneHotUnidirect(params)
+
+   @staticmethod
+   def getExperimentalModels():
+       return get_compiled_model_v1()
 
 # class AbstractModel(ABC):
 #     @abstractmethod
