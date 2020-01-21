@@ -20,6 +20,12 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 # =============================================================================================== #
 
 def read_neural_network_params(cmd_line_params):
+
+    # Experimental Mode is active
+    if cmd_line_params.experimental_mode is True:
+        cmd_line_params.load_network = 
+        return None
+
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
     else:
@@ -54,7 +60,7 @@ def main(cmd_line_params: dict):
     
     # It defines the output file-system
     print(f"----> Set up analysis environment.")
-    logger, meta_info_project_dict = setup_analysis_environment(logger_name=__name__, base_dir=base_dir, params=cmd_line_params)
+    logger, meta_info_project_dict = setup_analysis_environment(logger_name=str(__name__), base_dir=base_dir, params=cmd_line_params)
     pprint(cmd_line_params)
     logger.info("\n" + json.dumps(network_params, indent=4))
 

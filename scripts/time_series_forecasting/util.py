@@ -46,5 +46,54 @@ def show_plot(plot_data, delta, title):
 def baseline(history):
   return np.mean(history)
 
+def multivariate_data(dataset, target, start_index, end_index, history_size,
+                      target_size, step, single_step=False):
+  data = []
+  labels = []
+
+  start_index = start_index + history_size
+  if end_index is None:
+    end_index = len(dataset) - target_size
+
+  for i in range(start_index, end_index):
+    indices = range(i-history_size, i, step)
+    data.append(dataset[indices])
+
+    if single_step:
+      labels.append(target[i+target_size])
+    else:
+      labels.append(target[i:i+target_size])
+
+  return np.array(data), np.array(labels)
+
+def plot_train_history(history, title):
+  loss = history.history['loss']
+  val_loss = history.history['val_loss']
+
+  epochs = range(len(loss))
+
+  plt.figure()
+
+  plt.plot(epochs, loss, 'b', label='Training loss')
+  plt.plot(epochs, val_loss, 'r', label='Validation loss')
+  plt.title(title)
+  plt.legend()
+
+  plt.show()
+
+def multi_step_plot(history, true_future, prediction):
+  plt.figure(figsize=(12, 6))
+  num_in = create_time_steps(len(history))
+  num_out = len(true_future)
+
+  plt.plot(num_in, np.array(history[:, 1]), label='History')
+  plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
+           label='True Future')
+  if prediction.any():
+    plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
+             label='Predicted Future')
+  plt.legend(loc='upper left')
+  plt.show()
+
 
 

@@ -9,6 +9,10 @@ import time
 
 import pandas as pd
 
+# =============================================================================================== #
+# BASE UTILS                                                                                      #
+# =============================================================================================== #
+
 def get_workbook() -> Workbook:
     return Workbook()
 
@@ -26,23 +30,32 @@ def create_sheet(workbook: Workbook, sheet_name: str, index: int = None) -> obje
 def get_sheet_by_name(workbook: Workbook, sheet_name: str) -> object: 
     return workbook[f'{sheet_name}']
 
+# =============================================================================================== #
+# ADD HISTORY TO SPREDSHEET                                                                       #
+# =============================================================================================== #
+
 def add_history_2_spredsheet(path_2_history: str, columns: list, workbook: Workbook, sheet_name: str = 'History') -> None:
     sheet_history = create_sheet(workbook, sheet_name, index=1)
-    
-    df_history: pd.DataFrame = pd.read_csv(path_2_history, skiprows=1, names=columns)
 
+    df_history: pd.DataFrame = pd.read_csv(path_2_history, skiprows=1, names=columns)
+    result = df_history.describe()
+
+    for r in dataframe_to_rows(result, index=True, header=True):
+        sheet_history.append(r)
+        pass
+    
+    sheet_history.append([])
+    sheet_history.append([])
+    
     for r in dataframe_to_rows(df_history, index=True, header=True):
         sheet_history.append(r)
         pass
 
-    sheet_history.append([])
-    sheet_history.append([])
-
-    result = df_history.describe()
-    for r in dataframe_to_rows(result, index=True, header=True):
-        sheet_history.append(r)
-        pass
     pass
+
+# =============================================================================================== #
+# ADD INPUT PARAMS TO SPREDSHEET                                                                  #
+# =============================================================================================== #
 
 def _append_keys_and_values_2_sheet(sheet, tmp_dict: dict, col: int, header: list) -> None:
     # keys: list = list(tmp_dict.keys())
@@ -66,6 +79,10 @@ def add_input_params_2_spredsheet(cmd_args_dict: dict, network_input_params_dict
     _append_keys_and_values_2_sheet(sheet_input_params, network_input_params_dict, col=7, header=['Name NN Params', 'Value'])
     pass
 
+# =============================================================================================== #
+# ADD IMAGES TO SPREDSHEET                                                                        #
+# =============================================================================================== #
+
 def add_image_2_spredsheet(image_path: str, workbook: Workbook, sheet_name: str = 'Neural Network Graph', anchor: str = 'A1'):
     sheet_graph_nn = create_sheet(workbook, sheet_name, index=2)
 
@@ -79,3 +96,4 @@ def add_image_2_spredsheet(image_path: str, workbook: Workbook, sheet_name: str 
 # ------------------------------- #
 
 # https://openpyxl.readthedocs.io/en/stable/index.html
+# https://realpython.com/openpyxl-excel-spreadsheets-python/
