@@ -115,4 +115,6 @@ def get_compiled_model_v2(params_dict: dict = None):
     print(model.summary())
     tf.keras.utils.plot_model(model, 'model_graph.png', show_shapes=True)
 
+    model = compile_model(model, num_classes)
+
     return model
