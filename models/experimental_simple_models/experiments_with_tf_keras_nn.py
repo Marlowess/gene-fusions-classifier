@@ -68,35 +68,30 @@ def get_compiled_model_v1(params_dict: dict = None):
 
     return model
 
-def compile_model(model, num_classes):
+def compile_model(model, num_classes: int = -1, type_problem: str = 'regression'):
 
-    if num_classes > 2:
-        model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
-        # model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy', 'categorical_crossentropy'])
+    # Regression
+    if type_problem == 'regression':
+            model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
+    
+    elif type_problem == 'classification':
+        if num_classes > 2:
+            model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
+            # model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy', 'categorical_crossentropy'])
+            model.compile(
+                optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
+                loss='categorical_crossentropy',
+                metrics=['accuracy', 'categorical_crossentropy'])
         
-        # Regression
-        # model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
-
-        # Classification
-        model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
-            loss='categorical_crossentropy',
-            metrics=['accuracy', 'categorical_crossentropy'])
-        
-    elif num_classes == 2:
-        model.add(tf.keras.layers.Dense(num_classes-1,activation='sigmoid'))
-        # model.compile(loss = 'binary_crossentropy', optimizer='adam',metrics = ['accuracy', 'binary_crossentropy'])
-        
-        # Regression
-        # model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
-
-        # Classification
-        model.compile(
-            optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
-            loss='binary_crossentropy',
-            metrics=['accuracy', 'binary_crossentropy'])
-    else:
-        raise Exception(f"ERROR: '{num_classes}' is not allowed.")
+        elif num_classes == 2:
+            model.add(tf.keras.layers.Dense(num_classes-1,activation='sigmoid'))
+    
+            model.compile(
+                optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
+                loss='binary_crossentropy',
+                metrics=['accuracy', 'binary_crossentropy'])
+        else:
+            raise Exception(f"ERROR: '{num_classes}' is not allowed.")
     return model
 
 def get_compiled_model_v2(params_dict: dict = None):
@@ -105,7 +100,8 @@ def get_compiled_model_v2(params_dict: dict = None):
     vocab_size: int = params_dict['vocab_size']
     lstm_units: int = params_dict['lstm_units']
     input_length: int = params_dict['maxlen']
-    num_classes: int = params_dict['num_classes']
+    num_classes: int = params_dict['num_classes'] if 'num_classes' in params_dict.keys() else -1
+    type_problem: int = params_dict['type_problem'] if 'type_problem' in params_dict.keys() else 'regression'
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Embedding(vocab_size, embedding_size, input_length = input_length))
@@ -115,6 +111,6 @@ def get_compiled_model_v2(params_dict: dict = None):
     print(model.summary())
     tf.keras.utils.plot_model(model, 'model_graph.png', show_shapes=True)
 
-    model = compile_model(model, num_classes)
+    model = compile_model(model, num_classes, type_problem)
 
     return model
