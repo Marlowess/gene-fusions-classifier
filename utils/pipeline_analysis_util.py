@@ -17,7 +17,7 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 from utils.preprocess_dataset_util import preprocess_data
 
 from utils.train_util import _holdout
-from utils.train_util import _train, _test
+from utils.train_util import _train, _test, _experimental_train
 
 from models.ModelFactory import ModelFactory
 
@@ -210,6 +210,19 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # _test_dataset(x_train, y_train, x_val, y_val)
 
     # Train Data.
+    if cmd_line_params.experimental_mode is True:
+        _experimental_train(
+            x_train,
+            y_train,
+            x_val,
+            y_val,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger)
+        return
     model = _pipeline_train(
         x_train,
         y_train,

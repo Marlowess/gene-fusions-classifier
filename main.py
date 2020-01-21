@@ -21,11 +21,6 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 
 def read_neural_network_params(cmd_line_params):
 
-    # Experimental Mode is active
-    if cmd_line_params.experimental_mode is True:
-        cmd_line_params.load_network = 
-        return None
-
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
     else:

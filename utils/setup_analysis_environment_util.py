@@ -39,7 +39,8 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
 
     result_dict['base_dir'] = base_dir
 
-    if flag_test is True:
+    if flag_test is True or params.experimental_mode is True:
+        flag_test = True
         results_dir = os.path.join(base_dir, f"{params.subdir}_test")
     else:
         results_dir = os.path.join(base_dir, params.subdir)
