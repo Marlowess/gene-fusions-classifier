@@ -4,7 +4,7 @@ from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
 from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
-from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model_v1
+from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
 # from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 
 class ModelFactory():
@@ -58,7 +58,7 @@ class ModelFactory():
 
    @staticmethod
    def getExperimentalModels(params: dict):
-       return get_compiled_model_v1(params)
+       return get_compiled_model(params)
 
 # class AbstractModel(ABC):
 #     @abstractmethod
