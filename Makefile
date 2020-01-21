@@ -23,7 +23,7 @@ EXCLUDED_FILES = \
 	'*tmp/*' \
 	'*data/*' \
 	'*tests/*' \
-	'*scripts/*'
+	'*scripts/*' \
 	*.png
 
 # Here - Specify which python interpreter to employ.

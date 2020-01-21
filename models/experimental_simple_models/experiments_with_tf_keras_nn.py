@@ -38,7 +38,7 @@ from tensorflow import keras
 # -------------------------------- #
 
 def get_compiled_model_v1():
-    model = tf.keras.models.Sequential()
+    model = tf.keras.Sequential()
     model.add(tf.keras.layers.Embedding(input_dim=5, output_dim=16))
     model.add(tf.keras.layers.LSTM(32,
         return_sequences=True,
