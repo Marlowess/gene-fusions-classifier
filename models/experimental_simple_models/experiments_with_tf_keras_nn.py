@@ -76,10 +76,10 @@ def get_compiled_model_v2(params_dict: dict = None):
     input_length: int = params_dict['maxlen']
 
     model = tf.keras.Sequential()
-    model.add(tf.keras.Embedding(vocab_size, embedding_size, input_length = input_length))
-    model.add(tf.keras.SpatialDropout1D(0.4))
-    model.add(tf.keras.LSTM(lstm_units, dropout=0.2, recurrent_dropout=0.2))
-    model.add(tf.keras.Dense(2,activation='softmax'))
+    model.add(tf.keras.layers.Embedding(vocab_size, embedding_size, input_length = input_length))
+    model.add(tf.keras.layers.SpatialDropout1D(0.4))
+    model.add(tf.keras.layers.LSTM(lstm_units, dropout=0.2, recurrent_dropout=0.2))
+    model.add(tf.keras.layers.Dense(2,activation='softmax'))
     model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy', 'categorical_crossentropy'])
     
     print(model.summary())
