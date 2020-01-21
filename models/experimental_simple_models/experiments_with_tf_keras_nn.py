@@ -68,19 +68,49 @@ def get_compiled_model_v1(params_dict: dict = None):
 
     return model
 
+def compile_model(model, num_classes):
+
+    if num_classes > 2:
+        model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
+        # model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy', 'categorical_crossentropy'])
+        
+        # Regression
+        # model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
+
+        # Classification
+        model.compile(
+            optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
+            loss='categorical_crossentropy',
+            metrics=['accuracy', 'categorical_crossentropy'])
+        
+    elif num_classes == 2:
+        model.add(tf.keras.layers.Dense(num_classes-1,activation='sigmoid'))
+        # model.compile(loss = 'binary_crossentropy', optimizer='adam',metrics = ['accuracy', 'binary_crossentropy'])
+        
+        # Regression
+        # model.compile(optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0), loss='mae')
+
+        # Classification
+        model.compile(
+            optimizer=tf.keras.optimizers.RMSprop(clipvalue=1.0),
+            loss='binary_crossentropy',
+            metrics=['accuracy', 'binary_crossentropy'])
+    else:
+        raise Exception(f"ERROR: '{num_classes}' is not allowed.")
+    return model
+
 def get_compiled_model_v2(params_dict: dict = None):
 
     embedding_size: int = params_dict['embedding_size']
     vocab_size: int = params_dict['vocab_size']
     lstm_units: int = params_dict['lstm_units']
     input_length: int = params_dict['maxlen']
+    num_classes: int = params_dict['num_classes']
 
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Embedding(vocab_size, embedding_size, input_length = input_length))
     model.add(tf.keras.layers.SpatialDropout1D(0.4))
     model.add(tf.keras.layers.LSTM(lstm_units, dropout=0.2, recurrent_dropout=0.2))
-    model.add(tf.keras.layers.Dense(2,activation='softmax'))
-    model.compile(loss = 'categorical_crossentropy', optimizer='adam',metrics = ['accuracy', 'categorical_crossentropy'])
     
     print(model.summary())
     tf.keras.utils.plot_model(model, 'model_graph.png', show_shapes=True)
