@@ -44,7 +44,7 @@ class ModelEmbeddingBidirect():
         embed = tf.keras.layers.Embedding(params['vocabulary_len'], 
                                         params['embedding_size'], 
                                         embeddings_regularizer=tf.keras.regularizers.l2(params['embedding_regularizer']),
-                                        embeddings_initializer=weight_init)(masking_layer)
+                                        embeddings_initializer=weight_init)(masking_layer)        
 
         # Query embeddings of shape [batch_size, Tq, dimension].
         query_embeddings = tf.keras.layers.Activation('tanh')(embed)

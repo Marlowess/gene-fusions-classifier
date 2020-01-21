@@ -90,7 +90,7 @@ def test_pipeline_util(test_info_dict: dict):
 # MAIN FUNCTION                                                                                   #
 # =============================================================================================== #
 
-def main(conf_load_dict: dict, cmd_line_params: dict):
+def main(cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'
     network_params = read_neural_network_params(cmd_line_params)
@@ -108,6 +108,17 @@ def main(conf_load_dict: dict, cmd_line_params: dict):
     
     # ------------------------------------------------------ # 
     # Here - Test pipeline util
+
+    conf_load_dict: dict = {
+        'sequence_type': cmd_line_params.sequence_type,
+        'path': cmd_line_params.network_parameters,
+        'columns_names': [
+            'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
+        ],
+        'train_bins': [1,2,3],
+        'val_bins': [4],
+        'test_bins': [5],
+    }
 
     conf_preprocess_dict: dict = {
         'padding': 'post',
@@ -131,18 +142,7 @@ def main(conf_load_dict: dict, cmd_line_params: dict):
 
 if __name__ == "__main__":
 
-    conf_load_dict: dict = {
-        'sequence_type': 'dna',
-        'path': './data/bins_translated',
-        'columns_names': [
-            'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
-        ],
-        'train_bins': [1,2,3],
-        'val_bins': [4],
-        'test_bins': [5],
-    }
-
-
+    # Useless rigth now. Just ignore
     dict_images: dict = {
         'loss': {
             'title': 'Training With Validation Loss',
@@ -172,5 +172,5 @@ if __name__ == "__main__":
 
     cmd_line_params, _ = get_parsed_params()
 
-    main(conf_load_dict, cmd_line_params)
+    main(cmd_line_params)
     pass
