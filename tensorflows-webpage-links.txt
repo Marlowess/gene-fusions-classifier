@@ -1,0 +1,29 @@
+# ---------------------------------------- #
+# Tensorflow Web Pages                     #
+# ---------------------------------------- #
+
+# --------------------------------------------------- #
+- No    = 1
+- TITLE = Train and evaluate with Keras
+- LINK  = https://www.tensorflow.org/guide/keras/train_and_evaluate
+
+# --------------------------------------------------- #
+- No    = 2
+- TITLE = tf.data.Dataset
+- LINK  = https://www.tensorflow.org/api_docs/python/tf/data/Dataset
+
+# --------------------------------------------------- #
+- No    = 3
+- TITLE = tf.data: Build TensorFlow input pipelines
+- LINK  = https://www.tensorflow.org/guide/data#time_series_windowing
+
+# --------------------------------------------------- #
+- No    = 4
+- TITLE = Using TensorBoard in Notebooks
+- LINK  = https://www.tensorflow.org/tensorboard/tensorboard_in_notebooks
+
+
+# --------------------------------------------------- #
+- No    = 5
+- TITLE = Time series forecasting
+- LINK  = https://www.tensorflow.org/tutorials/structured_data/time_series
