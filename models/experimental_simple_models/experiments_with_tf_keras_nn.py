@@ -33,6 +33,10 @@ from sklearn.metrics import auc as auc_test
 
 from tensorflow import keras
 
+# -------------------------------- #
+# Functions                        #
+# -------------------------------- #
+
 def get_compiled_model_v1():
     model = tf.keras.models.Sequential()
     model.add(tf.keras.layers.Embedding(input_dim=5, output_dim=16))
