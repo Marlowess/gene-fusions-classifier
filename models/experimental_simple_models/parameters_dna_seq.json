@@ -1,5 +1,10 @@
 {
     "maxlen": 14000,
     "epochs":30,
-    "batch_size": 32
+    "batch_size": 32,
+    "embedding_size": 8,
+    "lstm_units": 8,
+    "vocab_size": 5,
+    "version": "get_compiled_model_v2"
+
 }

@@ -28,7 +28,7 @@ class ModelFactory():
          return ModelFactory.getModelOneHotUnidirect(params)
       
       if model_name == 'ExperimentalModels':
-         return ModelFactory.getExperimentalModels()
+         return ModelFactory.getExperimentalModels(params)
    
       raise ValueError(f'ERROR: {model_name} is not allowed!')
    
@@ -57,8 +57,8 @@ class ModelFactory():
        return None # ModelOneHotUnidirect(params)
 
    @staticmethod
-   def getExperimentalModels():
-       return get_compiled_model_v1()
+   def getExperimentalModels(params: dict):
+       return get_compiled_model_v1(params)
 
 # class AbstractModel(ABC):
 #     @abstractmethod
