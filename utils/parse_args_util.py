@@ -38,5 +38,6 @@ def get_parsed_params() -> dict:
     params, parser = _get_custom_parser(subdir)
 
     if params.subdir != subdir:
-        params.subdir = f"{params.subdir}/{subdir_date}/train_{subdir_time}"
+        params.subdir = \
+            os.path.join(f"{params.subdir}", f"{subdir_date}", f"train_{subdir_time}")
     return params, parser

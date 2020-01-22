@@ -18,7 +18,7 @@ class ModelEmbeddingUnidirect():
         # Initialize the keras sequencial model
         self.model = keras.Sequential()
 
-        self.model.add(tf.keras.layers.Masking(mask_value=0, input_shape=(self.params['maxlen']), name="masking_layer"))
+        self.model.add(tf.keras.layers.Masking(mask_value=0, name="masking_layer"))
 
         # Embedding layer
         self.model.add(tf.keras.layers.Embedding(
@@ -95,7 +95,8 @@ class ModelEmbeddingUnidirect():
             shuffle=shuffle,
             callbacks=self._get_callbacks(),
             validation_data=validation_data)
-        return history
+        trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
+        return history, trained_epochs
     
     def evaluate(self, X_test, y_test) -> object:
         scores = self.model.evaluate(X_test, y_test)

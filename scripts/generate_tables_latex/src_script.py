@@ -72,6 +72,7 @@ def main(cmd_args, data_dict: dict):
     print()
     print("Create csv file with comined hyper-parameters to be tested...")
     df: pd.DataFrame = create_grid_search_table(data_dict, params_list, cmd_args.output_file)
+
     pass
 
 if __name__ == "__main__":
