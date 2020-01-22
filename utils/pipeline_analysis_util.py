@@ -211,7 +211,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
 
     # Train Data.
     if cmd_line_params.experimental_mode is True:
-        _experimental_train(
+        model = _experimental_train(
             x_train,
             y_train,
             x_val,
@@ -222,6 +222,10 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             meta_info_project_dict,
             tokenizer,
             main_logger)
+        scores = model.evaluate(x_test, y_test)
+        print(
+            '\n'.join([" > {}: {}".format(metric, value) for metric, value in zip(model.metrics_names, scores)])
+        )
         return
     model = _pipeline_train(
         x_train,

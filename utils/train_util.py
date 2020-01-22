@@ -82,9 +82,10 @@ def _experimental_train(
         x_train,
         y_train,
         batch_size=batch_size,
+        validation_data=(x_val,y_val),
         epochs=5,
         verbose=1)
-    pass
+    return model
 
 
 def _holdout(

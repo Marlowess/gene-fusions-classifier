@@ -32,9 +32,11 @@ def _get_custom_parser(subdir: str) -> object:
 def get_parsed_params() -> dict:
 
     subdir: str = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d_%H%M%S')
+    subdir_date: str = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d') 
+    subdir_time: str = datetime.datetime.strftime(datetime.datetime.now(), '%H_%M_%S') 
 
     params, parser = _get_custom_parser(subdir)
 
     if params.subdir != subdir:
-        params.subdir = f"{params.subdir}_{subdir}"
+        params.subdir = f"{params.subdir}/{subdir_date}/train_{subdir_time}"
     return params, parser

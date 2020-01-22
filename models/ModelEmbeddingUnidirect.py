@@ -18,11 +18,13 @@ class ModelEmbeddingUnidirect():
         # Initialize the keras sequencial model
         self.model = keras.Sequential()
 
+        self.model.add(tf.keras.layers.Masking(mask_value=0, input_shape=(self.params['maxlen']), name="masking_layer"))
+
         # Embedding layer
         self.model.add(tf.keras.layers.Embedding(
             input_dim=self.params['input_dim'],
             output_dim=self.params['output_dim'],
-            mask_zero=self.params['mask_zero'],
+            # mask_zero=self.params['mask_zero'],
             embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][0]),
             embeddings_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
             name=f'embedding_layer_in{self.params["input_dim"]}_out{self.params["output_dim"]}'))
@@ -57,20 +59,20 @@ class ModelEmbeddingUnidirect():
         clip_norm: float = self.params['clip_norm']
         lr: float = self.params['lr']
         
-        optimizer_obj = self.get_optimizer(
+        optimizer_obj = self._get_optimizer(
             optimizer_name=optimizer.lower(),
             lr=lr,
             clipnorm=clip_norm)
 
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer_obj,
-                            metrics=['accuracy', f1_m, precision_m, recall_m])
+                            metrics=['accuracy', 'binary_crossentropy', f1_m, precision_m, recall_m])
         
         
         summary_model_str: str = self.model.summary()
         return summary_model_str
 
-    def get_optimizer(self, optimizer_name='adam', lr=0.001, clipnorm=1.0):
+    def _get_optimizer(self, optimizer_name='adam', lr=0.001, clipnorm=1.0):
         if optimizer_name == 'adadelta':
             optimizer = tf.keras.optimizers.Adadelta(lr, clipnorm=clipnorm)
         elif optimizer_name == 'adagrad':
