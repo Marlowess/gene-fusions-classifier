@@ -3,3 +3,4 @@ __pycache__/
 bioinfo_project/
 test_feature.py
 *.png
+analysis.xlsx
