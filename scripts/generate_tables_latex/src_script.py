@@ -17,7 +17,7 @@ from sklearn.model_selection import ParameterGrid
 
 # from tables_latex_util import create_example_table
 
-def create_grid_search_table(params_dict: dict, params_list: list, filename: str):
+def create_grid_search_table(params_dict: dict, params_list: list, filename: str) -> pd.DataFrame:
     
     records_list : list = list()
 
@@ -42,7 +42,7 @@ def create_grid_search_table(params_dict: dict, params_list: list, filename: str
 
     df = pd.DataFrame(data=records_list, columns=params_list)
     df.to_csv(f"{filename}",index=False)
-    pass
+    return copy.deepcopy(df)
 
 def get_custom_parser():
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
@@ -71,7 +71,7 @@ def main(cmd_args, data_dict: dict):
 
     print()
     print("Create csv file with comined hyper-parameters to be tested...")
-    create_grid_search_table(data_dict, params_list, cmd_args.output_file)
+    df: pd.DataFrame = create_grid_search_table(data_dict, params_list, cmd_args.output_file)
     pass
 
 if __name__ == "__main__":
