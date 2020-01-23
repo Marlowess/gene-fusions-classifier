@@ -3,13 +3,6 @@ from tensorflow import keras
 import os
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import GridSearchCV
-from keras.wrappers.scikit_learn import KerasClassifier
-from collections import Counter
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
-from sklearn.metrics import auc as auc_test
-from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
 
 def _get_optimizer(optimizer_name='adam', lr=0.001, clipnorm=1.0):
@@ -92,23 +85,23 @@ def _build_model(model_params: dict):
             input_dim=vocab_size,
             output_dim=embedding_size, # mask_zero=model_params['mask_zero'],
             embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[0]),
-            # embeddings_regularizer=tf.keras.regularizers.l2(l2[0]),
+            embeddings_regularizer=tf.keras.regularizers.l2(l2[0]),
             name=f'embedding_layer_in{vocab_size}_out{embedding_size}'))
 
     # Conv1D layer
-    model.add(tf.keras.layers.Conv1D(
-        kernel_size=model_params["kernel_size"],
-        activation=model_params["activation"],
-        strides=model_params["strides"],
-        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
-        # kernel_regularizer=tf.keras.regularizers.l2(l2[0]),
-        filters=filters,
-    ))
+    # model.add(tf.keras.layers.Conv1D(
+    #     kernel_size=model_params["kernel_size"],
+    #     activation=model_params["activation"],
+    #     strides=model_params["strides"],
+    #     kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
+    #     # kernel_regularizer=tf.keras.regularizers.l2(l2[0]),
+    #     filters=filters,
+    # ))
 
     # Regularization MaxPooling
     # model.add(tf.keras.layers.MaxPool1D())
-    model.add(tf.keras.layers.AveragePooling1D())
-    model.add(tf.keras.layers.BatchNormalization())
+    # model.add(tf.keras.layers.AveragePooling1D())
+    # model.add(tf.keras.layers.BatchNormalization())
     
     # First LSTM layer
     model.add(tf.keras.layers.LSTM(
@@ -129,7 +122,7 @@ def _build_model(model_params: dict):
         dropout=lstms_dropouts[0],
         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
         # bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
-        # kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
+        kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
         name=f'lstm_2_units{lstms_units[1]}'))
     
     # Dropout after the lstm layer

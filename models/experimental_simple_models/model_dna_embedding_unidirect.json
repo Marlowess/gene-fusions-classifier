@@ -1,19 +1,19 @@
 {
     "maxlen": 14400,
     "vocab_size": 5,
-    "embedding_size": 16,
+    "embedding_size": 8,
 
     "kernel_size": 3,
     "activation": "relu",
     "filters": 8,
     "strides": 1,
 
-    "lstms_units": [16, 32],
-    "lstms_dropouts": [0.0, 0.0],
+    "lstms_units": [32, 64],
+    "lstms_dropouts": [0.2, 0.2],
     "return_sequences": [true, false],
     
-    "seeds": [42, 101, 17, 107],
-    "l2": [0.01, 0.001, 0.01],
+    "seeds": [107, 107, 107, 107],
+    "l2": [0.01, 0.01, 0.01],
     "droputs_rates": [0.5],
     
     "optimizer": "adam",

@@ -154,13 +154,15 @@ class ModelEmbeddingBidirect():
     def save_weights(self):
         pass    
 
-    def fit_generator(self):
-        pass    
+    def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
+        history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),
+                                           validation_data=validation_data)
+        return history 
     
     def plot_model(self,) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
 
-    def _get_callbacks(self):
+    def _get_callbacks(self, train=True):
         """
         It defines the callbacks for this specific architecture
         """
