@@ -7,6 +7,7 @@ from models.ModelOneHotProtein import ModelOneHotProtein
 from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
 # from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 from models.experimental_simple_models import raw_models_sequentials
+from models.experimental_simple_models import model_dna_embedding_unidirect
 from models.WrapperRawModel import WrapperRawModel
 
 
@@ -69,6 +70,9 @@ class ModelFactory():
 
       if params['name'] == 'raw_models_sequentials':
          model, callbacks = raw_models_sequentials.get_compiled_model(params, program_params)  
+      if params['name'] == 'model_dna_embedding_unidirect':
+         model, callbacks = model_dna_embedding_unidirect.get_compiled_model(params, program_params)  
+         
       
       return WrapperRawModel(model, params, callbacks)
     

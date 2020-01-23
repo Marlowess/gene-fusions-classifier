@@ -113,7 +113,7 @@ ULSTM = genes_fusions_classifier
 ARGS_TRAIN_ULSTM = --train \
 	--load_network WrappedRawModel \
 	--sequence_type dna \
-	--network_parameters models/experimental_simple_models/parameters_dna_seq.json \
+	--network_parameters models/experimental_simple_models/model_dna_embedding_unidirect.json \
 	--num_epochs 2 \
 	--batch_size 32 \
 # =============================================================================================== #

@@ -227,9 +227,8 @@ def _train(
     # Get Callbacks.
     base_dir: str = meta_info_project_dict['base_dir']
     results_dir = meta_info_project_dict['train_result_path']
-    history_filename: str = os.path.join(base_dir, 'history.csv')
+    # history_filename: str = os.path.join(base_dir, 'history.csv')
     network_params['result_base_dir'] = results_dir   
-    # callbacks_list = _get_callbacks_list(history_filename)
 
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
@@ -306,27 +305,4 @@ def _test(
     _log_info_message("Resulting metrics:", logger)
     for (k,v) in evaluation_metrics.items():
         _log_info_message("{}: {}".format(k, v), logger)
-        
-
-# def _get_callbacks_list(history_filename: str) -> list:
-#     callbacks_list: list = [
-#                     keras.callbacks.EarlyStopping(
-#                         monitor='val_loss',
-#                         patience=2,
-#                         restore_best_weights=True
-#                     ),
-#                     keras.callbacks.ModelCheckpoint(
-#                         filepath='my_model.h5',
-#                         monitor='val_loss',
-#                         save_best_only=True,
-#                         verbose=0
-#                     ),
-#                     keras.callbacks.CSVLogger(history_filename),
-#                     keras.callbacks.ReduceLROnPlateau(
-#                         patience=5,
-#                         monitor='val_loss',
-#                         factor=0.75,
-#                         verbose=1,
-#                         min_lr=5e-6)
-#     ]
-#     return callbacks_list
+    pass

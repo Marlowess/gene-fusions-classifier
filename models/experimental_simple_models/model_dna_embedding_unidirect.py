@@ -54,6 +54,7 @@ def _getcallbacks(program_params) -> list:
         ]
     return callbacks_list
 
+
 def _build_model(model_params: dict):
 
     # ----------------------------# 
@@ -66,6 +67,9 @@ def _build_model(model_params: dict):
     # Mapping a vocab-size to embbedding-size
     vocab_size: int = model_params['vocab_size']
     embedding_size: int = model_params['embedding_size']
+
+    # Conv1D
+    filters = model_params['filters']
     
     # LSTM units per layer
     lstms_units: list = model_params['lstms_units']
@@ -73,7 +77,8 @@ def _build_model(model_params: dict):
     # Regularization factors
     seeds: list = model_params['seeds']
     l2: list = model_params['l2']
-    droputs_rates: list = model_params['droputs_rates']
+    dropouts_rates: list = model_params['droputs_rates']
+    lstms_dropouts: list = model_params['lstms_dropouts']
 
     # ----------------------------# 
     # Build model                 #
@@ -87,41 +92,59 @@ def _build_model(model_params: dict):
             input_dim=vocab_size,
             output_dim=embedding_size, # mask_zero=model_params['mask_zero'],
             embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[0]),
-            embeddings_regularizer=tf.keras.regularizers.l2(l2[0]),
+            # embeddings_regularizer=tf.keras.regularizers.l2(l2[0]),
             name=f'embedding_layer_in{vocab_size}_out{embedding_size}'))
+
+    # Conv1D layer
+    model.add(tf.keras.layers.Conv1D(
+        kernel_size=model_params["kernel_size"],
+        activation=model_params["activation"],
+        strides=model_params["strides"],
+        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
+        # kernel_regularizer=tf.keras.regularizers.l2(l2[0]),
+        filters=filters,
+    ))
+
+    # Regularization MaxPooling
+    # model.add(tf.keras.layers.MaxPool1D())
+    model.add(tf.keras.layers.AveragePooling1D())
+    model.add(tf.keras.layers.BatchNormalization())
     
     # First LSTM layer
     model.add(tf.keras.layers.LSTM(
         units=lstms_units[0],
-        return_sequences=True,
-        unit_forget_bias=True,
-        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
-        bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
+        return_sequences=model_params["return_sequences"][0],
+        # unit_forget_bias=True,
+        dropout=lstms_dropouts[0],
+        kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
+        # bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[1]),
         kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
         name=f'lstm_1_units{lstms_units[0]}'))
     
     # Second LSTM layer
     model.add(tf.keras.layers.LSTM(
         units=lstms_units[1],
-        return_sequences=False,
-        unit_forget_bias=True,
+        return_sequences=model_params["return_sequences"][1],
+        # unit_forget_bias=True,
+        dropout=lstms_dropouts[0],
         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
-        bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
-        kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
+        # bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[2]),
+        # kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
         name=f'lstm_2_units{lstms_units[1]}'))
     
     # Dropout after the lstm layer
-    model.add(tf.keras.layers.Dropout(droputs_rates[0], seed=seeds[0]))
+    model.add(tf.keras.layers.Dropout(dropouts_rates[0], seed=seeds[0]))
 
     # Fully connected (prediction) layer
     model.add(tf.keras.layers.Dense(
         units=1,
         activation='sigmoid',
         kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[3]),
-        bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[3]),
+        # bias_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[3]),
         kernel_regularizer=tf.keras.regularizers.l2(l2[2]),
         name=f'dense_activation_sigmoid'))
     return model
+
 
 def get_compiled_model(model_params: dict, program_params: dict):
     

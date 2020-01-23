@@ -159,7 +159,8 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             network_params,
             meta_info_project_dict,
             tokenizer,
-            main_logger
+            logger=main_logger,
+            validation_data=(x_val, y_val),
         )
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)

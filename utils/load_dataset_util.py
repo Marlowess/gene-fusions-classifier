@@ -105,13 +105,13 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
     sequences = df[sequence_column].values
     labels = df['Label'].values
     
-    len_sequences_list = list(map(lambda xi: len(xi), sequences))
-    tmp_df = pd.DataFrame(len_sequences_list)
+    # len_sequences_list = list(map(lambda xi: len(xi), sequences))
+    # tmp_df = pd.DataFrame(len_sequences_list)
+    # print(tmp_df.describe())
     
-    print(tmp_df.describe())
     return sequences, labels
 
-def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging.Logger = None) -> object:
+def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging.Logger = None, verbose: int = 0) -> object:
     """Function `_get_full_dataframe` taking as input parameters a Python str that is the path argument
     which refers to the dataset location used for performing some kind of analysis later, a list of bins to load or fetch and
     then stack or combine into a single pandas df, and finally a list of columns names for both data samples' features and labels.
@@ -128,10 +128,12 @@ def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging
     df_list = list()
     for _, bin_no in enumerate(bins_list):
         bin_path = os.path.join(path, f"bin_{bin_no}_translated.csv")
-        print(f" > Adding bin: {bin_path}...", end='')
+        if verbose != 0:
+            print(f" > Adding bin: {bin_path}...", end='')
         tmp_df = pd.read_csv(bin_path, skiprows=1, names=names)
         df_list.append(tmp_df)
-        print(f" Done.")
+        if verbose != 0:
+            print(f" Done.")
         _log_info_message(f" > Added bin: {bin_path}, Done.", logger, skip_message=True)
     result_df = pd.concat(df_list)
     return result_df

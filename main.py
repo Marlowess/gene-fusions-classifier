@@ -11,6 +11,8 @@ import time
 
 from pprint import pprint
 
+import tensorflow as tf
+
 from utils.parse_args_util import get_parsed_params
 from utils.pipeline_analysis_util import run_pipeline
 from utils.setup_analysis_environment_util import setup_analysis_environment
@@ -49,6 +51,8 @@ def get_neural_network_params_from_file(network_params_path: str) -> dict:
 
 def main(cmd_line_params: dict):
 
+    tf.random.set_seed(cmd_line_params.seed)
+
     base_dir: str = 'bioinfo_project'        
 
     network_params = read_neural_network_params(cmd_line_params) 
@@ -56,7 +60,7 @@ def main(cmd_line_params: dict):
     # It defines the output file-system
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=str(__name__), base_dir=base_dir, params=cmd_line_params)
-    pprint(cmd_line_params)
+    # pprint(cmd_line_params)
     logger.info("\n" + json.dumps(network_params, indent=4))
 
     conf_load_dict: dict = {
