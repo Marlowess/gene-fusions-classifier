@@ -18,16 +18,18 @@ class ModelEmbeddingUnidirect():
         # Initialize the keras sequencial model
         self.model = keras.Sequential()
 
+        self.model.add(tf.keras.layers.Input(shape=(self.params['maxlen'],)))
+
         self.model.add(tf.keras.layers.Masking(mask_value=0, name="masking_layer"))
 
         # Embedding layer
         self.model.add(tf.keras.layers.Embedding(
-            input_dim=self.params['input_dim'],
-            output_dim=self.params['output_dim'],
+            input_dim=self.params['vocab_size'],
+            output_dim=self.params['embedding_size'],
             # mask_zero=self.params['mask_zero'],
             embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][0]),
-            embeddings_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
-            name=f'embedding_layer_in{self.params["input_dim"]}_out{self.params["output_dim"]}'))
+            embeddings_regularizer=tf.keras.regularizers.l2(self.params['l2_regularizer']),
+            name=f'embedding_layer_in{self.params["vocab_size"]}_out{self.params["embedding_size"]}'))
         
         # Dropout after the embedding layer
         self.model.add(tf.keras.layers.Dropout(self.params['embedding_dropout_rate'], seed=self.params['seeds'][0]))
@@ -39,7 +41,7 @@ class ModelEmbeddingUnidirect():
             unit_forget_bias=True,
             kernel_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][1]),
             bias_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][2]),
-            kernel_regularizer=tf.keras.regularizers.l2(params['l2_regularizer']),
+            kernel_regularizer=tf.keras.regularizers.l2(self.params['l2_regularizer']),
             name=f'lstm_1_units{self.params["lstm_units"]}'))  
 
         # Dropout after the lstm layer
@@ -51,7 +53,7 @@ class ModelEmbeddingUnidirect():
             activation='sigmoid',
             kernel_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][3]),
             bias_initializer=tf.keras.initializers.glorot_uniform(seed=self.params['seeds'][4]),
-            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']),
+            kernel_regularizer=tf.keras.regularizers.l2(self.params['last_dense_l2_regularizer']),
             name=f'dense_1_activation_sigmoid'))
 
     def build(self, logger=None) -> str:        
@@ -68,9 +70,9 @@ class ModelEmbeddingUnidirect():
                             optimizer=optimizer_obj,
                             metrics=['accuracy', 'binary_crossentropy', f1_m, precision_m, recall_m])
         
-        
-        summary_model_str: str = self.model.summary()
-        return summary_model_str
+        summary_str: str = ''
+        # self.model.summary(print_fn=lambda x: str(summary_str + '\n' + str(x)))
+        return '\n' + summary_str
 
     def _get_optimizer(self, optimizer_name='adam', lr=0.001, clipnorm=1.0):
         if optimizer_name == 'adadelta':
@@ -95,13 +97,15 @@ class ModelEmbeddingUnidirect():
             shuffle=shuffle,
             callbacks=self._get_callbacks(),
             validation_data=validation_data)
-        trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
-        return history, trained_epochs
+        # trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
+        return history, 0 # trained_epochs
     
-    def evaluate(self, X_test, y_test) -> object:
+    def evaluate(self, X_test, y_test) -> dict:
         scores = self.model.evaluate(X_test, y_test)
-        print("{}: {}".format(self.model.metrics_names[1], scores[1] * 100))
-        return scores
+        # print("{}: {}".format(self.model.metrics_names[1], scores[1] * 100))
+
+        result_scores_dict: dict = dict(zip(self.get_metrics_names(), scores))
+        return result_scores_dict
     
     def get_metrics_names(self,) -> object:
         return copy.deepcopy(self.model.metrics_names)

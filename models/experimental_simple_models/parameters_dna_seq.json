@@ -1,12 +1,17 @@
 {
-    "maxlen": 14000,
-    "epochs":30,
-    "batch_size": 32,
-    "embedding_size": 8,
-    "lstm_units": 8,
+    "maxlen": 14690,
     "vocab_size": 5,
-    "version": "get_compiled_model_v2",
+    "embedding_size": 2,
+    "lstms_units": [16, 32],
+    
+    "seeds": [42, 101, 17, 107],
+    "l2": [0.01, 0.001, 0.01],
+    "droputs_rates": [0.5],
+    
+    "optimizer": "adam",
+    "clip_norm": 1.0,
+    "lr": 1e-3,
     "num_classes": 2,
-    "type_problem": "classification"
+    "name": "raw_models_sequentials"
 
 }

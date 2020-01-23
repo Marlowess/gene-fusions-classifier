@@ -8,6 +8,8 @@ import logging
 import numpy as np
 import pandas as pd
 
+import matplotlib as plt
+
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
     Params:
@@ -102,6 +104,11 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
     
     sequences = df[sequence_column].values
     labels = df['Label'].values
+    
+    len_sequences_list = list(map(lambda xi: len(xi), sequences))
+    tmp_df = pd.DataFrame(len_sequences_list)
+    
+    print(tmp_df.describe())
     return sequences, labels
 
 def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging.Logger = None) -> object:

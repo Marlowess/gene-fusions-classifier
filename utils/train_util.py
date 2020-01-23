@@ -196,6 +196,7 @@ def _train(
     meta_info_project_dict: dict,
     tokenizer: Tokenizer,
     logger: logging.Logger,
+    validation_data = None,
     message: str = 'Performing training phase...') -> object:
     
     """
@@ -232,26 +233,35 @@ def _train(
 
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
-    model = ModelFactory.getModelByName(network_model_name, network_params)
+    if network_model_name == 'WrappedRawModel':
+        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    else:
+        model = ModelFactory.getModelByName(network_model_name, network_params)
 
     # Build model.
     _log_info_message(f"> build model", logger)
-    summary_model: str = model.build(logger)
-    _log_info_message(f"\n{summary_model}", logger)
+    model.build(logger)
     model.plot_model()
 
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
-    history = model.fit_generator(
-        generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
-        steps=steps,
-        callbacks_list=[],
+    if network_model_name == 'WrappedRawModel':
+        history = model.train(x_train, y_train,
+            epochs=cmd_line_params.num_epochs,
+            batch_size=cmd_line_params.batch_size,
+            validation_data=validation_data,
+        )
+    else:
+        history = model.fit_generator(
+            generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
+            steps=steps,
+            callbacks_list=[],
         )
 
     # plot graph of loss and accuracy
     plot_loss(history, results_dir, "Training loss", "loss", savefig_flag=True, showfig_flag=False)
-    # plot_accuracy(history, base_dir, "Training and validation accuracies", "accuracy", save_fig_flag=True)
+    # plot_accuracy(history, results_dir, "Training and validation accuracies", "accuracy", save_fig_flag=True)
     # serialize history
     with open(os.path.join(results_dir, "history"), 'wb') as history_pickle:
         pickle.dump(history.history, history_pickle)

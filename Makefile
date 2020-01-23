@@ -73,7 +73,7 @@ ARGS_TEST_ENVIRONMENT_SETUP = --validation --train --network_parameters models/M
 # Test Load Project's data     #
 # ---------------------------- #
 SCRIPT_TEST_FETCH_AND_PRE_PROCESS = script_fetch_and_preprocess_test.py
-ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect
+ARGS_TEST_FETCH_AND_PREPROCESS = --validation --train --sequence_type dna --network_parameters models/ModelEmbeddingBidirect.json --load_network ModelEmbeddingBidirect
 
 # ---------------------------- #
 # Test Pipeline for Analyses   #
@@ -105,6 +105,17 @@ ARGS_TRAIN_M2 = --train --load_network --network_parameters models/ModelOneHotPr
 ARGS_VALIDATION_TRAIN_TEST_M2 = --validation --train --test --load_network ModelOneHotProtein --network_parameters models/ModelOneHotProtein.json --sequence_type protein --onehot_flag
 ARGS_TRAIN_TEST_M2 = --train --test --load_network ModelOneHotProtein --sequence_type protein --network_parameters models/ModelOneHotProtein.json --steps 10 --onehot_flag
 
+
+# ---------------------------- ------------------------------ #
+# Test Analys model one hot encoding dna (Frank-Added)        #
+# ----------------------------------------------------------- #
+ULSTM = genes_fusions_classifier
+ARGS_TRAIN_ULSTM = --train \
+	--load_network WrappedRawModel \
+	--sequence_type dna \
+	--network_parameters models/experimental_simple_models/parameters_dna_seq.json \
+	--num_epochs 2 \
+	--batch_size 32 \
 # =============================================================================================== #
 # TASKS SECTION                                                                                   #
 # =============================================================================================== #
@@ -139,6 +150,9 @@ run_validation_train_test_on_model_one_hot_encoding_protein:
 
 run_train_test_on_model_one_hot_encoding_protein:
 	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_TRAIN_TEST_M2)
+
+run_train_ULSTM:
+	$(SCRIPT_INTERPETER) $(ULSTM) $(ARGS_TRAIN_ULSTM)
 
 # ---------------------------- ---------------------#
 # TESTS - SECTION                                   #
