@@ -128,6 +128,8 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
 
     model = None
     _log_info_message(f"----> Perform Analysis...", main_logger)
+
+    _log_info_message(network_params, main_logger)
     
     if cmd_line_params.validation is True:
         model, epochs_trained = _holdout(
@@ -149,17 +151,23 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
         # we take steps from early stopping the holdout validation otherwise must be specified from command line 
         if ('steps' not in locals()):
             steps = cmd_line_params.steps 
+        if ('epochs_trained' not in locals()):
+            epochs_trained = cmd_line_params.early_stopping_epoch
+            print(epochs_trained)
        
+        # adding bin 4 to training set and pass the shape of len of bins 1,2,3 in order to 
+        # train the same number of steps before overfitting in holdout
         model = _train(
-            x_train,
-            y_train,
-            steps,
+            np.concatenate((x_train, x_val), axis=0),
+            np.concatenate((y_train, y_val), axis=0),
+            x_train.shape[0],
             conf_load_dict,
             cmd_line_params,
             network_params,
             meta_info_project_dict,
             tokenizer,
-            main_logger
+            main_logger,
+            epochs_trained=epochs_trained
         )
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
@@ -170,12 +178,13 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
                    network_params, meta_info_project_dict, main_logger):
     
     if cmd_line_params.test is True:
-        if ('model' not in locals()):
+        if ('model' not in locals() or model is None):
             if (cmd_line_params.pretrained_model is None):
                 raise ValueError("In order to perform test a pretrained model " \
                                 "must be specified")
             # Todo check whether the model actually exists
             model = ModelFactory.getModelByName(cmd_line_params.load_network, network_params)
+            model.build(main_logger)
         
         _test(
             model,

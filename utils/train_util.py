@@ -13,7 +13,7 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
 from utils.plot_functions import plot_loss, plot_accuracy
 
-def gen(X, y, batch_size=32, shuffle=True, verbose=0, seed=None):
+def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
     """
     Convert dataset in generator for training model a specific number of step
     
@@ -120,7 +120,6 @@ def _holdout(
     vocabulary_len: int = len(tokenizer.index_word) + 1
     network_params['vocabulary_len'] = vocabulary_len
 
-    # Get Callbacks.
     base_dir: str = meta_info_project_dict['base_dir']
     results_dir = meta_info_project_dict['val_result_path']
     history_filename: str = os.path.join(base_dir, 'history.csv')
@@ -154,6 +153,7 @@ def _holdout(
         )
     _log_info_message(f"> train model (holdout): Done.", logger)
    
+    model.save_weights()
     # log number of epochs trained 
     _log_info_message("Trained for {} epochs".format(trained_epochs), logger)
     
@@ -180,13 +180,15 @@ def _holdout(
 def _train(
     x_train,
     y_train,
-    steps,
+    x_subtrain_size,
     conf_load_dict: dict,
     cmd_line_params,
     network_params: dict,
     meta_info_project_dict: dict,
     tokenizer: Tokenizer,
     logger: logging.Logger,
+    steps=None,
+    epochs_trained=None,
     message: str = 'Performing training phase...') -> object:
     
     """
@@ -208,7 +210,7 @@ def _train(
     # Some logs recorded.
     _log_info_message(f" [*] {message}", logger)
 
-    train_bins = conf_load_dict['train_bins']
+    train_bins = conf_load_dict['train_bins'] + conf_load_dict['val_bins']
     _log_info_message("Training on bins: {}".format(train_bins), logger)
 
     vocabulary_len: int = len(tokenizer.index_word) + 1
@@ -234,12 +236,21 @@ def _train(
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
-    history = model.fit_generator(
-        generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
-        steps=steps,
+    # history = model.fit_generator(
+    #     generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
+    #     steps_per_epochs=steps,
+    #     callbacks_list=[],
+    #     )
+
+    history = model.fit_generator2(
+        generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
+        steps_per_epoch=np.floor(x_subtrain_size/network_params['batch_size']),
+        epochs=epochs_trained,
         callbacks_list=[],
         )
-
+    
+    model.save_weights()
+    
     # plot graph of loss and accuracy
     plot_loss(history, results_dir, "Training loss", "loss", savefig_flag=True, showfig_flag=False)
     # plot_accuracy(history, base_dir, "Training and validation accuracies", "accuracy", save_fig_flag=True)
