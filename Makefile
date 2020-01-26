@@ -103,7 +103,7 @@ ARGS_VALIDATION_M2 = --validation --network_parameters models/ModelOneHotProtein
 ARGS_VALIDATION_TRAIN_M2 = --validation --train --network_parameters models/ModelOneHotProtein.json --load_network ModelOneHotProtein --sequence_type protein --onehot_flag
 ARGS_TRAIN_M2 = --train --load_network --network_parameters models/ModelOneHotProtein.json --load_network ModelOneHotProtein --sequence_type protein steps 200 --onehot_flag
 ARGS_VALIDATION_TRAIN_TEST_M2 = --validation --train --test --load_network ModelOneHotProtein --network_parameters models/ModelOneHotProtein.json --sequence_type protein --onehot_flag
-ARGS_TRAIN_TEST_M2 = --train --test --load_network ModelOneHotProtein --sequence_type protein --network_parameters models/ModelOneHotProtein.json --steps 10 --onehot_flag
+ARGS_TRAIN_TEST_M2 = --train --test --load_network ModelOneHotProtein --sequence_type protein --network_parameters models/ModelOneHotProtein.json --early_stopping_epoch 10 --onehot_flag
 
 
 # ---------------------------- ------------------------------ #
