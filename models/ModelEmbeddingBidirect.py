@@ -44,7 +44,7 @@ class ModelEmbeddingBidirect():
         embed = tf.keras.layers.Embedding(params['vocabulary_len'], 
                                         params['embedding_size'], 
                                         embeddings_regularizer=tf.keras.regularizers.l2(params['embedding_regularizer']),
-                                        embeddings_initializer=weight_init)(masking_layer)
+                                        embeddings_initializer=weight_init)(masking_layer)        
 
         # Query embeddings of shape [batch_size, Tq, dimension].
         query_embeddings = tf.keras.layers.Activation('tanh')(embed)
@@ -123,9 +123,11 @@ class ModelEmbeddingBidirect():
         Outputs:
         - history: it contains the results of the training
         """
+        callbacks_list = self._get_callbacks()
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
-                    callbacks=self._get_callbacks(), validation_data=validation_data)
-        return history
+                    callbacks=callbacks_list, validation_data=validation_data)
+        trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
+        return history, trained_epochs
     
     def evaluate(self, features, labels):
         """
@@ -146,19 +148,21 @@ class ModelEmbeddingBidirect():
         results_dict = dict(zip(self.model.metrics, metrics_value))
         return results_dict
 
-    def print_metric(name, value):
+    def print_metric(self, name, value):
         print('{}: {}'.format(name, value))
 
     def save_weights(self):
         pass    
 
-    def fit_generator(self):
-        pass    
+    def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
+        history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),
+                                           validation_data=validation_data)
+        return history 
     
     def plot_model(self,) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
 
-    def _get_callbacks(self):
+    def _get_callbacks(self, train=True):
         """
         It defines the callbacks for this specific architecture
         """

@@ -11,6 +11,9 @@ from pprint import pprint
 from utils.parse_args_util import get_parsed_params
 from utils.pipeline_analysis_util import run_pipeline
 from utils.setup_analysis_environment_util import setup_analysis_environment
+from utils.spredsheet_util import *
+
+from openpyxl import Workbook
 
 # =============================================================================================== #
 # MAIN UTILS                                                                                      #
@@ -65,26 +68,56 @@ def run_test_decorator(a_test):
 # =============================================================================================== #
 
 @run_test_decorator
-def test_pipeline_util(test_info_dict: dict):
+def test_write_history_2_spredsheet(spredsheet_info_dict: dict) -> bool:
 
-    # Data to let function to be tested
-    conf_load_dict = test_info_dict['conf_load_dict']
-    conf_preprocess_dict = test_info_dict['conf_preprocess_dict']
-    cmd_line_params = test_info_dict['cmd_line_params']
-    network_params = test_info_dict['network_params']
-    meta_info_project_dict = test_info_dict['meta_info_project_dict']
-    main_logger = test_info_dict['main_logger']
+    workbook: Workbook = spredsheet_info_dict['workbook']
+    workbook_name: str = spredsheet_info_dict['workbook_name']
 
-    # Load Data.
-    run_pipeline(
-        conf_load_dict=conf_load_dict,
-        conf_preprocess_dict=conf_preprocess_dict,
-        cmd_line_params=cmd_line_params,
-        network_params=network_params,
-        meta_info_project_dict=meta_info_project_dict,
-        main_logger=main_logger
+    path_2_history: str = spredsheet_info_dict['path_2_history']
+    columns: list = spredsheet_info_dict['columns']
+
+    add_history_2_spredsheet(
+        path_2_history=path_2_history,
+        columns=columns,
+        workbook=workbook,
+        sheet_name='history'
     )
-    pass
+
+    save_workbook(workbook, workbook_name)
+    close_workbook(workbook)
+    return True
+
+@run_test_decorator
+def test_write_input_params_2_spredsheet(spredsheet_info_dict: dict) -> bool:
+
+    workbook: Workbook = spredsheet_info_dict['workbook']
+    workbook_name: str = spredsheet_info_dict['workbook_name']
+
+    cmd_args_dict :dict = spredsheet_info_dict['cmd_args_dict']
+    network_input_params_dict: dict = spredsheet_info_dict['network_input_params_dict']
+
+    add_input_params_2_spredsheet(
+        cmd_args_dict=cmd_args_dict,
+        network_input_params_dict=network_input_params_dict,
+        workbook=workbook
+    )
+
+    return True
+
+@run_test_decorator
+def test_write_graph_model_2_spredsheet(spredsheet_info_dict: dict) -> bool:
+
+    workbook: Workbook = spredsheet_info_dict['workbook']
+    workbook_name: str = spredsheet_info_dict['workbook_name']
+
+    image_path : str = spredsheet_info_dict['image_path']
+
+    add_image_2_spredsheet(
+        image_path,
+        workbook=workbook
+    )
+
+    return True
 
 # =============================================================================================== #
 # MAIN FUNCTION                                                                                   #
@@ -94,20 +127,6 @@ def main(cmd_line_params: dict):
 
     base_dir: str = 'bioinfo_project'
     network_params = read_neural_network_params(cmd_line_params)
-    
-
-    print(f"----> Set up analysis environment.")
-    logger, meta_info_project_dict =  \
-        setup_analysis_environment(
-            logger_name=__name__,
-            base_dir=base_dir,
-            params=cmd_line_params,
-            flag_test=True)
-    logger.info("\n" + json.dumps(network_params, indent=4))
-
-    
-    # ------------------------------------------------------ # 
-    # Here - Test pipeline util
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,
@@ -120,23 +139,60 @@ def main(cmd_line_params: dict):
         'test_bins': [5],
     }
 
-    conf_preprocess_dict: dict = {
-        'padding': 'post',
-        'maxlen': network_params['maxlen'],
-        'onehot_flag': False,
+    # -------------------------------------------- #
+    # Here - Start spredsheet tests                #
+    # -------------------------------------------- #
+
+    workbook: Workbook = get_workbook()
+    workbook_name: str = 'analysis.xlsx'
+
+    # print(type(vars(cmd_line_params)))
+    # print(type(network_params))
+    # sys.exit(0)
+
+    cmd_args_dict: dict = vars(cmd_line_params)
+    spredsheet_info_dict: dict = {
+        'workbook': workbook,
+        'workbook_name': workbook_name,
+        'cmd_args_dict': cmd_args_dict,
+        'network_input_params_dict': network_params,
     }
 
-    pipeline_info_dict : dict = {
-        'conf_load_dict': conf_load_dict,
-        'conf_preprocess_dict': conf_preprocess_dict,
-        'cmd_line_params': cmd_line_params,
-        'network_params': network_params,
-        'meta_info_project_dict': meta_info_project_dict,
-        'main_logger': logger,
+    test_write_input_params_2_spredsheet(spredsheet_info_dict)
+    # save_workbook(workbook, workbook_name)
 
+    spredsheet_info_dict: dict = {
+        'workbook': workbook,
+        'workbook_name': workbook_name,
+        'path_2_history': './tests/res_spredsheet_tests/history.csv',
+        'columns': [
+            'epoch,accuracy',
+            'f1_m',
+            'loss',
+            'precision_m',
+            'recall_m',
+            'val_accuracy',
+            'val_f1_m',
+            'val_loss',
+            'val_precision_m',
+            'val_recall_m'
+        ],
+    }
+    
+    test_write_history_2_spredsheet(spredsheet_info_dict)
+    
+
+    spredsheet_info_dict: dict = {
+        'workbook': workbook,
+        'workbook_name': workbook_name,
+        'image_path': './tests/res_spredsheet_tests/model_graph.png'
     }
 
-    test_pipeline_util(pipeline_info_dict)
+    test_write_graph_model_2_spredsheet(spredsheet_info_dict)
+
+
+    save_workbook(workbook, workbook_name)
+    close_workbook(workbook)
 
     pass
 

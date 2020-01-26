@@ -4,7 +4,12 @@ from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
 from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
+from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
 # from models.ModelOneHotUnidirect import ModelOneHotUnidirect
+from models.experimental_simple_models import raw_models_sequentials
+from models.experimental_simple_models import model_dna_embedding_unidirect
+from models.WrapperRawModel import WrapperRawModel
+
 
 class ModelFactory():
    
@@ -25,9 +30,13 @@ class ModelFactory():
 
       if model_name == 'ModelOneHotUnidirect':
          return ModelFactory.getModelOneHotUnidirect(params)
-   
+      
+      if model_name == 'ExperimentalModels':
+         return ModelFactory.getExperimentalModels(params)
+      
       raise ValueError(f'ERROR: {model_name} is not allowed!')
-   
+      pass
+
    @staticmethod
    def getModelEmbeddingBidirect(params: dict):
        return ModelEmbeddingBidirect(params)
@@ -52,22 +61,19 @@ class ModelFactory():
    def getModelOneHotUnidirect(params: dict):
        return None # ModelOneHotUnidirect(params)
 
-# class AbstractModel(ABC):
-#     @abstractmethod
-#     def __init__(self):
-#         # super().__init__()
-#         pass
-    
-#     @abstractmethod
-#     def build():
-#         pass
-    
-#     @abstractmethod
-#     def fit():
-#         pass
-    
-#     @abstractmethod
-#     def evaluate():
-#         pass
+   @staticmethod
+   def getExperimentalModels(params: dict):
+       return get_compiled_model(params)
+
+   @staticmethod
+   def getRawModelByName(params: dict, program_params: dict):
+
+      if params['name'] == 'raw_models_sequentials':
+         model, callbacks = raw_models_sequentials.get_compiled_model(params, program_params)  
+      if params['name'] == 'model_dna_embedding_unidirect':
+         model, callbacks = model_dna_embedding_unidirect.get_compiled_model(params, program_params)  
+         
+      
+      return WrapperRawModel(model, params, callbacks)
     
     

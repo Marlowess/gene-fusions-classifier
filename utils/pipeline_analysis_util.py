@@ -17,7 +17,7 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 from utils.preprocess_dataset_util import preprocess_data
 
 from utils.train_util import _holdout
-from utils.train_util import _train, _test
+from utils.train_util import _train, _test, _experimental_train
 
 from models.ModelFactory import ModelFactory
 
@@ -167,7 +167,8 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             meta_info_project_dict,
             tokenizer,
             main_logger,
-            epochs_trained=epochs_trained
+            epochs_trained=epochs_trained,          
+            validation_data=(x_val, y_val)
         )
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
@@ -219,6 +220,23 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # _test_dataset(x_train, y_train, x_val, y_val)
 
     # Train Data.
+    if cmd_line_params.experimental_mode is True:
+        model = _experimental_train(
+            x_train,
+            y_train,
+            x_val,
+            y_val,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger)
+        scores = model.evaluate(x_test, y_test)
+        print(
+            '\n'.join([" > {}: {}".format(metric, value) for metric, value in zip(model.metrics_names, scores)])
+        )
+        return
     model = _pipeline_train(
         x_train,
         y_train,

@@ -1,0 +1,82 @@
+# =============================================================================================== #
+#                                       SRC: Makefile                                             #
+# =============================================================================================== #
+
+# =============================================================================================== #
+# VARIABLES SECTION                                                                               #
+# =============================================================================================== #
+
+
+# Here - Specify which python interpreter to employ.
+SCRIPT_INTERPETER = python3 
+
+# Here - Specify which is the root directory where all results
+# from different analyses will be stored, for later investingations 
+# about  results, logs and image files.
+BASE_DIR_RESULTS = bioinfo_project 
+
+# Here - There are some variable exploited in order
+# to run some local tests.
+#
+# See tasks related to test for more details.
+SCRIPT_2_TEST = test_feature.py
+TESTS_DIR = tests
+
+# Here - There are two variable used to run the
+# classifier tool for genes fusions recognizing:
+# - SCRIPT_ANALYSIS, standas for the `main.py` file which is used to
+#   write the program;
+# - PROGRAM_ANALYSIS, is a symbolic link that can be used to run
+#   the program written above without taking care about how it was implemented
+#   as weel as without knowing which kind of programming language has been adopted.
+#
+# See task named `run_analysis` for details how both them have been employed.
+SCRIPT_ANALYSIS = main.py
+PROGRAM_ANALYSIS = genes_fusions_classifier
+
+# =============================================================================================== #
+# VARIABLES DEFINED TO RUN TESTS WITHIN PROPER TASKS                                              #
+# =============================================================================================== #
+
+# ---------------------------- ---------------------#
+# DATA EXPERIMENT - SECTION                         #
+# ------------------------------------------------- #
+ARGS_EXPERIMENT = \
+	--experimental_mode \
+	--network_parameters ./models/experimental_simple_models/parameters_dna_seq.json \
+	--load_network ExperimentalModels \
+	--sequence_type dna
+
+
+ARGS_EXPERIMENT_COLAB = \
+	--experimental_mode \
+	--network_parameters ./models/experimental_simple_models/parameters_dna_seq.json \
+	--load_network ExperimentalModels \
+	--sequence_type dna \
+	--path_source_data "/content/drive/My Drive/bioinformatics/data-bioinformatics/bins_translated"
+
+# =============================================================================================== #
+# TASKS SECTION                                                                                   #
+# =============================================================================================== #
+
+# ---------------------------- ---------------------#
+# RUN EXPERIMENT - SECTION                          #
+# ------------------------------------------------- #
+
+run_experiment: setup_before_run_task
+	ln -sfn $(SCRIPT_ANALYSIS) $(PROGRAM_ANALYSIS)
+	$(SCRIPT_INTERPETER) $(PROGRAM_ANALYSIS) $(ARGS_EXPERIMENT)
+
+run_experiment_on_colab: setup_before_run_task
+	ln -sfn $(SCRIPT_ANALYSIS) $(PROGRAM_ANALYSIS)
+	$(SCRIPT_INTERPETER) $(PROGRAM_ANALYSIS) $(ARGS_EXPERIMENT_COLAB)
+
+
+# ---------------------------- ---------------------#
+# MANAGEMENT - SECTION                              #
+# ------------------------------------------------- #
+setup_before_run_task:
+	clear
+
+
+

@@ -1,0 +1,25 @@
+{
+    "maxlen": 14400,
+    "vocab_size": 5,
+    "embedding_size": 8,
+
+    "kernel_size": 3,
+    "activation": "relu",
+    "filters": 8,
+    "strides": 1,
+
+    "lstms_units": [32, 64],
+    "lstms_dropouts": [0.2, 0.2],
+    "return_sequences": [true, false],
+    
+    "seeds": [107, 107, 107, 107],
+    "l2": [0.01, 0.01, 0.01],
+    "droputs_rates": [0.5],
+    
+    "optimizer": "adam",
+    "clip_norm": 1.0,
+    "lr": 5e-4,
+    "num_classes": 2,
+    "name": "model_dna_embedding_unidirect",
+    "network_type": "WrappedRawModel"
+}

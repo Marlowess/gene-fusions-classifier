@@ -1,0 +1,102 @@
+# ---------------------------------------- #
+# Tensorflow Web Pages                     #
+# ---------------------------------------- #
+
+
+# --------------------------------------------------- #
+- No    = 1
+- TITLE = Tables
+- LINK  = https://en.wikibooks.org/wiki/LaTeX/Tables
+
+# --------------------------------------------------- #
+- No    = 1
+- TITLE = Train and evaluate with Keras
+- LINK  = https://www.tensorflow.org/guide/keras/train_and_evaluate
+
+# --------------------------------------------------- #
+- No    = 2
+- TITLE = tf.data.Dataset
+- LINK  = https://www.tensorflow.org/api_docs/python/tf/data/Dataset
+
+# --------------------------------------------------- #
+- No    = 3
+- TITLE = tf.data: Build TensorFlow input pipelines
+- LINK  = https://www.tensorflow.org/guide/data#time_series_windowing
+
+# --------------------------------------------------- #
+- No    = 4
+- TITLE = Using TensorBoard in Notebooks
+- LINK  = https://www.tensorflow.org/tensorboard/tensorboard_in_notebooks
+
+
+# --------------------------------------------------- #
+- No    = 5
+- TITLE = Time series forecasting
+- LINK  = https://www.tensorflow.org/tutorials/structured_data/time_series
+
+
+# --------------------------------------------------- #
+- No    = 6
+- TITLE = Recurrent Neural Networks (RNN) with Keras
+- LINK  = https://www.tensorflow.org/guide/keras/rnn
+
+
+# --------------------------------------------------- #
+- No    = 6
+- TITLE = Neural machine translation with attention
+- LINK  = https://www.tensorflow.org/tutorials/text/nmt_with_attention
+
+
+# --------------------------------------------------- #
+- No    = 7
+- TITLE = Overfit and underfit
+- LINK  = https://www.tensorflow.org/tutorials/keras/overfit_and_underfit
+
+
+# --------------------------------------------------- #
+- No    = 8
+- TITLE = Image classification
+- LINK  = https://www.tensorflow.org/tutorials/images/classification
+
+
+# =============================================================================================== #
+
+# ---------------------------------------- #
+# Books                                    #
+# ---------------------------------------- #
+
+# --------------------------------------------------- #
+- No    = 1
+- TITLE = Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow, 2nd Edition
+- LINK  = https://www.oreilly.com/library/view/hands-on-machine-learning/9781492032632/
+
+# --------------------------------------------------- #
+- No    = 2
+- TITLE = Deep Learning with Python 
+- LINK  = https://www.manning.com/books/deep-learning-with-python
+- METADATA = \
+    François Chollet \
+    November 2017 ISBN 9781617294433 384 pages printed in black & white.
+
+
+# --------------------------------------------------- #
+- No    = 3
+- TITLE = Machine Learning Systems. Designs that scale
+- LINK  = https://www.manning.com/books/machine-learning-systems
+- METADATA = \
+    Jeff Smith \
+    Foreword by Sean Owen \
+    May 2018 ISBN 9781617293337 224 pages printed in black & white.
+
+# --------------------------------------------------- #
+- No    = 4
+- TITLE = Natural Language Processing in Action. Understanding, analyzing, and generating text with Python
+- LINK  = https://www.manning.com/books/natural-language-processing-in-action
+- METADATA = \
+    Hobson Lane, Cole Howard, Hannes Hapke \
+    Foreword by Dr. Arwen Griffioen \
+    March 2019 ISBN 9781617294631 544 pages printed in black & white.
+
+TODO:
+- Real-World Machine Learning
+- Machine Learning in Action 

@@ -22,7 +22,7 @@ class ModelOneHotUnidirect():
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))        
         self.model.add(keras.layers.LSTM(units=32, return_sequences = False,
-                                    kernel_regularizer=keras.regularizers.l2(params['l2_regularizer'])
+                                    kernel_regularizer=keras.regularizers.l2(params['l2_regularizer']),
                                     kernel_initializer=weight_init                                                                                                          
                                     ))
         self.model.add(keras.layers.Dropout(0.2, seed=self.seed))

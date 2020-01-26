@@ -1,0 +1,89 @@
+# =============================================================================================== #
+#                                       SRC: Makefile                                             #
+# =============================================================================================== #
+
+# =============================================================================================== #
+# VARIABLES SECTION                                                                               #
+# =============================================================================================== #
+
+REQUIREMNTES_FILE  = requirements.txt
+LOCAL_PIP = pip3
+CONDA_PIP = '...'
+
+PROJECT_CODEBASE = ./
+ARCHIVE_PROJECT_NAME_COLAB = project-genes-fusions-classifier.zip
+EXCLUDED_FILES = \
+	'*.vscode/*' \
+	'*.git/*' \
+	.gitignore \
+	'*__pycache__/*' \
+	./README.md \
+	./test_feature.py \
+	'*notebooks/*' \
+	'*tmp/*' \
+	'*data/*' \
+	'*tests/*' \
+	'*scripts/*' \
+	'*resources/*' \
+	*.png \
+	*.xlsx
+
+# Here - Specify which python interpreter to employ.
+SCRIPT_INTERPETER = python3 
+
+# Here - Specify which is the root directory where all results
+# from different analyses will be stored, for later investingations 
+# about  results, logs and image files.
+BASE_DIR_RESULTS = bioinfo_project 
+
+# Here - There are some variable exploited in order
+# to run some local tests.
+#
+# See tasks related to test for more details.
+SCRIPT_2_TEST = test_feature.py
+TESTS_DIR = tests
+
+# Here - There are two variable used to run the
+# classifier tool for genes fusions recognizing:
+# - SCRIPT_ANALYSIS, standas for the `main.py` file which is used to
+#   write the program;
+# - PROGRAM_ANALYSIS, is a symbolic link that can be used to run
+#   the program written above without taking care about how it was implemented
+#   as weel as without knowing which kind of programming language has been adopted.
+#
+# See task named `run_analysis` for details how both them have been employed.
+SCRIPT_ANALYSIS = main.py
+PROGRAM_ANALYSIS = genes_fusions_classifier
+
+# =============================================================================================== #
+# TASKS SECTION                                                                                   #
+# =============================================================================================== #
+
+# ---------------------------- ---------------------#
+# MANAGEMENT - SECTION                              #
+# ------------------------------------------------- #
+setup_before_run_task:
+	clear
+
+install_requirements_via_pip:
+	$(LOCAL_PIP) install -r $(REQUIREMNTES_FILE)
+install_requirements_via_conda:	
+	$(CONDA_PIP) install -r $(REQUIREMNTES_FILE)
+
+install_libraries_for_graphviz:
+	pip install pydot
+	pip install pydotplus
+	sudo apt-get install graphviz
+
+# Clear directory with subdirectories corresponind to
+# different runs with their results.
+clear_result_dirs: setup_before_run_task
+	rm -fr $(BASE_DIR_RESULTS)
+
+# different runs with their results.
+clear_result_dirs_from_tests: setup_before_run_task
+	bash ./scripts/script_clear_results_dir_from_tests.sh ./bioinfo_project --not-cancel
+
+build_zip_to_run_on_colab: clear_result_dirs
+	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
+	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
