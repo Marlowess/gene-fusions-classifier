@@ -62,6 +62,11 @@ class ModelOneHotUnidirect():
                     callbacks=callback_list, validation_data=validation_data)
         
         return history
+
+    def fit_generator2(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
+        history = self.model.fit_generator(generator, steps_per_epoch, epochs, shuffle=False, callbacks=self._get_callbacks(train=True),
+                                           validation_data=validation_data)
+        return history
     
     def evaluate():
         """

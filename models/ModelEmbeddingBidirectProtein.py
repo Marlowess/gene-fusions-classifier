@@ -151,7 +151,10 @@ class ModelEmbeddingBidirectProtein():
         pass    
 
     def fit_generator(self):
-        pass    
+        pass  
+
+    def fit_generator2(self):
+        pass
     
     def plot_model(self,) -> None:
         tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)

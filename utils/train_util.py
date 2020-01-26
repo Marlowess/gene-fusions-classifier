@@ -308,5 +308,5 @@ def _test(
     
     _log_info_message("Resulting metrics:", logger)
     for (k,v) in evaluation_metrics.items():
-        _log_info_message("{}: {:.2f}".format(k, v), logger)
+        _log_info_message("{}: {:.2f}".format(k.name, v), logger)
     pass
