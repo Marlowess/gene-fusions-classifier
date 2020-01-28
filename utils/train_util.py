@@ -180,7 +180,7 @@ def _holdout(
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
     results_dict = model.evaluate(x_val, y_val)
-    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
+    res_string = ", ".join(f'{k.name}:{v}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
