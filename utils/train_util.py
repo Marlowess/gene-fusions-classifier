@@ -179,8 +179,8 @@ def _holdout(
         pickle.dump(history.history, history_pickle)
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
-    results_dict = model.evaluate(x_val, y_val)
-    res_string = ", ".join(f'{k.name}:{v}' for k,v in results_dict.items())
+    results_dict = model.evaluate(x_val, y_val)    
+    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
@@ -308,5 +308,5 @@ def _test(
     
     _log_info_message("Resulting metrics:", logger)
     for (k,v) in evaluation_metrics.items():
-        _log_info_message("{}: {:.2f}".format(k.name, v), logger)
+        _log_info_message("{}: {:.2f}".format(k, v), logger)
     pass

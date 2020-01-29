@@ -1,6 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 import os
+import sys
+from pprint import pprint
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
@@ -22,10 +24,10 @@ class ModelEmbeddingBidirect():
     def __init__(self, params):
         """
         It initializes the model before the training
-        """
+        """        
 
         self.seed = 42
-        self.learning_rate = params['learning_rate']
+        self.learning_rate = params['lr']
         self.batch_size = params['batch_size']                  
 
         # defines where to save the model's checkpoints 
@@ -145,7 +147,7 @@ class ModelEmbeddingBidirect():
         loss, accuracy, f1_score, precision, recall = self.model.evaluate(features, labels, verbose=0)
         metrics_value = [loss, accuracy, f1_score, precision, recall]
 
-        results_dict = dict(zip(self.model.metrics, metrics_value))
+        results_dict = dict(zip(self.model.metrics_names, metrics_value))
         return results_dict
 
     def print_metric(self, name, value):

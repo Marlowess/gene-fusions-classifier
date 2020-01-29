@@ -27,6 +27,8 @@ def read_neural_network_params(cmd_line_params):
 
     # It it exists, weights of a pre-trained model are loaded
     network_params['pretrained_model'] = cmd_line_params.pretrained_model
+    network_params['lr'] = cmd_line_params.lr
+    network_params['batch_size'] = cmd_line_params.batch_size
     return network_params
 
 def get_neural_network_params_from_file(network_params_path: str) -> dict:
