@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 import sys
+import pickle
 from pprint import pprint
 import numpy as np
 import pandas as pd
@@ -24,30 +25,43 @@ class ModelEmbeddingBidirect():
     def __init__(self, params):
         """
         It initializes the model before the training
-        """        
+        """   
+
+        self.pretrained_model = params.get('pretrained_model', None)
+        if self.pretrained_model is not None:
+            # pretrained model load params from pickle
+            print("loading model")
+            train_dir = "/"
+            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            print(train_dir)
+            with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
+                self.params = pickle.load(params_pickle)
+        else:
+            ## new model
+            self.params = params     
 
         self.seed = 42
-        self.learning_rate = params['lr']
-        self.batch_size = params['batch_size']                  
+        self.learning_rate = self.params['lr']
+        self.batch_size = self.params['batch_size']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = params['result_base_dir']  
+        self.results_base_dir = self.params['result_base_dir']  
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
 
         # Variable-length int sequences.
-        query_input = tf.keras.layers.Input(shape=(params['maxlen'],))
+        query_input = tf.keras.layers.Input(shape=(self.params['maxlen'],))
 
         # Masking layer
         masking_layer = tf.keras.layers.Masking(mask_value=0)(query_input)
 
         # Embedding lookup.  
-        embed = tf.keras.layers.Embedding(params['vocabulary_len'], 
-                                        params['embedding_size'], 
-                                        embeddings_regularizer=tf.keras.regularizers.l2(params['embedding_regularizer']),
+        embed = tf.keras.layers.Embedding(self.params['vocabulary_len'], 
+                                        self.params['embedding_size'], 
+                                        embeddings_regularizer=tf.keras.regularizers.l2(self.params['embedding_regularizer']),
                                         embeddings_initializer=weight_init,
-                                        input_length=params['maxlen'])(masking_layer)        
+                                        input_length=self.params['maxlen'])(masking_layer)        
 
         # Query embeddings of shape [batch_size, Tq, dimension].
         query_embeddings = tf.keras.layers.Activation('tanh')(embed)
@@ -56,25 +70,26 @@ class ModelEmbeddingBidirect():
         value_embeddings = tf.keras.layers.Activation('tanh')(embed)
 
         # Section A : embedding --> LSTM_1 --> LSTM_2
-        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,
-                                                                    dropout=params['lstm_input_dropout'],
+        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,
+                                                                    dropout=self.params['lstm_input_dropout'],
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
+                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], self.params['l2_regularizer'])
                                                                      ))(value_embeddings)
 
         # Dropout layer after the first LSTM layer                                                                        
-        dropout_lstm_1 = tf.keras.layers.Dropout(params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
+        dropout_lstm_1 = tf.keras.layers.Dropout(self.params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
 
         # Second LSTM layer
-        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(params['embedding_size']/2), return_sequences=True,                                                                    
+        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,                                                                    
                                                                     kernel_initializer=weight_init,
                                                                     recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(params['l1_regularizer'], params['l2_regularizer'])
+                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], 
+                                                                        self.params['l2_regularizer'])
                                                                     ))(dropout_lstm_1)
 
         # Dropout layer after the second LSTM layer                                                                    
-        dropout_lstm_2 = tf.keras.layers.Dropout(params['lstm_2_dropout_rate'], seed=self.seed)(lstm_2)
+        dropout_lstm_2 = tf.keras.layers.Dropout(self.params['lstm_2_dropout_rate'], seed=self.seed)(lstm_2)
 
         # Data combination before the attention layer            
         concatenation = tf.keras.layers.concatenate([dropout_lstm_2, dropout_lstm_1, query_embeddings])
@@ -89,14 +104,14 @@ class ModelEmbeddingBidirect():
         # Prediction layer
         prediction = tf.keras.layers.Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init,
-                                            kernel_regularizer=tf.keras.regularizers.l2(params['last_dense_l2_regularizer']))(attention_layer)
+                                            kernel_regularizer=tf.keras.regularizers.l2(self.params['last_dense_l2_regularizer']))(attention_layer)
 
         # Build the model
         self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params['pretrained_model'] is not None:
-            self.model.load_weights(params['pretrained_model'])
+        # if params['pretrained_model'] is not None:
+        #     self.model.load_weights(params['pretrained_model'])
     
 
     def build(self, logger=None):
@@ -155,7 +170,13 @@ class ModelEmbeddingBidirect():
         print('{}: {}'.format(name, value))
 
     def save_weights(self):
-        pass    
+        with open(os.path.join(self.results_base_dir, "network_params"), 'wb') as params_pickle:
+            pickle.dump(self.params, params_pickle)
+
+        self.model.save_weights(os.path.join(self.results_base_dir, 'my_model_weights.h5'))
+        model_json = self.model.to_json()
+        with open(os.path.join(self.results_base_dir, "model.json"), "w") as json_file:
+            json_file.write(model_json)    
 
     def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
         history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),

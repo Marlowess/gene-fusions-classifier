@@ -5,6 +5,7 @@ import sys
 from pprint import pprint
 import numpy as np
 import pandas as pd
+import pickle
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasClassifier
 from collections import Counter
@@ -23,19 +24,32 @@ class ModelConvBidirect():
     def __init__(self, params):
         """
         It initializes the model before the training
-        """        
+        """  
+
+        self.pretrained_model = params.get('pretrained_model', None)
+        if self.pretrained_model is not None:
+            # pretrained model load params from pickle
+            print("loading model")
+            train_dir = "/"
+            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            print(train_dir)
+            with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
+                self.params = pickle.load(params_pickle)
+        else:
+            ## new model
+            self.params = params      
 
         self.seed = 42
-        self.learning_rate = params['lr']
-        self.batch_size = params['batch_size']                  
+        self.learning_rate = self.params['lr']
+        self.batch_size = self.params['batch_size']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = params['result_base_dir']  
+        self.results_base_dir = self.params['result_base_dir']  
 
         # Model architecture
         self.model = tf.keras.Sequential()
         self.model.add(tf.keras.layers.Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0.], input_shape=(params['maxlen'], params['vocabulary_len'])))
+            0., 0., 0., 0.], input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
         self.model.add(tf.keras.layers.Conv1D(50, 3, activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(1e-6), 
                                               activity_regularizer=tf.keras.regularizers.l2(1e-6)))
@@ -45,7 +59,6 @@ class ModelConvBidirect():
                                                                          kernel_regularizer=tf.keras.regularizers.l2(1e-6),
                                                                          recurrent_regularizer=tf.keras.regularizers.l2(1e-6))))
         self.model.add(tf.keras.layers.Dropout(0.5))
-        # self.model.add(tf.keras.layers.Flatten())
         self.model.add(tf.keras.layers.Dense(10, activation='relu',
                                             kernel_regularizer=tf.keras.regularizers.l2(1e-6),
                                             activity_regularizer=tf.keras.regularizers.l2(1e-6)))
@@ -55,8 +68,8 @@ class ModelConvBidirect():
                                             activity_regularizer=tf.keras.regularizers.l2(1e-6)))
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params['pretrained_model'] is not None:
-            self.model.load_weights(params['pretrained_model'])
+        # if params['pretrained_model'] is not None:
+        #     self.model.load_weights(params['pretrained_model'])
     
 
     def build(self, logger=None):
@@ -115,7 +128,13 @@ class ModelConvBidirect():
         print('{}: {}'.format(name, value))
 
     def save_weights(self):
-        pass    
+        with open(os.path.join(self.results_base_dir, "network_params"), 'wb') as params_pickle:
+            pickle.dump(self.params, params_pickle)
+
+        self.model.save_weights(os.path.join(self.results_base_dir, 'my_model_weights.h5'))
+        model_json = self.model.to_json()
+        with open(os.path.join(self.results_base_dir, "model.json"), "w") as json_file:
+            json_file.write(model_json)    
 
     def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
         history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),
