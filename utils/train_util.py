@@ -11,7 +11,9 @@ from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from utils.plot_functions import plot_loss, plot_accuracy
+from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curce
+
+from sklearn.metrics import confusion_matrix
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
     """
@@ -309,4 +311,31 @@ def _test(
     _log_info_message("Resulting metrics:", logger)
     for (k,v) in evaluation_metrics.items():
         _log_info_message("{}: {:.2f}".format(k, v), logger)
+
+    # plot roc curve and auc
+    y_pred = model.predict(x_test)
+    auc_value: float = plot_roc_curce(
+        y_test,
+        y_pred,
+        title="Roc Curve Eval",
+        fig_name="roc_curve_eval",
+        fig_dir=meta_info_project_dict['test_result_path'],
+        savefig_flag=True,
+    )
+    _log_info_message(f"TEST_AUC: {auc_value}", logger)
+
+    # plot conf matrix
+    target_names: list = ['Onco', 'Non-Onco']
+    y_pred_classes = model.predict_classes(x_test)
+
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred_classes).ravel()
+
+    conf_matrix_elem = "TN,FP,FN,TP".split(",")
+    conf_matrix_elem_pairs: dict = dict(zip(conf_matrix_elem, [tn, fp, fn, tp]))
+
+    _log_info_message(
+        "CONFUSION MATRIX\n" + \
+        '\n'.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
+        ,logger
+    )
     pass

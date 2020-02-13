@@ -1,8 +1,11 @@
 import tensorflow as tf
-from tensorflow import keras
+from tensorflow import keras 
+from tensorflow.keras import Model, Sequential
+from tensorflow.keras.layers import Dense, Masking, Bidirectional, LSTM, Dropout, Flatten
+from tensorflow.keras.regularizers import l2, l1_l2
+import pickle
 import os
 import sys
-import pickle
 from pprint import pprint
 import numpy as np
 import pandas as pd
@@ -15,17 +18,11 @@ from sklearn.metrics import auc as auc_test
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
 
-class ModelEmbeddingBidirect():
-    """
-    This architecture is based on https://arxiv.org/abs/1708.00524
-    Two bidirectional LSTM layers and one attention layer in order to focus the attention
-    only onto the important parts of the fusion
-    """ 
-
+class ModelBidirectDNA():
     def __init__(self, params):
         """
         It initializes the model before the training
-        """   
+        """        
 
         self.pretrained_model = params.get('pretrained_model', None)
         if self.pretrained_model is not None:
@@ -38,76 +35,34 @@ class ModelEmbeddingBidirect():
                 self.params = pickle.load(params_pickle)
         else:
             ## new model
-            self.params = params     
+            self.params = params 
 
-        self.seed = 42
-        self.learning_rate = self.params['lr']
-        self.batch_size = self.params['batch_size']                  
+        self.seeds = [42, 101, 142, 23, 53]
+        self.learning_rate = params['lr']
+        self.batch_size = params['batch_size']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = self.params['result_base_dir']  
+        self.results_base_dir = params['result_base_dir']     
 
         # Architecture --- emoji network
-        weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
+        weight_init = tf.keras.initializers.glorot_uniform
 
-        # Variable-length int sequences.
-        query_input = tf.keras.layers.Input(shape=(self.params['maxlen'],))
-
-        # Masking layer
-        masking_layer = tf.keras.layers.Masking(mask_value=0)(query_input)
-
-        # Embedding lookup.  
-        embed = tf.keras.layers.Embedding(self.params['vocabulary_len'], 
-                                        self.params['embedding_size'], 
-                                        embeddings_regularizer=tf.keras.regularizers.l2(self.params['embedding_regularizer']),
-                                        embeddings_initializer=weight_init,
-                                        input_length=self.params['maxlen'])(masking_layer)        
-
-        # Query embeddings of shape [batch_size, Tq, dimension].
-        query_embeddings = tf.keras.layers.Activation('tanh')(embed)
-
-        # Value embeddings of shape [batch_size, Tv, dimension].
-        value_embeddings = tf.keras.layers.Activation('tanh')(embed)
-
-        # Section A : embedding --> LSTM_1 --> LSTM_2
-        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,
-                                                                    dropout=self.params['lstm_input_dropout'],
-                                                                    kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], self.params['l2_regularizer'])
-                                                                     ))(value_embeddings)
-
-        # Dropout layer after the first LSTM layer                                                                        
-        dropout_lstm_1 = tf.keras.layers.Dropout(self.params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
-
-        # Second LSTM layer
-        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,                                                                    
-                                                                    kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], 
-                                                                        self.params['l2_regularizer'])
-                                                                    ))(dropout_lstm_1)
-
-        # Dropout layer after the second LSTM layer                                                                    
-        dropout_lstm_2 = tf.keras.layers.Dropout(self.params['lstm_2_dropout_rate'], seed=self.seed)(lstm_2)
-
-        # Data combination before the attention layer            
-        concatenation = tf.keras.layers.concatenate([dropout_lstm_2, dropout_lstm_1, query_embeddings])
-        
-        # Attention layer: the implementation can be found at 
-        # https://github.com/bfelbo/DeepMoji/blob/master/deepmoji/model_def.py
-        attention_layer = AttentionWeightedAverage(name='attlayer', return_attention=False)(concatenation)
-
-        # Attention dropout
-        # dropout_attention = tf.keras.layers.Dropout(params['attention_dropout'], seed=self.seed)(attention_layer)
-
-        # Prediction layer
-        prediction = tf.keras.layers.Dense(1, activation='sigmoid',
-                                            kernel_initializer=weight_init,
-                                            kernel_regularizer=tf.keras.regularizers.l2(self.params['last_dense_l2_regularizer']))(attention_layer)
-
-        # Build the model
-        self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
+        # Model definition
+        self.model = Sequential()
+        self.model.add(Masking(mask_value = [1., 0., 0., 0., 0.], 
+            input_shape=(params['maxlen'], params['vocabulary_len'])))
+        self.model.add(Bidirectional(LSTM((int)(params['lstm_units']), return_sequences=False,
+                                                            dropout=params['lstm_input_dropout'],
+                                                            kernel_initializer=weight_init(self.seeds[0]),
+                                                            recurrent_initializer=weight_init(self.seeds[1]),
+                                                            kernel_regularizer=l2(params['weight_decay'])
+                                                                )))
+        self.model.add(Dropout(params['lstm_output_dropout'], seed=self.seeds[2]))
+        self.model.add(Dense(8, activation='relu'))
+        self.model.add(Dropout(params['dense_dropout_rate'], seed=self.seeds[3]))
+        self.model.add(Dense(1, activation='sigmoid',
+                                            kernel_initializer=weight_init(self.seeds[4]),
+                                            kernel_regularizer=l2(params['weight_decay'])))
 
         # Check if the user wants a pre-trained model. If yes load the weights
         if params['pretrained_model'] is not None:
@@ -142,6 +97,16 @@ class ModelEmbeddingBidirect():
         - history: it contains the results of the training
         """
         callbacks_list = self._get_callbacks()
+        # print(X_tr.shape)
+        # X_tr = np.reshape(X_tr, (X_tr.shape[0], X_tr.shape[1], -1))
+
+        # X_val = validation_data[0]
+        # y_val = validation_data[1]
+
+        # X_val = np.reshape(X_val, (X_val.shape[0], X_val.shape[1], -1))
+
+        # validation_data = (X_val, y_val)
+        
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
                     callbacks=callbacks_list, validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
@@ -198,7 +163,7 @@ class ModelEmbeddingBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=10,
+                patience=30,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(

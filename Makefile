@@ -101,6 +101,7 @@ ARGS_VALIDATION_TEST_M1 =
 PROGRAM_ENTRY_POINT_M2 = run_analysis.py
 ARGS_VALIDATION_M2 = --validation --network_parameters models/ModelOneHotProtein.json --load_network ModelOneHotProtein --sequence_type protein --onehot_flag
 ARGS_VALIDATION_M3 = --validation --network_parameters models/ModelConvBidirect.json --load_network ModelConvBidirect --sequence_type protein --onehot_flag
+ARGS_VALIDATION_M4 = --validation --network_parameters models/ModelBidirectDNA.json --load_network ModelBidirectDNA --sequence_type dna --onehot_flag
 ARGS_VALIDATION_TRAIN_M2 = --validation --train --network_parameters models/ModelOneHotProtein.json --load_network ModelOneHotProtein --sequence_type protein --onehot_flag
 ARGS_TRAIN_M2 = --train --load_network --network_parameters models/ModelOneHotProtein.json --load_network ModelOneHotProtein --sequence_type protein steps 200 --onehot_flag
 ARGS_VALIDATION_TRAIN_TEST_M2 = --validation --train --test --load_network ModelOneHotProtein --network_parameters models/ModelOneHotProtein.json --sequence_type protein --onehot_flag
@@ -145,6 +146,9 @@ run_validation_on_model_conv_bidirect:
 
 run_validation_on_model_one_hot_encoding_protein:
 	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_M2)
+
+run_validation_on_model_one_hot_dna_bidirect:
+	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_M4)
 
 run_validation_train_on_model_one_hot_encoding_protein:
 	$(SCRIPT_INTERPETER) $(PROGRAM_ENTRY_POINT_M2) $(ARGS_VALIDATION_TRAIN_M2)

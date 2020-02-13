@@ -44,32 +44,35 @@ class ModelConvBidirect():
         self.batch_size = self.params['batch_size']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = self.params['result_base_dir']  
+        self.results_base_dir = self.params['result_base_dir']
+
+        # Weight_decay
+        weight_decay = self.params['weight_decay']
 
         # Model architecture
         self.model = tf.keras.Sequential()
         self.model.add(tf.keras.layers.Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
-        self.model.add(tf.keras.layers.Conv1D(50, 3, activation='relu',
-                                              kernel_regularizer=tf.keras.regularizers.l2(1e-6), 
-                                              activity_regularizer=tf.keras.regularizers.l2(1e-6)))
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
-        self.model.add(tf.keras.layers.SpatialDropout1D(0.5))
-        self.model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(6, return_sequences=False, 
-                                                                         kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-                                                                         recurrent_regularizer=tf.keras.regularizers.l2(1e-6))))
-        self.model.add(tf.keras.layers.Dropout(0.5))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate']))
+        self.model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(self.params['lstm_units'], return_sequences=False, 
+                                                                         kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                                                         recurrent_regularizer=tf.keras.regularizers.l2(weight_decay))))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
         self.model.add(tf.keras.layers.Dense(10, activation='relu',
-                                            kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-                                            activity_regularizer=tf.keras.regularizers.l2(1e-6)))
-        self.model.add(tf.keras.layers.Dropout(0.5))
+                                            kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_3_rate']))
         self.model.add(tf.keras.layers.Dense(1, activation='sigmoid',
-                                            kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-                                            activity_regularizer=tf.keras.regularizers.l2(1e-6)))
+                                            kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        # if params['pretrained_model'] is not None:
-        #     self.model.load_weights(params['pretrained_model'])
+        if params['pretrained_model'] is not None:
+            self.model.load_weights(params['pretrained_model'])
     
 
     def build(self, logger=None):
@@ -174,3 +177,20 @@ class ModelConvBidirect():
                 min_lr=5e-6)
         ]
         return callbacks_list
+
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
+        # return np.asarray([])
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
+        # return np.asarray([])
+        try:
+            return self.model.predict_classes(x_test)
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass

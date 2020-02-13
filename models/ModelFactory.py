@@ -10,6 +10,7 @@ from models.experimental_simple_models.experiments_with_tf_keras_nn import get_c
 from models.experimental_simple_models import raw_models_sequentials
 from models.experimental_simple_models import model_dna_embedding_unidirect
 from models.WrapperRawModel import WrapperRawModel
+from models.ModelBidirectDNA import ModelBidirectDNA
 
 
 class ModelFactory():
@@ -34,12 +35,20 @@ class ModelFactory():
 
       if model_name == 'ModelConvBidirect':
          return ModelFactory.getModelConvBidirect(params)
+
+      if model_name == 'ModelBidirectDNA':
+         return ModelFactory.getModelBidirectDNA(params)
       
       if model_name == 'ExperimentalModels':
          return ModelFactory.getExperimentalModels(params)
       
       raise ValueError(f'ERROR: {model_name} is not allowed!')
       pass
+
+
+   @staticmethod
+   def getModelBidirectDNA(params):
+      return ModelBidirectDNA(params)
 
    @staticmethod
    def getModelConvBidirect(params):
