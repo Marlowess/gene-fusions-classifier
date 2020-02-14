@@ -1,30 +1,29 @@
 {
-    "batch_size": 8,
+    "batch_size": 32,
     "epochs":100,
-    "lr": 1e-3,
-    "l2_regularizer":1e-6,
+    "lr": 5e-4,
     "seed":42,
     "maxlen": 3219,
-    "early_stopping_patiente":40,
+    "early_stopping_patiente":20    ,
     "lstm1":{
         "units": 128,
         "dropout":0.4,
-        "kernel_l2":1e-4,
-        "recurrent_l2":1e-4,
-        "activation_l2":1e-4
+        "kernel_l2":0.00,
+        "recurrent_l2":0.00
 
     },
     "lstm2":{
         "units": 128,
         "dropout":0.4,
-        "kernel_l2":1e-4,
-        "recurrent_l2":1e-4,
-        "activation_l2":1e-4
+        "kernel_l2":0.00,
+        "recurrent_l2":0.00
     },
     "dense1":{
+        "kernel_l2":0.000,
+        "dropout":0.8,
         "units":128
     },
     "dense2":{
-        "dropout":0.2
+        "dropout":0.8   
     }
 }

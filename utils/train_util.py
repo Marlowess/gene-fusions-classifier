@@ -187,8 +187,8 @@ def _holdout(
     return model, trained_epochs
 
 def _train(
-    x_train,
-    y_train,
+    subtrain,
+    validation_data,
     x_subtrain_size,
     conf_load_dict: dict,
     cmd_line_params,
@@ -197,7 +197,6 @@ def _train(
     tokenizer: Tokenizer,
     logger: logging.Logger,
     epochs_trained=None,
-    validation_data=None,
     message: str = 'Performing training phase...') -> object:
     
     """
@@ -229,12 +228,26 @@ def _train(
     base_dir: str = meta_info_project_dict['base_dir']
     results_dir = meta_info_project_dict['train_result_path']
     # history_filename: str = os.path.join(base_dir, 'history.csv')
-    network_params['result_base_dir'] = results_dir   
+    network_params['result_base_dir'] = results_dir
+    
+    # adding bin 5 to training data
+    x_subtrain, y_subtrain = subtrain
+    x_validation, y_validation = validation_data
+    x_train = np.concatenate((x_subtrain, x_validation), axis=0)
+    y_train = np.concatenate((y_subtrain, y_validation), axis=0)
 
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
     if network_model_name == 'WrappedRawModel':
         model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    # if early stopping with loss val load trained model from holdout
+    elif cmd_line_params.early_stopping_on_loss:
+        _log_info_message("> loading holdout training weights", logger)
+        # if train after validation in a single run 
+        if network_params['pretrained_model'] == None:
+            network_params['pretrained_model'] = os.path.join(base_dir,cmd_line_params.output_dir,
+                                                               "results_holdout_validation/my_model_weights.h5")
+        model = ModelFactory.getModelByName(network_model_name, network_params)
     else:
         model = ModelFactory.getModelByName(network_model_name, network_params)
 
@@ -251,6 +264,13 @@ def _train(
             epochs=cmd_line_params.num_epochs,
             batch_size=cmd_line_params.batch_size,
             validation_data=validation_data,
+        )
+    elif cmd_line_params.early_stopping_on_loss:
+        early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
+        history = model.fit_early_stopping_by_loss_val(x_train, y_train,
+            epochs=cmd_line_params.num_epochs,
+            early_stopping_loss=early_stopping_loss,
+            callbacks_list=[], validation_data=validation_data
         )
     else:
         history = model.fit_generator2(

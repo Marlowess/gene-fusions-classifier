@@ -148,9 +148,7 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
         steps = epochs_trained * np.ceil(x_train.shape[0] / network_params['batch_size'])
         _log_info_message("trained for {} steps".format(steps), main_logger) 
     if cmd_line_params.train is True:
-        # we take steps from early stopping the holdout validation otherwise must be specified from command line 
-        if ('steps' not in locals()):
-            steps = cmd_line_params.steps 
+        # we take epochs from early stopping the holdout validation otherwise must be specified from command line 
         if ('epochs_trained' not in locals()):
             epochs_trained = cmd_line_params.early_stopping_epoch
             print(epochs_trained)
@@ -158,8 +156,8 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
         # adding bin 4 to training set and pass the shape of len of bins 1,2,3 in order to 
         # train the same number of steps before overfitting in holdout
         model = _train(
-            np.concatenate((x_train, x_val), axis=0),
-            np.concatenate((y_train, y_val), axis=0),
+            (x_train, y_train),
+            (x_val, y_val),
             x_train.shape[0],
             conf_load_dict,
             cmd_line_params,
@@ -168,7 +166,6 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             tokenizer,
             main_logger,
             epochs_trained=epochs_trained,          
-            validation_data=(x_val, y_val)
         )
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
@@ -215,6 +212,9 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
     # return
+    
+    #### DEBUG
+    # network_params['testset'] = (x_test, y_test)
 
     # Print for debugging Data.
     # _test_dataset(x_train, y_train, x_val, y_val)

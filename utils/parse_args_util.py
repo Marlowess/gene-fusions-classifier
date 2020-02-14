@@ -21,12 +21,12 @@ def _get_custom_parser(output_dir: str) -> object:
     parser.add_argument('--lr', default=1e-3, help='Learning rate coefficient',type=float)
     parser.add_argument('--num_epochs', default=50, help='Number of epochs before halting the training',type=int)
     parser.add_argument('--batch_size', default=10, help='Number of sample for each training step',type=int)
-    parser.add_argument('--steps', default=None, help='Number of steps of training', type=int)    
-    
+
     parser.add_argument('--network_parameters', default=None, help='File with neural network parameters, either json or yaml format', type=str)
     parser.add_argument('--load_network', default=None, help='Architecture\'s name. According to this a different model is loaded', type=str)
 
     parser.add_argument('--onehot_flag', default=False, help='If true, it encodes data by using one-hot encodin, otherwise embedding representation is used', action='store_true')    
+    parser.add_argument('--early_stopping_on_loss', default=False, help='If true, it perform early stopping during train based on train loss of holdout phase ', action='store_true')    
     parser.add_argument('--early_stopping_epoch', default=None, help='Number of epochs after holdout train stops for early stopping', type=int)
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
 
