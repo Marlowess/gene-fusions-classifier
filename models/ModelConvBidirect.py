@@ -2,10 +2,10 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 import sys
-import pickle
 from pprint import pprint
 import numpy as np
 import pandas as pd
+import pickle
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasClassifier
 from collections import Counter
@@ -15,17 +15,16 @@ from sklearn.metrics import auc as auc_test
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
 
-class ModelEmbeddingBidirect():
+class ModelConvBidirect():
     """
-    This architecture is based on https://arxiv.org/abs/1708.00524
-    Two bidirectional LSTM layers and one attention layer in order to focus the attention
-    only onto the important parts of the fusion
+    This architecture is based on 
+    https://www.researchgate.net/publication/315860646_A_Deep_Learning_Network_for_Exploiting_Positional_Information_in_Nucleosome_Related_Sequences    
     """ 
 
     def __init__(self, params):
         """
         It initializes the model before the training
-        """   
+        """  
 
         self.pretrained_model = params.get('pretrained_model', None)
         if self.pretrained_model is not None:
@@ -38,76 +37,38 @@ class ModelEmbeddingBidirect():
                 self.params = pickle.load(params_pickle)
         else:
             ## new model
-            self.params = params     
+            self.params = params      
 
         self.seed = 42
         self.learning_rate = self.params['lr']
         self.batch_size = self.params['batch_size']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = self.params['result_base_dir']  
+        self.results_base_dir = self.params['result_base_dir']
 
-        # Architecture --- emoji network
-        weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
+        # Weight_decay
+        weight_decay = self.params['weight_decay']
 
-        # Variable-length int sequences.
-        query_input = tf.keras.layers.Input(shape=(self.params['maxlen'],))
-
-        # Masking layer
-        masking_layer = tf.keras.layers.Masking(mask_value=0)(query_input)
-
-        # Embedding lookup.  
-        embed = tf.keras.layers.Embedding(self.params['vocabulary_len'], 
-                                        self.params['embedding_size'], 
-                                        embeddings_regularizer=tf.keras.regularizers.l2(self.params['embedding_regularizer']),
-                                        embeddings_initializer=weight_init,
-                                        input_length=self.params['maxlen'])(masking_layer)        
-
-        # Query embeddings of shape [batch_size, Tq, dimension].
-        query_embeddings = tf.keras.layers.Activation('tanh')(embed)
-
-        # Value embeddings of shape [batch_size, Tv, dimension].
-        value_embeddings = tf.keras.layers.Activation('tanh')(embed)
-
-        # Section A : embedding --> LSTM_1 --> LSTM_2
-        lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,
-                                                                    dropout=self.params['lstm_input_dropout'],
-                                                                    kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], self.params['l2_regularizer'])
-                                                                     ))(value_embeddings)
-
-        # Dropout layer after the first LSTM layer                                                                        
-        dropout_lstm_1 = tf.keras.layers.Dropout(self.params['lstm_1_dropout_rate'], seed=self.seed)(lstm_1)
-
-        # Second LSTM layer
-        lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,                                                                    
-                                                                    kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
-                                                                    kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], 
-                                                                        self.params['l2_regularizer'])
-                                                                    ))(dropout_lstm_1)
-
-        # Dropout layer after the second LSTM layer                                                                    
-        dropout_lstm_2 = tf.keras.layers.Dropout(self.params['lstm_2_dropout_rate'], seed=self.seed)(lstm_2)
-
-        # Data combination before the attention layer            
-        concatenation = tf.keras.layers.concatenate([dropout_lstm_2, dropout_lstm_1, query_embeddings])
-        
-        # Attention layer: the implementation can be found at 
-        # https://github.com/bfelbo/DeepMoji/blob/master/deepmoji/model_def.py
-        attention_layer = AttentionWeightedAverage(name='attlayer', return_attention=False)(concatenation)
-
-        # Attention dropout
-        # dropout_attention = tf.keras.layers.Dropout(params['attention_dropout'], seed=self.seed)(attention_layer)
-
-        # Prediction layer
-        prediction = tf.keras.layers.Dense(1, activation='sigmoid',
-                                            kernel_initializer=weight_init,
-                                            kernel_regularizer=tf.keras.regularizers.l2(self.params['last_dense_l2_regularizer']))(attention_layer)
-
-        # Build the model
-        self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
+        # Model architecture
+        self.model = tf.keras.Sequential()
+        self.model.add(tf.keras.layers.Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0.], input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.MaxPool1D())
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate']))
+        self.model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(self.params['lstm_units'], return_sequences=False, 
+                                                                         kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                                                         recurrent_regularizer=tf.keras.regularizers.l2(weight_decay))))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
+        self.model.add(tf.keras.layers.Dense(10, activation='relu',
+                                            kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_3_rate']))
+        self.model.add(tf.keras.layers.Dense(1, activation='sigmoid',
+                                            kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
 
         # Check if the user wants a pre-trained model. If yes load the weights
         if params['pretrained_model'] is not None:
@@ -198,7 +159,7 @@ class ModelEmbeddingBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=10,
+                patience=30,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
@@ -209,10 +170,27 @@ class ModelEmbeddingBidirect():
             ),
             keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
             keras.callbacks.ReduceLROnPlateau(
-                patience=10,
+                patience=5,
                 monitor='val_loss',
                 factor=0.75,
                 verbose=1,
                 min_lr=5e-6)
         ]
         return callbacks_list
+
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
+        # return np.asarray([])
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
+        # return np.asarray([])
+        try:
+            return self.model.predict_classes(x_test)
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass

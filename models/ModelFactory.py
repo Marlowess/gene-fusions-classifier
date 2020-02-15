@@ -4,11 +4,13 @@ from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
 from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
+from models.ModelConvBidirect import ModelConvBidirect
 from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
 # from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 from models.experimental_simple_models import raw_models_sequentials
 from models.experimental_simple_models import model_dna_embedding_unidirect
 from models.WrapperRawModel import WrapperRawModel
+from models.ModelBidirectDNA import ModelBidirectDNA
 
 
 class ModelFactory():
@@ -30,12 +32,27 @@ class ModelFactory():
 
       if model_name == 'ModelOneHotUnidirect':
          return ModelFactory.getModelOneHotUnidirect(params)
+
+      if model_name == 'ModelConvBidirect':
+         return ModelFactory.getModelConvBidirect(params)
+
+      if model_name == 'ModelBidirectDNA':
+         return ModelFactory.getModelBidirectDNA(params)
       
       if model_name == 'ExperimentalModels':
          return ModelFactory.getExperimentalModels(params)
       
       raise ValueError(f'ERROR: {model_name} is not allowed!')
       pass
+
+
+   @staticmethod
+   def getModelBidirectDNA(params):
+      return ModelBidirectDNA(params)
+
+   @staticmethod
+   def getModelConvBidirect(params):
+      return ModelConvBidirect(params)
 
    @staticmethod
    def getModelEmbeddingBidirect(params: dict):

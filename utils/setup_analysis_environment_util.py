@@ -66,4 +66,13 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
             result_dict['train_result_path'] = train_result_path
         except:
             pass
+
+    if params.test is True:
+        try:
+            test_result_path: str = os.path.join(results_dir, f"results_test")
+            os.makedirs(test_result_path)
+            result_dict['test_result_path'] = test_result_path
+        except:
+            pass
+
     return logger, result_dict
