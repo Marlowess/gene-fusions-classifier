@@ -39,7 +39,8 @@ class ModelBidirectDNA():
 
         self.seeds = [42, 101, 142, 23, 53]
         self.learning_rate = params['lr']
-        self.batch_size = params['batch_size']                  
+        self.batch_size = params['batch_size']
+        weight_decay = self.params['weight_decay']                  
 
         # defines where to save the model's checkpoints 
         self.results_base_dir = params['result_base_dir']     
@@ -51,6 +52,16 @@ class ModelBidirectDNA():
         self.model = Sequential()
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0.], 
             input_shape=(params['maxlen'], params['vocabulary_len'])))
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.MaxPool1D())
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate']))
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.MaxPool1D())
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
         self.model.add(Bidirectional(LSTM((int)(params['lstm_units']), return_sequences=False,
                                                             dropout=params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
