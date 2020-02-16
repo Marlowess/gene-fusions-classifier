@@ -192,3 +192,20 @@ class ModelBidirectDNA():
                 min_lr=5e-6)
         ]
         return callbacks_list
+
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
+        # return np.asarray([])
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
+        # return np.asarray([])
+        try:
+            return self.model.predict_classes(x_test)
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass

@@ -216,3 +216,19 @@ class ModelEmbeddingBidirect():
                 min_lr=5e-6)
         ]
         return callbacks_list
+
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:        
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:        
+        try:
+            pred = model.predict(proteins_test)
+            return list(map(lambda x: 1 if x >= 0.50 else 0, pred))
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass
