@@ -1,12 +1,9 @@
 from abc import ABC, abstractmethod
-# from ModelOneHotAmminoacid import ModelOneHotAmminoacid
 from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
-from models.ModelEmbeddingBidirectProtein import ModelEmbeddingBidirectProtein
 from models.ModelOneHotProtein import ModelOneHotProtein
 from models.ModelConvBidirect import ModelConvBidirect
 from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
-# from models.ModelOneHotUnidirect import ModelOneHotUnidirect
 from models.experimental_simple_models import raw_models_sequentials
 from models.experimental_simple_models import model_dna_embedding_unidirect
 from models.WrapperRawModel import WrapperRawModel
@@ -24,9 +21,6 @@ class ModelFactory():
       if model_name == 'ModelEmbeddingBidirect':
          return ModelFactory.getModelEmbeddingBidirect(params)
       
-      if model_name == 'ModelEmbeddingBidirectProtein':
-         return ModelFactory.getModelEmbeddingBidirectProtein(params)
-      
       if model_name == 'ModelOneHotProtein':
          return ModelFactory.getModelOneHotProtein(params)
 
@@ -43,7 +37,6 @@ class ModelFactory():
          return ModelFactory.getExperimentalModels(params)
       
       raise ValueError(f'ERROR: {model_name} is not allowed!')
-      pass
 
 
    @staticmethod
@@ -61,10 +54,6 @@ class ModelFactory():
    @staticmethod
    def getModelEmbeddingUnidirect(params: dict):
        return ModelEmbeddingUnidirect(params)
-   
-   @staticmethod
-   def getModelEmbeddingBidirectProtein(params: dict):
-      return ModelEmbeddingBidirectProtein(params)
    
    @staticmethod
    def getModelOneHotProtein(params: dict):

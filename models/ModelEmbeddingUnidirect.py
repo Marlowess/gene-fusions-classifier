@@ -4,6 +4,7 @@ from tensorflow import keras
 import os
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
+from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
 
 import copy
 

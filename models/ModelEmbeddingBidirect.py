@@ -14,6 +14,7 @@ from sklearn.metrics import confusion_matrix, classification_report, roc_curve, 
 from sklearn.metrics import auc as auc_test
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
+from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
 
 class ModelEmbeddingBidirect():
     """

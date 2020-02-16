@@ -14,6 +14,7 @@ from sklearn.metrics import confusion_matrix, classification_report, roc_curve, 
 from sklearn.metrics import auc as auc_test
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
+from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
 
 class ModelConvBidirect():
     """
@@ -107,6 +108,15 @@ class ModelConvBidirect():
                     callbacks=callbacks_list, validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
         return history, trained_epochs
+
+    def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
+        print(f"early stopping loss{early_stopping_loss}")
+        callbacks_list = self._get_callbacks(train=True)
+        callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=self.params['epochs'], shuffle=True,
+                    callbacks=callbacks_list, validation_data=validation_data)
+        
+        return history
     
     def evaluate(self, features, labels):
         """
