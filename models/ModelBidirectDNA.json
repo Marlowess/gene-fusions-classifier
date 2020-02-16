@@ -14,7 +14,7 @@
     "dropout_1_rate": 0.2,
     "dropout_2_rate": 0.2,
     "recurrent_dropout_rate": null,
-    "maxlen": 10000,
+    "maxlen": 15000,
     "input_dim": null,
     "output_dim": null,
     "dropout_rates": null,

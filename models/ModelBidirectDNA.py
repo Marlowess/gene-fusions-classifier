@@ -61,7 +61,7 @@ class ModelBidirectDNA():
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
+        # self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
         self.model.add(Bidirectional(LSTM((int)(params['lstm_units']), return_sequences=False,
                                                             dropout=params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
@@ -192,3 +192,20 @@ class ModelBidirectDNA():
                 min_lr=5e-6)
         ]
         return callbacks_list
+
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
+        # return np.asarray([])
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
+        # return np.asarray([])
+        try:
+            return self.model.predict_classes(x_test)
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass
