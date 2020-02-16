@@ -61,7 +61,7 @@ class ModelBidirectDNA():
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
+        # self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
         self.model.add(Bidirectional(LSTM((int)(params['lstm_units']), return_sequences=False,
                                                             dropout=params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
