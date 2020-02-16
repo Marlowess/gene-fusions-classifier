@@ -25,7 +25,10 @@ class ModelBidirectDNA():
         It initializes the model before the training
         """        
 
-        self.pretrained_model = params.get('pretrained_model', None)
+        # defines where to save the model's checkpoints 
+        self.results_base_dir = params['result_base_dir'] 
+
+        self.pretrained_model = params.get('pretrained_model', None)    
         if self.pretrained_model is not None:
             # pretrained model load params from pickle
             print("loading model")
@@ -34,6 +37,7 @@ class ModelBidirectDNA():
             print(train_dir)
             with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 self.params = pickle.load(params_pickle)
+            self.params['result_base_dir'] = self.results_base_dir
         else:
             ## new model
             self.params = params 
@@ -42,10 +46,7 @@ class ModelBidirectDNA():
         self.learning_rate = params['lr']
         self.batch_size = params['batch_size']
         weight_decay = self.params['weight_decay']                  
-
-        # defines where to save the model's checkpoints 
-        self.results_base_dir = params['result_base_dir']     
-
+ 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform
 
@@ -123,7 +124,7 @@ class ModelBidirectDNA():
                     callbacks=callbacks_list, validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
         return history, trained_epochs
-
+    
     def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
         print(f"early stopping loss{early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)

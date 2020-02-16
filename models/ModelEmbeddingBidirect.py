@@ -27,8 +27,11 @@ class ModelEmbeddingBidirect():
         """
         It initializes the model before the training
         """   
+        
+        # defines where to save the model's checkpoints 
+        self.results_base_dir = self.params['result_base_dir']
 
-        self.pretrained_model = params.get('pretrained_model', None)
+        self.pretrained_model = params.get('pretrained_model', None) 
         if self.pretrained_model is not None:
             # pretrained model load params from pickle
             print("loading model")
@@ -37,16 +40,14 @@ class ModelEmbeddingBidirect():
             print(train_dir)
             with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 self.params = pickle.load(params_pickle)
+            self.params['result_base_dir'] = self.results_base_dir
         else:
             ## new model
             self.params = params     
 
         self.seed = 42
         self.learning_rate = self.params['lr']
-        self.batch_size = self.params['batch_size']                  
-
-        # defines where to save the model's checkpoints 
-        self.results_base_dir = self.params['result_base_dir']  
+        self.batch_size = self.params['batch_size']                   
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
