@@ -39,12 +39,12 @@ class ModelBidirectDNA():
             self.params = params 
 
         self.seeds = [42, 101, 142, 23, 53]
-        self.learning_rate = params['lr']
-        self.batch_size = params['batch_size']
+        self.learning_rate = self.params['lr']
+        self.batch_size = self.params['batch_size']
         weight_decay = self.params['weight_decay']                  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = params['result_base_dir']     
+        self.results_base_dir = self.params['result_base_dir']     
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform
@@ -52,7 +52,7 @@ class ModelBidirectDNA():
         # Model definition
         self.model = Sequential()
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0.], 
-            input_shape=(params['maxlen'], params['vocabulary_len'])))
+            input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
         self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
@@ -61,24 +61,23 @@ class ModelBidirectDNA():
         self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
-        self.model.add(tf.keras.layers.MaxPool1D())
-        # self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
-        self.model.add(Bidirectional(LSTM((int)(params['lstm_units']), return_sequences=False,
-                                                            dropout=params['lstm_input_dropout'],
+        self.model.add(tf.keras.layers.MaxPool1D())        
+        self.model.add(Bidirectional(LSTM((int)(self.params['lstm_units']), return_sequences=False,
+                                                            dropout=self.params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
                                                             recurrent_initializer=weight_init(self.seeds[1]),
-                                                            kernel_regularizer=l2(params['weight_decay'])
+                                                            kernel_regularizer=l2(self.params['weight_decay'])
                                                                 )))
-        self.model.add(Dropout(params['lstm_output_dropout'], seed=self.seeds[2]))
+        self.model.add(Dropout(self.params['lstm_output_dropout'], seed=self.seeds[2]))
         self.model.add(Dense(8, activation='relu'))
-        self.model.add(Dropout(params['dense_dropout_rate'], seed=self.seeds[3]))
+        self.model.add(Dropout(self.params['dense_dropout_rate'], seed=self.seeds[3]))
         self.model.add(Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init(self.seeds[4]),
-                                            kernel_regularizer=l2(params['weight_decay'])))
+                                            kernel_regularizer=l2(self.params['weight_decay'])))
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params['pretrained_model'] is not None:
-            self.model.load_weights(params['pretrained_model'])
+        if self.pretrained_model is not None:
+            self.model.load_weights(self.pretrained_model)
     
 
     def build(self, logger=None):

@@ -72,8 +72,8 @@ class ModelConvBidirect():
                                             activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params['pretrained_model'] is not None:
-            self.model.load_weights(params['pretrained_model'])
+        if self.pretrained_model is not None:
+            self.model.load_weights(self.pretrained_model)
     
 
     def build(self, logger=None):

@@ -97,10 +97,7 @@ class ModelEmbeddingBidirect():
         
         # Attention layer: the implementation can be found at 
         # https://github.com/bfelbo/DeepMoji/blob/master/deepmoji/model_def.py
-        attention_layer = AttentionWeightedAverage(name='attlayer', return_attention=False)(concatenation)
-
-        # Attention dropout
-        # dropout_attention = tf.keras.layers.Dropout(params['attention_dropout'], seed=self.seed)(attention_layer)
+        attention_layer = AttentionWeightedAverage(name='attlayer', return_attention=False)(concatenation)        
 
         # Prediction layer
         prediction = tf.keras.layers.Dense(1, activation='sigmoid',
@@ -111,8 +108,8 @@ class ModelEmbeddingBidirect():
         self.model = tf.keras.Model(inputs=[query_input],outputs=[prediction])
 
         # Check if the user wants a pre-trained model. If yes load the weights
-        if params['pretrained_model'] is not None:
-            self.model.load_weights(params['pretrained_model'])
+        if self.pretrained_model is not None:
+            self.model.load_weights(self.pretrained_model)
     
 
     def build(self, logger=None):
