@@ -28,7 +28,7 @@ class ModelConvBidirect():
         """  
 
         # defines where to save the model's checkpoints 
-        self.results_base_dir = self.params['result_base_dir']
+        self.results_base_dir = params['result_base_dir']
 
         self.pretrained_model = params.get('pretrained_model', None)
         if self.pretrained_model is not None:
@@ -114,9 +114,8 @@ class ModelConvBidirect():
         print(f"early stopping loss{early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=self.params['epochs'], shuffle=True,
-                    callbacks=callbacks_list, validation_data=validation_data)
-        
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+                    callbacks=callbacks_list, validation_data=validation_data)        
         return history
     
     def evaluate(self, features, labels):
