@@ -53,6 +53,67 @@ def get_neural_network_params_from_file(network_params_path: str) -> dict:
     return result_dict
 
 # =============================================================================================== #
+# COMPILE MODEL FUNCTION                                                                          #
+# =============================================================================================== #
+
+def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False, tag_report: str = None) -> None:
+    """
+    Params:
+    -------
+        :message: str,
+        :logger: logging.Logger,
+        :skip_message: bool, default = False
+    """
+
+    if tag_report is not None:
+        message = f"[{tag_report} - START]{message}[{tag_report} - END]"
+
+    if logger is None:
+        if skip_message is True: return
+        print(message)
+    else:
+        logger.info(message)
+    pass
+
+def compile_model(
+    conf_load_dict,
+    conf_preprocess_dict,
+    cmd_line_params,
+    network_params,
+    meta_info_project_dict,
+    main_logger,
+    ) -> None:
+
+    logger = main_logger
+    
+    base_dir: str = meta_info_project_dict['base_dir']
+    results_dir = meta_info_project_dict['val_result_path']
+    history_filename: str = os.path.join(base_dir, 'history.csv')
+    network_params['result_base_dir'] = results_dir   
+
+    # TODO: callbacks are defined for each model --> remove them from all dictionaries
+    # callbacks_list = _get_callbacks_list(history_filename)
+
+    # Get Model from ModelFactory Static class.
+    network_model_name: str = cmd_line_params.load_network
+    if network_model_name == 'WrappedRawModel':
+        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    else:
+        model = ModelFactory.getModelByName(network_model_name, network_params)
+
+    # Build model.
+    _log_info_message(f"> build model (--compile).", logger)
+    
+    # It compiles the model and print its summary (architecture's structure)
+    model.build(logger)
+
+    # It plots on a file the model's structure
+    _log_info_message(f"> plot model architecture (--compile).", logger)
+    model.plot_model()
+
+    pass
+
+# =============================================================================================== #
 # MAIN FUNCTION                                                                                   #
 # =============================================================================================== #
 
@@ -86,6 +147,25 @@ def main(cmd_line_params: dict):
         'maxlen': network_params['maxlen'],
         'onehot_flag': cmd_line_params.onehot_flag,
     }
+
+    if network_model_name == 'WrappedRawModel':
+        network_params['batch_size'] = cmd_line_params.batch_size
+        network_params['lr'] = cmd_line_params.lr
+        network_params['sequence_type'] = cmd_line_params.sequence_type
+        network_params['onehot_flag'] = cmd_line_params.sequence_type
+        network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
+
+    if cmd_line_params.compile is True:
+        compile_model(
+           conf_load_dict=conf_load_dict,
+            conf_preprocess_dict=conf_preprocess_dict,
+           cmd_line_params=cmd_line_params,
+            network_params=network_params,
+            meta_info_project_dict=meta_info_project_dict,
+            main_logger=logger
+        ) 
+        sys.exit(0)
+
 
     # This function starts the training phases (holdout, validation or both)
     run_pipeline(
