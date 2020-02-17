@@ -26,6 +26,9 @@ def _get_optimizer(optimizer_name='adam', lr=0.001, clipnorm=1.0):
 
 def _getcallbacks(model_params) -> list:
 
+    if model_params['only-test'] is True:
+        return None
+
     train_result_path: str = model_params['result_base_dir']
     callbacks_list = [            
             keras.callbacks.EarlyStopping(

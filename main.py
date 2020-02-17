@@ -159,6 +159,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
         network_params['sequence_type'] = cmd_line_params.sequence_type
         network_params['onehot_flag'] = cmd_line_params.sequence_type
         network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
+        network_params['pretrained_model'] = cmd_line_params.pretrained_model
 
     if cmd_line_params.compile is True:
         compile_model(
@@ -170,13 +171,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
             main_logger=logger
         ) 
         sys.exit(0)
-
-
-    output_dir: str = cmd_line_params.output_dir
-    end_status_analysis_filename: str = os.path.join('.', output_dir, "end_status_analysis.txt")
-    with open(end_status_analysis_filename, "w") as f:
-        f.write(f"END_STATUS_ANALYSIS={status_analysis.upper()}")
-    sys.exit(0)
+    
     # This function starts the training phases (holdout, validation or both)
     run_pipeline(
         conf_load_dict=conf_load_dict,

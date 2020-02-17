@@ -145,6 +145,15 @@ ARGS_TRAIN_LSTM_FRANK_RUN = \
 	--num_epochs 1 \
 	--onehot_flag
 
+ARGS_TRAIN_LSTM_FRANK_RUN_TEST = \
+	--output_dir tests \
+	--test \
+	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--pretrained_model "./bioinfo_project/tests/2020_02_17/train_16_56_00/results_train/my_model_weights.h5" \
+	--onehot_flag
+
 # =============================================================================================== #
 # TASKS SECTION                                                                                   #
 # =============================================================================================== #
@@ -217,6 +226,9 @@ test_compile_frank:
 
 test_run_frank:
 	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_RUN)
+
+test_run_frank_test_phase:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_RUN_TEST)
 
 # ---------------------------- ---------------------#
 # MANAGEMENT - SECTION                              #
