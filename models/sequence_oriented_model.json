@@ -1,0 +1,38 @@
+{
+    "maxlen": 7000,
+    "vocab_size": 5,
+    "embedding_size": 5,
+
+    "lr": null,
+    "batch_size": null,
+    "epochs": null,    
+
+    "conv_filters": [32],
+    "conv_kernel_size": [16],
+    "conv_activations": ["relu"],
+
+    "rnns_units": [32],
+    "recurrent_dropouts_rates": [0.4],
+    
+    "seeds": [42, 42, 42, 42],
+    "l1": [0.0001, 0.0001, 0.0001, 0.0001],
+    "l2": [0.001, 0.001, 0.001, 0.001],
+    "droputs_rates": [0.5, 0.5, 0.5],
+    
+    
+    "optimizer": "adam",
+    "clip_norm": 1.0,
+    
+    "num_classes": 2,
+    "name": "sequence_oriented_model",
+    "network_type": "WrappedRawModel",
+    "model_path": null,
+    "meta_info": {
+        "recurrent_dropout": false,
+        "regularization": "l1_l2",
+        "dropout": true,
+        "one_hot": true,
+        "rnn_layers": 1,
+        "api": "functional"
+    }
+}

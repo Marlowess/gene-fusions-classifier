@@ -13,6 +13,7 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
 from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve
 
+from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
@@ -261,13 +262,7 @@ def _train(
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
-    if network_model_name == 'WrappedRawModel':
-        history = model.train(x_train, y_train,
-            epochs=cmd_line_params.num_epochs,
-            batch_size=cmd_line_params.batch_size,
-            validation_data=validation_data,
-        )
-    elif cmd_line_params.early_stopping_on_loss:
+    if cmd_line_params.early_stopping_on_loss:
         early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
         history = model.fit_early_stopping_by_loss_val(x_train, y_train,
             epochs=cmd_line_params.num_epochs,
@@ -358,4 +353,3 @@ def _test(
         '\n'.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
-    pass

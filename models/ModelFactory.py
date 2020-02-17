@@ -10,76 +10,63 @@ from models.WrapperRawModel import WrapperRawModel
 from models.ModelBidirectDNA import ModelBidirectDNA
 
 
+from models import sequence_oriented_model
+
 class ModelFactory():
-   
-   @staticmethod
-   def getModelByName(model_name: str, params: dict) -> object:
-      
-      if model_name == 'ModelEmbeddingUnidirect':
-         return ModelFactory.getModelEmbeddingUnidirect(params)
+    @staticmethod
+    def getModelByName(model_name: str, params: dict) -> object:
 
-      if model_name == 'ModelEmbeddingBidirect':
-         return ModelFactory.getModelEmbeddingBidirect(params)
-      
-      if model_name == 'ModelOneHotProtein':
-         return ModelFactory.getModelOneHotProtein(params)
+        if model_name == 'ModelEmbeddingUnidirect':
+            return ModelFactory.getModelEmbeddingUnidirect(params)
 
-      if model_name == 'ModelOneHotUnidirect':
-         return ModelFactory.getModelOneHotUnidirect(params)
+        if model_name == 'ModelEmbeddingBidirect':
+            return ModelFactory.getModelEmbeddingBidirect(params)
 
-      if model_name == 'ModelConvBidirect':
-         return ModelFactory.getModelConvBidirect(params)
+        if model_name == 'ModelOneHotProtein':
+            return ModelFactory.getModelOneHotProtein(params)
 
-      if model_name == 'ModelBidirectDNA':
-         return ModelFactory.getModelBidirectDNA(params)
-      
-      if model_name == 'ExperimentalModels':
-         return ModelFactory.getExperimentalModels(params)
-      
-      raise ValueError(f'ERROR: {model_name} is not allowed!')
+        if model_name == 'ModelOneHotUnidirect':
+            return ModelFactory.getModelOneHotUnidirect(params)
 
+        if model_name == 'ModelConvBidirect':
+            return ModelFactory.getModelConvBidirect(params)
 
-   @staticmethod
-   def getModelBidirectDNA(params):
-      return ModelBidirectDNA(params)
+        if model_name == 'ModelBidirectDNA':
+            return ModelFactory.getModelBidirectDNA(params)
 
-   @staticmethod
-   def getModelConvBidirect(params):
-      return ModelConvBidirect(params)
+        if model_name == 'ExperimentalModels':
+            return ModelFactory.getExperimentalModels(params)
 
-   @staticmethod
-   def getModelEmbeddingBidirect(params: dict):
-       return ModelEmbeddingBidirect(params)
+        raise ValueError(f'ERROR: {model_name} is not allowed!')
 
-   @staticmethod
-   def getModelEmbeddingUnidirect(params: dict):
-       return ModelEmbeddingUnidirect(params)
-   
-   @staticmethod
-   def getModelOneHotProtein(params: dict):
-       return ModelOneHotProtein(params)
-   
-   @staticmethod
-   def getOneHotEncodedLstm(params: dict):
-       return ModelOneHotProtein(params)
-   
-   @staticmethod
-   def getModelOneHotUnidirect(params: dict):
-       return None # ModelOneHotUnidirect(params)
+    @staticmethod
+    def getModelBidirectDNA(params):
+        return ModelBidirectDNA(params)
 
-   @staticmethod
-   def getExperimentalModels(params: dict):
-       return get_compiled_model(params)
+    @staticmethod
+    def getModelConvBidirect(params):
+        return ModelConvBidirect(params)
 
-   @staticmethod
-   def getRawModelByName(params: dict, program_params: dict):
+    @staticmethod
+    def getModelEmbeddingBidirect(params: dict):
+        return ModelEmbeddingBidirect(params)
 
-      if params['name'] == 'raw_models_sequentials':
-         model, callbacks = raw_models_sequentials.get_compiled_model(params, program_params)  
-      if params['name'] == 'model_dna_embedding_unidirect':
-         model, callbacks = model_dna_embedding_unidirect.get_compiled_model(params, program_params)  
-         
-      
-      return WrapperRawModel(model, params, callbacks)
-    
-    
+    @staticmethod
+    def getModelEmbeddingUnidirect(params: dict):
+        return ModelEmbeddingUnidirect(params)
+
+    @staticmethod
+    def getModelOneHotProtein(params: dict):
+        return ModelOneHotProtein(params)
+
+    @staticmethod
+    def getOneHotEncodedLstm(params: dict):
+        return ModelOneHotProtein(params)
+
+    @staticmethod
+    def getModelOneHotUnidirect(params: dict):
+        return None # ModelOneHotUnidirect(params)
+
+    @staticmethod
+    def getExperimentalModels(params: dict):
+        return get_compiled_model(params)

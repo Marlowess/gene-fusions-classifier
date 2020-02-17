@@ -118,6 +118,33 @@ ARGS_TRAIN_ULSTM = --train \
 	--network_parameters models/experimental_simple_models/model_dna_embedding_unidirect.json \
 	--num_epochs 2 \
 	--batch_size 32 \
+
+# =============================================================================================== #
+LSTM_FRANK = genes_fusions_classifier
+ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+	--output_dir tests \
+	--compile \
+	--validation \
+	--train \
+	--test \
+	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+LSTM_FRANK = genes_fusions_classifier
+ARGS_TRAIN_LSTM_FRANK_RUN = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
 # =============================================================================================== #
 # TASKS SECTION                                                                                   #
 # =============================================================================================== #
@@ -184,6 +211,12 @@ test_spredsheet_creation_for_analysis: setup_before_run_task
 	cp $(TESTS_DIR)/$(SCRIPT_TEST_SPREDSHEET) $(SCRIPT_2_TEST)
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_SPREDSHEET)
 	rm -f $(SCRIPT_2_TEST)
+
+test_compile_frank:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_COMPILE)
+
+test_run_frank:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_RUN)
 
 # ---------------------------- ---------------------#
 # MANAGEMENT - SECTION                              #

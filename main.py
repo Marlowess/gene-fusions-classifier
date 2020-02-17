@@ -17,6 +17,8 @@ from utils.parse_args_util import get_parsed_params
 from utils.pipeline_analysis_util import run_pipeline
 from utils.setup_analysis_environment_util import setup_analysis_environment
 
+from models.ModelFactory import ModelFactory
+
 # =============================================================================================== #
 # UTILITY FUNCTIONS                                                                               #
 # =============================================================================================== #
@@ -117,11 +119,12 @@ def compile_model(
 # MAIN FUNCTION                                                                                   #
 # =============================================================================================== #
 
-def main(cmd_line_params: dict):
+def main(cmd_line_params: dict, curr_date_str: str):
 
     tf.random.set_seed(cmd_line_params.seed)
 
-    base_dir: str = 'bioinfo_project'        
+    base_dir: str = 'bioinfo_project'
+    status_analysis: str = "SUCCESS"   
 
     network_params = read_neural_network_params(cmd_line_params) 
     
@@ -129,7 +132,8 @@ def main(cmd_line_params: dict):
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=str(__name__), base_dir=base_dir, params=cmd_line_params)
     # pprint(cmd_line_params)
-    # logger.info("\n" + json.dumps(network_params, indent=4))
+    
+    logger.info(f"Running on date: {curr_date_str}")
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,
@@ -147,7 +151,8 @@ def main(cmd_line_params: dict):
         'maxlen': network_params['maxlen'],
         'onehot_flag': cmd_line_params.onehot_flag,
     }
-
+    
+    network_model_name: str = cmd_line_params.load_network
     if network_model_name == 'WrappedRawModel':
         network_params['batch_size'] = cmd_line_params.batch_size
         network_params['lr'] = cmd_line_params.lr
@@ -176,6 +181,11 @@ def main(cmd_line_params: dict):
         meta_info_project_dict=meta_info_project_dict,
         main_logger=logger
     )
+
+    output_dir: str = cmd_line_params.output_dir
+    end_status_analysis_filename: str = os.path.join('.', output_dir, "end_status_analysis.txt")
+    with open(end_status_analysis_filename, "w") as f:
+        f.write(f"END_STATUS_ANALYSIS={status_analysis.upper()}")
     pass
 
 
@@ -212,6 +222,7 @@ if __name__ == "__main__":
         }
     }
 
-    cmd_line_params, _ = get_parsed_params()
-    main(cmd_line_params)
+    os.environ['TF_DETERMINISTIC_OPS'] = '1'
+    cmd_line_params, _, curr_date_str = get_parsed_params()
+    main(cmd_line_params, curr_date_str)
     pass
