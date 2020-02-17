@@ -172,6 +172,11 @@ def main(cmd_line_params: dict, curr_date_str: str):
         sys.exit(0)
 
 
+    output_dir: str = cmd_line_params.output_dir
+    end_status_analysis_filename: str = os.path.join('.', output_dir, "end_status_analysis.txt")
+    with open(end_status_analysis_filename, "w") as f:
+        f.write(f"END_STATUS_ANALYSIS={status_analysis.upper()}")
+    sys.exit(0)
     # This function starts the training phases (holdout, validation or both)
     run_pipeline(
         conf_load_dict=conf_load_dict,
@@ -181,11 +186,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
         meta_info_project_dict=meta_info_project_dict,
         main_logger=logger
     )
-
-    output_dir: str = cmd_line_params.output_dir
-    end_status_analysis_filename: str = os.path.join('.', output_dir, "end_status_analysis.txt")
-    with open(end_status_analysis_filename, "w") as f:
-        f.write(f"END_STATUS_ANALYSIS={status_analysis.upper()}")
     pass
 
 
