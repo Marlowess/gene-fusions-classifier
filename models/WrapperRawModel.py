@@ -6,12 +6,16 @@ import pickle
 
 import numpy as np
 
+from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
+
 class WrapperRawModel(object):
 
     def __init__(self, model, params:dict, callbacks: list):
         self.model = model
         self.params = copy.deepcopy(params)
         self.callbacks = copy.deepcopy(callbacks)
+
+        # assert self.callbacks != None
         pass
 
     def evaluate(self, x_test, y_test) -> dict:
@@ -58,7 +62,11 @@ class WrapperRawModel(object):
 
     def fit_generator2(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
         # Remove early stopping
+        # assert self.callbacks != None
         callbacks_copy: list = copy.deepcopy(self.callbacks)
+        # assert callbacks_copy != None
+
+        print(callbacks_copy[1:])
         callbacks_copy = callbacks_copy[1:]
 
         history = self.model.fit_generator(
@@ -68,6 +76,15 @@ class WrapperRawModel(object):
             shuffle=False,
             callbacks=callbacks_copy, # Since we have removed Early-Stopping
             validation_data=validation_data)
+        return history
+
+    def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
+        print(f"early stopping loss{early_stopping_loss}")
+        callbacks_list = copy.deepcopy(self.callbacks)
+        callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+                    callbacks=callbacks_list, validation_data=validation_data)
+        
         return history
     
     def train(self, x_train, y_train, epochs: int = 10, batch_size: int = 32, shuffle: bool = True, validation_data: tuple = None):

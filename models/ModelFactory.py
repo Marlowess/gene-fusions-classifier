@@ -83,7 +83,7 @@ class ModelFactory():
          results_base_dir = None
 
       if 'only-test' in params.keys():
-         only_test = True
+         only_test = params['only-test']
       else:
          only_test = False
 
@@ -116,7 +116,6 @@ class ModelFactory():
       
       else:
          raise ValueError(f"ERROR: {model_name} is not allowed!")       
-      
       return WrapperRawModel(model, params, callbacks)
     
     
