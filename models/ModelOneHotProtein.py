@@ -13,6 +13,9 @@ class ModelOneHotProtein():
     """
 
     def __init__(self, params):
+
+        self.results_base_dir = params['result_base_dir']
+
         # if pretrained model is defined i overwrite params with the ones of loaded model
         self.pretrained_model = params.get('pretrained_model', None)
         if self.pretrained_model is not None:
@@ -23,12 +26,12 @@ class ModelOneHotProtein():
             print(train_dir)
             with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 self.params = pickle.load(params_pickle)
+            self.params['result_base_dir'] = self.results_base_dir
         else:
             ## new model
             self.params = params
-        
+
         self.batch_size = self.params['batch_size']
-        self.results_base_dir = self.params['result_base_dir']
 
         # It defines the initialization setup of weights
 
@@ -72,7 +75,8 @@ class ModelOneHotProtein():
                             metrics=['accuracy', f1_m, precision_m, recall_m])#, f1_m, precision_m, recall_m])
 
         self.model.summary(print_fn=lambda x:logger.info(x))
-        
+        logger.info(self.params)
+         
     def fit(self, X_tr, y_tr, epochs, callbacks_list, validation_data, shuffle=True, early_stopping_loss=False):
         """
         Fit the model with the provided data and returns the results
@@ -104,7 +108,7 @@ class ModelOneHotProtein():
         print(f"early stopping loss{early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=self.params['epochs'], shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)
         
         return history
