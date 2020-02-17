@@ -22,7 +22,9 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 # =============================================================================================== #
 
 def read_neural_network_params(cmd_line_params):
-
+    """
+    Handles and organizes data provided by the configuration file
+    """
     if cmd_line_params.network_parameters is not None:
         network_params_path = cmd_line_params.network_parameters
     else:
@@ -38,6 +40,9 @@ def read_neural_network_params(cmd_line_params):
     return network_params
 
 def get_neural_network_params_from_file(network_params_path: str) -> dict:
+    """
+    Loads parameters from external configuration file (JSON or yaml)
+    """
     result_dict: dict = None
 
     with open(network_params_path, "r") as f:
@@ -63,7 +68,7 @@ def main(cmd_line_params: dict):
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=str(__name__), base_dir=base_dir, params=cmd_line_params)
     # pprint(cmd_line_params)
-    logger.info("\n" + json.dumps(network_params, indent=4))
+    # logger.info("\n" + json.dumps(network_params, indent=4))
 
     conf_load_dict: dict = {
         'sequence_type': cmd_line_params.sequence_type,

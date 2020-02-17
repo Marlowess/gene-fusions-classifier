@@ -18,6 +18,7 @@ from sklearn.metrics import auc as auc_test
 from models.attlayer import AttentionWeightedAverage
 from models.metrics import f1_m, precision_m, recall_m
 from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
+import json
 
 class ModelBidirectDNA():
     def __init__(self, params):
@@ -93,6 +94,10 @@ class ModelBidirectDNA():
             self.model.summary(print_fn=lambda x: logger.info(x))
         else:
             self.model.summary()
+
+        # Print params onto the logger
+        if logger is not None:
+            logger.info("\n" + json.dumps(self.params, indent=4))
             
     def fit(self, X_tr, y_tr, epochs, callbacks_list, validation_data, shuffle=True):
         """

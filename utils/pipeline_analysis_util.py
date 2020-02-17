@@ -129,7 +129,7 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     model = None
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
-    _log_info_message(network_params, main_logger)
+    # _log_info_message(network_params, main_logger)
     
     if cmd_line_params.validation is True:
         model, epochs_trained = _holdout(
