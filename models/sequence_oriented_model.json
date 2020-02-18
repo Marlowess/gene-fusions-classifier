@@ -25,7 +25,7 @@
     
     "num_classes": 2,
     "name": "sequence_oriented_model",
-    "network_type": "WrappedRawModel",
+    "network_type": "ModelConvUnidirect",
     "model_path": null,
     "meta_info": {
         "recurrent_dropout": false,

@@ -8,6 +8,7 @@ from models.experimental_simple_models import raw_models_sequentials
 from models.experimental_simple_models import model_dna_embedding_unidirect
 from models.WrapperRawModel import WrapperRawModel
 from models.ModelBidirectDNA import ModelBidirectDNA
+from models.ModelConvUnidirect import ModelConvUnidirect
 
 
 from models import sequence_oriented_model
@@ -40,6 +41,9 @@ class ModelFactory():
       if model_name == 'ExperimentalModels':
          return ModelFactory.getExperimentalModels(params)
       
+      if model_name == 'ModelConvUnidirect':
+         return ModelFactory.getModelConvUnidirect(params)
+      
       raise ValueError(f'ERROR: {model_name} is not allowed!')
 
 
@@ -62,6 +66,10 @@ class ModelFactory():
    @staticmethod
    def getModelOneHotProtein(params: dict):
        return ModelOneHotProtein(params)
+   
+   @staticmethod
+   def getModelConvUnidirect(params: dict):
+       return ModelConvUnidirect(params)
    
    @staticmethod
    def getOneHotEncodedLstm(params: dict):

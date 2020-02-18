@@ -21,17 +21,17 @@ class ModelConvUnidirect(object):
 
     def __init__(self, params:dict):
         
-        # Own personal copy of input params for building model
+        # Create a own personal copy of input params for building model
         _params = self._check_for_prentrained_model(params)
         self.params = copy.deepcopy(_params)
 
         # Get a new instance of a compiled model using tf functional API.
-        self.model = self._get_compiled_model(params)
+        self.model = self._get_compiled_model(self.params)
 
         # Get a copy of callbacks in order to modify later such list
         # whether to validate or purely train such model
         # using either 7.2 or 7.2-enanched algorithms.
-        self.callbacks = copy.deepcopy(self._getcallbacks(params))
+        self.callbacks = copy.deepcopy(self._getcallbacks(self.params))
 
         # assert self.callbacks != None
         pass
@@ -44,7 +44,7 @@ class ModelConvUnidirect(object):
             results_base_dir = None
 
         if 'only-test' in params.keys():
-            only_test = params['only-test']
+            only_test = params['only_test']
         else:
             only_test = False
 
@@ -57,7 +57,7 @@ class ModelConvUnidirect(object):
             with open(os.path.join(train_dir, "network_params.pickle"), 'rb') as params_pickle:
                 params = pickle.load(params_pickle)
             params['result_base_dir'] = results_base_dir
-        params['only-test'] = only_test
+        params['only_test'] = only_test
         return params
 
     def _build_model(self, model_params: dict):
@@ -196,7 +196,7 @@ class ModelConvUnidirect(object):
 
     def _getcallbacks(self, model_params) -> list:
 
-        if model_params['only-test'] is True:
+        if model_params['only_test'] is True:
             return None
 
         train_result_path: str = model_params['result_base_dir']

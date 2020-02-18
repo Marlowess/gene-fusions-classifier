@@ -121,7 +121,7 @@ ARGS_TRAIN_ULSTM = --train \
 
 # =============================================================================================== #
 LSTM_FRANK = genes_fusions_classifier
-ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+ARGS_TRAIN_LSTM_FRANK_COMPILE_ = \
 	--output_dir tests \
 	--compile \
 	--validation \
@@ -133,7 +133,30 @@ ARGS_TRAIN_LSTM_FRANK_COMPILE = \
 	--num_epochs 1 \
 	--onehot_flag
 
+ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+	--output_dir tests \
+	--compile \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
 LSTM_FRANK = genes_fusions_classifier
+ARGS_TRAIN_LSTM_FRANK_RUN_ = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
 ARGS_TRAIN_LSTM_FRANK_RUN = \
 	--output_dir tests \
 	--validation \
@@ -145,10 +168,19 @@ ARGS_TRAIN_LSTM_FRANK_RUN = \
 	--num_epochs 1 \
 	--onehot_flag
 
-ARGS_TRAIN_LSTM_FRANK_RUN_TEST = \
+ARGS_TRAIN_LSTM_FRANK_RUN_TEST_ = \
 	--output_dir tests \
 	--test \
 	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--pretrained_model "./bioinfo_project/tests/2020_02_17/train_16_56_00/results_train/my_model_weights.h5" \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_RUN_TEST = \
+	--output_dir tests \
+	--test \
+	--load_network ModelConvUnidirect \
 	--network_parameters models/sequence_oriented_model.json \
 	--sequence_type dna \
 	--pretrained_model "./bioinfo_project/tests/2020_02_17/train_16_56_00/results_train/my_model_weights.h5" \
