@@ -23,13 +23,13 @@ class ModelConvUnidirect(object):
         
         # Create a own personal copy of input params for building model
         _params = self._check_for_prentrained_model(params)
-        self.params = copy.deepcopy(_params)
+        self.params = _params
 
         # Get a new instance of a compiled model using tf functional API.
         self.model = self._get_compiled_model(self.params)
 
         # Get a copy of callbacks in order to modify later such list
-        # whether to validate or purely train such model
+        # whether to validate or purely train this model
         # using either 7.2 or 7.2-enanched algorithms.
         self.callbacks = copy.deepcopy(self._getcallbacks(self.params))
 
