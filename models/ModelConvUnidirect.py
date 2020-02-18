@@ -197,10 +197,10 @@ class ModelConvUnidirect(object):
                 kernel_regularizer=tf.keras.regularizers.l1_l2(l1[index_reg], l2[index_reg]),
             #    )
             )(x)
-        x = tf.keras.layers.Dropout(
-            rate=dropouts_rates[index_reg],
-            seed=seeds[index_reg]
-        )(x)
+        # x = tf.keras.layers.Dropout(
+        #     rate=dropouts_rates[index_reg],
+        #     seed=seeds[index_reg]
+        # )(x)
         return x
     
     def _get_conv_1d_layer(self, x, conv_filters, seeds, conv_kernel_size, conv_activations, l1, l2, dropouts_rates, index_conv, index_reg, last_layer):
