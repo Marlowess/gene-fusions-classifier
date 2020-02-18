@@ -182,8 +182,9 @@ def _holdout(
         pickle.dump(history.history, history_pickle)
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
-    results_dict = model.evaluate(x_val, y_val)    
-    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
+    results_dict: dict = model.evaluate(x_val, y_val)    
+    del results_dict['binary_crossentropy']
+    res_string = ", ".join(f'{k}:{v:.5f}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
@@ -376,7 +377,7 @@ def _test(
 
     _log_info_message(
         "CONFUSION MATRIX\n" + \
-        '\n'.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
+        ','.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
 <<<<<<< HEAD

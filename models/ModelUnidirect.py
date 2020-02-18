@@ -17,7 +17,7 @@ from tensorflow import keras
 from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
 from models.metrics import f1_m, precision_m, recall_m
 
-class ModelConvUnidirect(object):
+class ModelUnidirect(object):
 
     def __init__(self, params:dict):
         
@@ -112,25 +112,6 @@ class ModelConvUnidirect(object):
                 embeddings_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[0]),
                 embeddings_regularizer=tf.keras.regularizers.l2(l2[0]),
                 name=f'embedding_layer_in{vocab_size}_out{embedding_size}')(x)
-        
-
-        # *** Convolutional 1D block of layers.
-        index_reg = 0
-        n = len(conv_activations)
-        for index_conv in range(n):
-            x = self._get_conv_1d_layer(
-                x,
-                conv_filters,
-                seeds,
-                conv_kernel_size,
-                conv_activations,
-                l1,
-                l2,
-                dropouts_rates,
-                index_conv,
-                index_reg,
-                n-1
-            )
 
         # *** Block made from stack of LSTM layers
         index_reg = 1
@@ -197,10 +178,10 @@ class ModelConvUnidirect(object):
                 kernel_regularizer=tf.keras.regularizers.l1_l2(l1[index_reg], l2[index_reg]),
             #    )
             )(x)
-        x = tf.keras.layers.Dropout(
-            rate=dropouts_rates[index_reg],
-            seed=seeds[index_reg]
-        )(x)
+        # x = tf.keras.layers.Dropout(
+        #     rate=dropouts_rates[index_reg],
+        #     seed=seeds[index_reg]
+        # )(x)
         return x
     
     def _get_conv_1d_layer(self, x, conv_filters, seeds, conv_kernel_size, conv_activations, l1, l2, dropouts_rates, index_conv, index_reg, last_layer):

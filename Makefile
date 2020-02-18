@@ -139,7 +139,7 @@ ARGS_TRAIN_LSTM_FRANK_COMPILE = \
 	--validation \
 	--train \
 	--test \
-	--load_network ModelConvUnidirect \
+	--load_network ModelUnidirect \
 	--network_parameters models/sequence_oriented_model.json \
 	--sequence_type dna \
 	--num_epochs 1 \
@@ -162,11 +162,22 @@ ARGS_TRAIN_LSTM_FRANK_RUN = \
 	--validation \
 	--train \
 	--test \
-	--load_network WrappedRawModel \
+	--load_network ModelUnidirect \
 	--network_parameters models/sequence_oriented_model.json \
 	--sequence_type dna \
 	--num_epochs 1 \
+	--dropout_level 0.3 \
 	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_RUN__ = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
 
 ARGS_TRAIN_LSTM_FRANK_RUN_TEST_ = \
 	--output_dir tests \

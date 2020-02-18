@@ -32,6 +32,10 @@ def _get_custom_parser(output_dir: str) -> object:
 
     parser.add_argument('--create_spredsheet_report', default=False, help='Flag that allows to automatically generate a spredsheet-like report, when included esplicitly before running the program.', action='store_true')
     parser.add_argument('--experimental_mode', default=False, help='Flag that allows to run analysis tool in a experimental manner, when included esplicitly before running the program.', action='store_true')
+    parser.add_argument('--dropout_level', default=None,
+        choices=[0.1, 0.3, 0.5],
+        type=float,
+        help='Additional information for creating subdirectory where storing results.')
 
     parser.add_argument('--compile', default=False,
         action='store_true',
