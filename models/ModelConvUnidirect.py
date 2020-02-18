@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # Standard Imports.
 import copy
 import os
+import pickle
+import json
 
 # Main Machine Learning Imports.
 import numpy as np
@@ -19,7 +21,8 @@ class ModelConvUnidirect(object):
     def __init__(self, params:dict):
         
         # Own personal copy of input params for building model
-        self.params = copy.deepcopy(params)
+        _params = self._check_for_prentrained_model(params)
+        self.params = copy.deepcopy(_params)
 
         # Get a new instance of a compiled model using tf functional API.
         self.model = self._get_compiled_model(params)
@@ -31,6 +34,30 @@ class ModelConvUnidirect(object):
 
         # assert self.callbacks != None
         pass
+    
+    def _check_for_prentrained_model(self, _params):
+        params = copy.deepcopy(_params)
+        if 'result_base_dir' in params.keys():
+            results_base_dir = params['result_base_dir']
+        else:
+            results_base_dir = None
+
+        if 'only-test' in params.keys():
+            only_test = params['only-test']
+        else:
+            only_test = False
+
+        pretrained_model = params.get('pretrained_model', None)    
+        if pretrained_model is not None:
+            print("loading model")
+            train_dir = "/"
+            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            print(train_dir)
+            with open(os.path.join(train_dir, "network_params.pickle"), 'rb') as params_pickle:
+                params = pickle.load(params_pickle)
+            params['result_base_dir'] = results_base_dir
+        params['only-test'] = only_test
+        return params
 
     def _build_model(self, model_params: dict):
 
