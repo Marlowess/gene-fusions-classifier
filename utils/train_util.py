@@ -187,7 +187,7 @@ def _holdout(
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
-    return model, trained_epochs
+    return model, trained_epochs, res_string
 
 def _train(
     subtrain,
@@ -343,9 +343,16 @@ def _test(
     evaluation_metrics = model.evaluate(x_test, y_test)
     
     _log_info_message("Resulting metrics:", logger)
+    tmp_sol: list = list()
     for (k,v) in evaluation_metrics.items():
         _log_info_message("{}: {:.5f}".format(k, v), logger)
-
+        tmp_sol.append("{}: {:.5f}".format(k, v))
+    
+    res_str_test: str = ','.join([str(xi) for xi in tmp_sol])
+    _log_info_message(
+        res_str_test
+        , logger)
+    
     # plot roc curve and auc
     y_pred = model.predict(x_test)
     auc_value: float = plot_roc_curve(
@@ -372,3 +379,13 @@ def _test(
         '\n'.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
+<<<<<<< HEAD
+=======
+
+    # print report
+    _log_info_message(
+        classification_report(y_test, y_pred_classes, target_names=target_names),
+        logger
+        )
+    return res_str_test
+>>>>>>> Added Francesco Chiarlo Archs to this branch created directly from master.

@@ -126,4 +126,3 @@ class ModelFactory():
          raise ValueError(f"ERROR: {model_name} is not allowed!")       
       return WrapperRawModel(model, params, callbacks)
     
-    
