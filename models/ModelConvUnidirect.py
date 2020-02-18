@@ -360,15 +360,15 @@ class ModelConvUnidirect(object):
             A numpy array of class predictions.
         '''
 
-        proba = self.predict(x, batch_size=batch_size, verbose=verbose)
-        return np.asarray(list(map(lambda xi: 1 if xi >= 0.50 else 0, proba)), dtype=np.int)
         """
         if proba.shape[-1] > 1:
             return proba.argmax(axis=-1)
         else:
             return (proba > 0.5).astype('int32')
         """
-        pass
+
+        proba = self.predict(x, batch_size=batch_size, verbose=verbose)
+        return np.asarray(list(map(lambda xi: 1 if xi >= 0.50 else 0, proba)), dtype=np.int)
 
     def save_model(self):
         tf.keras.models.save_model(
