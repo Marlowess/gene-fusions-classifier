@@ -167,7 +167,8 @@ ARGS_TRAIN_LSTM_FRANK_RUN = \
 	--sequence_type dna \
 	--num_epochs 1 \
 	--dropout_level 0.3 \
-	--onehot_flag
+	--onehot_flag \
+	--seq_len 7000
 
 ARGS_TRAIN_LSTM_FRANK_RUN__ = \
 	--output_dir tests \

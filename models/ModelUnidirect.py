@@ -183,7 +183,61 @@ class ModelUnidirect(object):
         #     seed=seeds[index_reg]
         # )(x)
         return x
+
+    def _get_rnn_layer(self, layer_type, x, rnns_units, recurrent_dropouts_rates, l1, l2, dropouts_rates, seeds, index_lstm, index_reg, return_sequences: bool = False):
+        layer_type_: str= layer_type.lower()
+        if layer_type_ == 'lstm':
+            x = self._get_lstm_layer(
+                x,
+                rnns_units,
+                recurrent_dropouts_rates,
+                l1,
+                l2,
+                dropouts_rates,
+                seeds,
+                index_lstm,
+                index_reg,
+                return_sequences=return_sequences
+            )
+        elif layer_type_ == "gru":
+            x = self._get_gru_layer(
+                x,
+                rnns_units,
+                recurrent_dropouts_rates,
+                l1,
+                l2,
+                dropouts_rates,
+                seeds,
+                index_lstm,
+                index_reg,
+                return_sequences=return_sequences
+            )
+        else:
+            raise ValueError(f"ERROR: given rnn layer of type {layer_type_.upper()} is not allowed!")
+        return x
+
     
+    def _get_gru_layer(self, x, rnns_units, recurrent_dropouts_rates, l1, l2, dropouts_rates, seeds, index_lstm, index_reg, return_sequences: bool = False):
+        # tf.keras.layers.Bidirectional(
+        x = \
+            tf.keras.layers.GRU(
+                rnns_units[index_lstm],
+                dropout=recurrent_dropouts_rates[index_lstm],
+                # recurrent_dropout=recurrent_dropouts_rates[0],
+                kernel_initializer=tf.keras.initializers.glorot_uniform(seed=seeds[index_reg]),
+                recurrent_initializer=tf.keras.initializers.orthogonal(seed=seeds[index_reg]),
+                # kernel_regularizer=tf.keras.regularizers.l1(l1[1]),
+                # kernel_regularizer=tf.keras.regularizers.l2(l2[1]),
+                return_sequences=return_sequences,
+                kernel_regularizer=tf.keras.regularizers.l1_l2(l1[index_reg], l2[index_reg]),
+            #    )
+            )(x)
+        # x = tf.keras.layers.Dropout(
+        #     rate=dropouts_rates[index_reg],
+        #     seed=seeds[index_reg]
+        # )(x)
+        return x
+ 
     def _get_conv_1d_layer(self, x, conv_filters, seeds, conv_kernel_size, conv_activations, l1, l2, dropouts_rates, index_conv, index_reg, last_layer):
         x = tf.keras.layers.Conv1D(
             filters=conv_filters[index_conv],

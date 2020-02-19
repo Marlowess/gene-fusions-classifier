@@ -145,12 +145,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'val_bins': [4],
         'test_bins': [5],
     }
-
-    conf_preprocess_dict: dict = {
-        'padding': 'post',
-        'maxlen': network_params['maxlen'],
-        'onehot_flag': cmd_line_params.onehot_flag,
-    }
     
     # network_model_name: str = cmd_line_params.load_network
     # if network_model_name == 'WrappedRawModel':
@@ -164,6 +158,14 @@ def main(cmd_line_params: dict, curr_date_str: str):
     if cmd_line_params.dropout_level is not None:
         droputs_rates = [cmd_line_params.dropout_level] * len(network_params['droputs_rates'])
         network_params['droputs_rates'] = droputs_rates
+    if cmd_line_params.seq_len is not None:
+        network_params['maxlen'] = cmd_line_params.seq_len
+
+    conf_preprocess_dict: dict = {
+        'padding': 'post',
+        'maxlen': network_params['maxlen'],
+        'onehot_flag': cmd_line_params.onehot_flag,
+    }
 
     logger.info("\n" + json.dumps(network_params, indent=4))
 

@@ -36,6 +36,9 @@ def _get_custom_parser(output_dir: str) -> object:
         choices=[0.1, 0.3, 0.5],
         type=float,
         help='Additional information for creating subdirectory where storing results.')
+    parser.add_argument('--seq_len', default=None,
+        type=int,
+        help='Additional information for creating subdirectory where storing results.')
 
     parser.add_argument('--compile', default=False,
         action='store_true',
