@@ -11,8 +11,8 @@
     "conv_kernel_size": [3, 3],
     "conv_activations": ["relu", "relu"],
 
-    "rnns_units": [16],
-    "recurrent_dropouts_rates": [0.4],
+    "rnns_units": [8, 16],
+    "recurrent_dropouts_rates": [0.4, 0.4],
     "rnn_type": "lstm",
     
     "seeds": [42, 42, 42, 42],
