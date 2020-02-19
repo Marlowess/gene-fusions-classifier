@@ -73,6 +73,7 @@ class ModelUnidirect(object):
 
         # RNN units
         rnns_units: list = model_params['rnns_units']
+        rnn_type: str = model_params['rnn_type']
     
 
         conv_filters: list = model_params['conv_filters']
@@ -120,7 +121,8 @@ class ModelUnidirect(object):
         for index_lstm in range(len(rnns_units)):
             if index_lstm == last_rnn_layer:
                 return_sequences = False
-            x = self._get_lstm_layer(
+            x = self._get_rnn_layer(
+                rnn_type,
                 x,
                 rnns_units,
                 recurrent_dropouts_rates,
