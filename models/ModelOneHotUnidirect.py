@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.layers import Masking
 from metrics import f1_m, precision_m, recall_m
+import json
 
 class ModelOneHotUnidirect():
     """
@@ -43,6 +44,9 @@ class ModelOneHotUnidirect():
             self.model.summary(print_fn=lambda x: logger.info(x))
         else:
             self.model.summary()
+
+        if logger is not None:
+            logger.info("\n" + json.dumps(self.params, indent=4))
         
     def fit(self, X_tr, y_tr, epochs, callback_list, validation_data, shuffle=True):
         """
