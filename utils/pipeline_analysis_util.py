@@ -181,6 +181,11 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
                 raise ValueError("In order to perform test a pretrained model " \
                                 "must be specified")
             # Todo check whether the model actually exists
+
+            # Get Callbacks.
+            base_dir: str = meta_info_project_dict['base_dir']
+            results_dir = meta_info_project_dict['test_result_path']
+            network_params['result_base_dir'] = results_dir
             model = ModelFactory.getModelByName(cmd_line_params.load_network, network_params)
             model.build(main_logger)
         
