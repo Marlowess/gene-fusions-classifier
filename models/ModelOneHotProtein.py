@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 import pickle
+import numpy as np
 from tensorflow import keras
 from tensorflow.keras.layers import Masking
 from models.metrics import f1_m, precision_m, recall_m
@@ -28,6 +29,7 @@ class ModelOneHotProtein():
             with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 self.params = pickle.load(params_pickle)
             self.params['result_base_dir'] = self.results_base_dir
+            print(self.params)
         else:
             ## new model
             self.params = params
@@ -49,9 +51,9 @@ class ModelOneHotProtein():
         self.model.add(keras.layers.LSTM(units=self.params['lstm2']['units'], return_sequences = False,
                                          dropout=self.params['lstm2']['dropout'],
                                          kernel_regularizer=keras.regularizers.l2(l=self.params['lstm2']['kernel_l2']),
-                                         recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2']),
+                                         recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2'])
                                         #  activity_regularizer=keras.regularizers.l2(l=self.params['lstm2']['activation_l2'])
-        #                                 #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=2)
+                                        #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=2)
                                          ))
         # self.model.add(keras.layers.Flatten())
         self.model.add(keras.layers.Dropout(rate=self.params['dense1']['dropout']))
@@ -71,6 +73,7 @@ class ModelOneHotProtein():
         It compiles the model by defining optimizer, loss and learning rate
         """
         optimizer = tf.keras.optimizers.RMSprop(lr=self.params['lr'], clipnorm=1.0)
+        # optimizer = tf.keras.optimizers.Adam(lr=self.params['lr'], clipnorm=1.0)
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy', f1_m, precision_m, recall_m])#, f1_m, precision_m, recall_m])
@@ -179,3 +182,19 @@ class ModelOneHotProtein():
         with open(os.path.join(self.results_base_dir, "model.json"), "w") as json_file:
             json_file.write(model_json)
             
+    def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
+        # return np.asarray([])
+        return self.model.predict(
+            x_test,
+            batch_size=batch_size,
+            verbose=verbose,
+            ).ravel()
+
+    def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
+        # return np.asarray([])
+        try:
+            return self.model.predict_classes(x_test)
+        except Exception as err:
+            print(f"EXCEPTION-RAISED: {err}")
+            sys.exit(-1)
+        pass

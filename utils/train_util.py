@@ -11,7 +11,7 @@ from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curce
+from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve
 
 from sklearn.metrics import confusion_matrix
 
@@ -334,7 +334,7 @@ def _test(
 
     # plot roc curve and auc
     y_pred = model.predict(x_test)
-    auc_value: float = plot_roc_curce(
+    auc_value: float = plot_roc_curve(
         y_test,
         y_pred,
         title="Roc Curve Eval",
