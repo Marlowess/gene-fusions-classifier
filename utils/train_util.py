@@ -319,12 +319,12 @@ def _test(
     :meta_info_project_dict:
     :logger:
     :message:
-    """ 
+    """     
     # Some logs recorded.
     _log_info_message(f" [*] {message}", logger)
 
     test_bins = conf_load_dict['test_bins']
-    _log_info_message("Testing on bins: {}".format(test_bins), logger)
+    _log_info_message("Testing on bins: {}".format(test_bins), logger)    
 
     evaluation_metrics = model.evaluate(x_test, y_test)
     

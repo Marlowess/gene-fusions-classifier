@@ -152,7 +152,7 @@ class ModelEmbeddingBidirect():
         return history, trained_epochs
 
     def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
-        print(f"early stopping loss{early_stopping_loss}")
+        print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
@@ -238,7 +238,7 @@ class ModelEmbeddingBidirect():
 
     def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:        
         try:
-            pred = model.predict(proteins_test)
+            pred = self.model.predict(x_test)
             return list(map(lambda x: 1 if x >= 0.50 else 0, pred))
         except Exception as err:
             print(f"EXCEPTION-RAISED: {err}")

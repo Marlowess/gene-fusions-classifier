@@ -108,7 +108,7 @@ class ModelOneHotProtein():
         return history
     
     def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
-        print(f"early stopping loss{early_stopping_loss}")
+        print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
