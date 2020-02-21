@@ -130,6 +130,7 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
     # _log_info_message(network_params, main_logger)
+    res_str_holdout = ""
     
     if cmd_line_params.validation is True:
         model, epochs_trained, res_str_holdout = _holdout(
@@ -243,29 +244,31 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             '\n'.join([" > {}: {}".format(metric, value) for metric, value in zip(model.metrics_names, scores)])
         )
         return
-    model, res_str_holdout = _pipeline_train(
-        x_train,
-        y_train,
-        x_val,
-        y_val,
-        conf_load_dict,
-        cmd_line_params,
-        network_params,
-        meta_info_project_dict,
-        tokenizer,
-        main_logger)
-    
-    res_str_test = _pipeline_test(
-        model,
-        x_test,
-        y_test,
-        conf_load_dict,
-        cmd_line_params,
-        network_params,
-        meta_info_project_dict,
-        main_logger
-    )
 
-    _log_info_message("Holdout: " + res_str_holdout, main_logger)
-    _log_info_message("Test: " + res_str_test, main_logger)
+    if cmd_line_params.train:
+        model, res_str_holdout = _pipeline_train(
+            x_train,
+            y_train,
+            x_val,
+            y_val,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger)
+        _log_info_message("Holdout: " + res_str_holdout, main_logger)
+        
+    if cmd_line_params.test:
+        res_str_test = _pipeline_test(
+            model,
+            x_test,
+            y_test,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            main_logger
+        )
+        _log_info_message("Test: " + res_str_test, main_logger)
     pass
