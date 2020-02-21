@@ -74,11 +74,6 @@ class ModelUnidirect(object):
         # RNN units
         rnns_units: list = model_params['rnns_units']
         rnn_type: str = model_params['rnn_type']
-    
-
-        conv_filters: list = model_params['conv_filters']
-        conv_kernel_size: list = model_params['conv_kernel_size']
-        conv_activations: list = model_params['conv_activations']
 
         # Regularization factors
         seeds: list = model_params['seeds']

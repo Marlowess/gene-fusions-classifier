@@ -155,6 +155,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
     network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
     network_params['pretrained_model'] = cmd_line_params.pretrained_model
     network_params['onehot_flag'] = cmd_line_params.onehot_flag
+
     if cmd_line_params.dropout_level is not None:
         droputs_rates = [cmd_line_params.dropout_level] * len(network_params['droputs_rates'])
         network_params['droputs_rates'] = droputs_rates
