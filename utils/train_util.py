@@ -267,21 +267,6 @@ def _train(
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
-<<<<<<< HEAD
-=======
-    # if network_model_name == 'WrappedRawModel':
-    #     # history = model.train(x_train, y_train,
-    #     #     epochs=cmd_line_params.num_epochs,
-    #     #     batch_size=cmd_line_params.batch_size,
-    #     #     validation_data=validation_data,
-    #     # )
-    #     history = model.fit_generator2(
-    #         generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
-    #         steps_per_epoch=np.floor(x_subtrain_size/network_params['batch_size']),
-    #         epochs=epochs_trained,
-    #         callbacks_list=[]
-    #     )
->>>>>>> Added code for Francesco Chiarlo.
     if cmd_line_params.early_stopping_on_loss:
         early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
         history = model.fit_early_stopping_by_loss_val(x_train, y_train,
@@ -380,13 +365,3 @@ def _test(
         ','.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
-<<<<<<< HEAD
-=======
-
-    # print report
-    _log_info_message(
-        classification_report(y_test, y_pred_classes, target_names=target_names),
-        logger
-        )
-    return res_str_test
->>>>>>> Added Francesco Chiarlo Archs to this branch created directly from master.
