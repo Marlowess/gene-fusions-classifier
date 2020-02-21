@@ -147,7 +147,6 @@ ARGS_TRAIN_LSTM_FRANK_COMPILE___ = \
 
 ARGS_TRAIN_LSTM_FRANK_COMPILE = \
 	--output_dir tests \
-	--compile \
 	--validation \
 	--train \
 	--test \

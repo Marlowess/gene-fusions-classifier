@@ -152,7 +152,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
     network_params['lr'] = cmd_line_params.lr
     network_params['sequence_type'] = cmd_line_params.sequence_type
     network_params['onehot_flag'] = cmd_line_params.sequence_type
-    network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
+    # network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
     network_params['pretrained_model'] = cmd_line_params.pretrained_model
     network_params['onehot_flag'] = cmd_line_params.onehot_flag
 
