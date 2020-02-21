@@ -1,0 +1,42 @@
+{
+    "maxlen": 5000,
+    "vocab_size": 5,
+    "embedding_size": 5,
+
+    "lr": null,
+    "batch_size": null,
+    "epochs": null,    
+
+    "conv_filters": [16, 32],
+    "conv_kernel_size": [3, 3],
+    "conv_activations": ["relu", "relu"],
+
+    "rnns_units": [8, 16],
+    "recurrent_dropouts_rates": [0.4, 0.4],
+    "rnn_type": "lstm",
+    
+    "seeds": [42, 42, 42, 42],
+    "l1": [0.0001, 0.0001, 0.0001, 0.0001],
+    "l2": [0.001, 0.001, 0.001, 0.001],
+    "droputs_rates": [0.1,0.1,0.1],
+
+    "dense_units": [32],
+    
+    
+    "optimizer": "adam",
+    "clip_norm": 1.0,
+    
+    "num_classes": 2,
+    "name": "model_conv_unidirect",
+    "network_type": "ModelConvUnidirect",
+    "model_path": null,
+
+    "meta_info": {
+        "recurrent_dropout_hidden_state": false,
+        "regularization": "l1_l2",
+        "dropout": true,
+        "one_hot": true,
+        "rnn_layers": 2,
+        "tf_keras_api": "functional"
+    }
+}

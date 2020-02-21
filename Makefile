@@ -133,7 +133,7 @@ ARGS_TRAIN_LSTM_FRANK_COMPILE_ = \
 	--num_epochs 1 \
 	--onehot_flag
 
-ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+ARGS_TRAIN_LSTM_FRANK_COMPILE___ = \
 	--output_dir tests \
 	--compile \
 	--validation \
@@ -141,6 +141,18 @@ ARGS_TRAIN_LSTM_FRANK_COMPILE = \
 	--test \
 	--load_network ModelUnidirect \
 	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+	--output_dir tests \
+	--compile \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvBidirect \
+	--network_parameters models/ModelConvBidirect.json \
 	--sequence_type dna \
 	--num_epochs 1 \
 	--onehot_flag
