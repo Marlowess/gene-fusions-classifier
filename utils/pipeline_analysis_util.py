@@ -245,7 +245,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
         )
         return
 
-    if cmd_line_params.train:
+    if cmd_line_params.train or cmd_line_params.validation:
         model, res_str_holdout = _pipeline_train(
             x_train,
             y_train,
@@ -258,6 +258,8 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             tokenizer,
             main_logger)
         _log_info_message("Holdout: " + res_str_holdout, main_logger)
+    else:
+        model = None
         
     if cmd_line_params.test:
         res_str_test = _pipeline_test(
