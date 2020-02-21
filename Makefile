@@ -313,5 +313,3 @@ clear_result_dirs_from_tests: setup_before_run_task
 build_zip_to_run_on_colab: clear_result_dirs
 	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
 	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
-
-

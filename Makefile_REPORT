@@ -26,83 +26,83 @@ arch_1_emb_conv_lstm_holdout:
 	--lr 1e-4
 
 arch_1_onehot_lstm_holdout:
-    python3 main.py \
-    --validation \
-    --sequence_type dna \
-    --path_source_data ./data/bins_translated \
-    --load_network ModelUnidirect \
-    --network_parameters models/ModelUnidirect.json \
-    --num_epochs 100 \
-    --batch_size 16 \
-    --lr 1e-4 \
-    --onehot_flag
+	python3 main.py \
+	--validation \
+	--sequence_type dna \
+	--path_source_data ./data/bins_translated \
+	--load_network ModelUnidirect \
+	--network_parameters models/ModelUnidirect.json \
+	--num_epochs 100 \
+	--batch_size 16 \
+	--lr 1e-4 \
+	--onehot_flag
 
 arch_1_emb_lstm_holdout:
-    python3 main.py \
-    --validation \
-    --sequence_type dna \
-    --path_source_data ./data/bins_translated \
-    --load_network ModelUnidirect \
-    --network_parameters models/ModelUnidirect.json \
-    --num_epochs 100 \
-    --batch_size 16 \
-    --lr 1e-4
+	python3 main.py \
+	--validation \
+	--sequence_type dna \
+	--path_source_data ./data/bins_translated \
+	--load_network ModelUnidirect \
+	--network_parameters models/ModelUnidirect.json \
+	--num_epochs 100 \
+	--batch_size 16 \
+	--lr 1e-4
 
 # ----------------------------------------------- #
 # Arch no.2: Bidirect LSTM Models Section (DNA)   #
 # ----------------------------------------------- #
 
 arch_2_onehot_bidirect_lstm_holdout:
-    python3 main.py \
-    --validation \
-    --path_source_data ./data/bins_translated \
-    --load_network ModelBidirectDNA \
-    --sequence_type dna \
-    --onehot_flag \
-    --num_epochs 100 \
-    --batch_size 20 \
-    --lr 5e-4 \
-    --network_parameters models/ModelBidirectDNA.json
+	python3 main.py \
+	--validation \
+	--path_source_data ./data/bins_translated \
+	--load_network ModelBidirectDNA \
+	--sequence_type dna \
+	--onehot_flag \
+	--num_epochs 100 \
+	--batch_size 20 \
+	--lr 5e-4 \
+	--network_parameters models/ModelBidirectDNA.json
 
 # ------------------------------------------------- #
 # Arch no.3: Bidirect LSTM Models Section (PROTEIN) #
 # ------------------------------------------------- #
 
 arch_3_onehot_lstm_protein_holdout:
-    python3 main.py \
-    --validation \
-    --network_parameters models/ModelOneHotProtein.json \
-    --path_source_data ./data/bins_translated \
-    --batch_size 32 \
-    --num_epochs 100 \
-    --lr 5e-4 \
-    --load_network ModelOneHotProtein \
-    --sequence_type protein \
-    --onehot_flag
+	python3 main.py \
+	--validation \
+	--network_parameters models/ModelOneHotProtein.json \
+	--path_source_data ./data/bins_translated \
+	--batch_size 32 \
+	--num_epochs 100 \
+	--lr 5e-4 \
+	--load_network ModelOneHotProtein \
+	--sequence_type protein \
+	--onehot_flag
 
 # -------------------------------------------------- #
 # Arch no.4: Attention+LSTM Models Section (PROTEIN) #
 # -------------------------------------------------- #
 
 arch_4_attention_lstm_holdout:
-    python3 main.py \
-    --validation \
-    --sequence_type protein \
-    --batch_size 32 \
-    --num_epochs 100 \
-    --lr 5e-4 \
-    --network_parameters /content/models/ModelEmbeddingBidirect.json \
-    --load_network ModelEmbeddingBidirect \
-    --path_source_data ./data/bins_translated
+	python3 main.py \
+	--validation \
+	--sequence_type protein \
+	--batch_size 32 \
+	--num_epochs 100 \
+	--lr 5e-4 \
+	--network_parameters /content/models/ModelEmbeddingBidirect.json \
+	--load_network ModelEmbeddingBidirect \
+	--path_source_data ./data/bins_translated
 
 arch_4_attention_conv_lstm_holdout:
-    python3 main.py \
-    --validation \
-    --sequence_type protein \
-    --batch_size 20 \
-    --num_epochs 100 \
-    --lr 5e-4 \
-    --onehot_flag \
-    --network_parameters /content/models/ModelConvBidirect.json \
-    --load_network ModelConvBidirect \
-    --path_source_data ./data/bins_translated
+	python3 main.py \
+	--validation \
+	--sequence_type protein \
+	--batch_size 20 \
+	--num_epochs 100 \
+	--lr 5e-4 \
+	--onehot_flag \
+	--network_parameters ./models/ModelConvBidirect.json \
+	--load_network ModelConvBidirect \
+	--path_source_data ./data/bins_translated
