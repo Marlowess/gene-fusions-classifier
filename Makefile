@@ -315,4 +315,3 @@ build_zip_to_run_on_colab: clear_result_dirs
 	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
 
 
-
