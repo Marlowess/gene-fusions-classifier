@@ -47,7 +47,6 @@ class ModelUnidirect(object):
         else:
             results_base_dir = None
 
-        print('only_test', params['only_test'])
         if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
