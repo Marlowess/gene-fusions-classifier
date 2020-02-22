@@ -1,18 +1,14 @@
 from abc import ABC, abstractmethod
-from models.ModelEmbeddingUnidirect import ModelEmbeddingUnidirect
 from models.ModelEmbeddingBidirect import ModelEmbeddingBidirect
 from models.ModelOneHotProtein import ModelOneHotProtein
 from models.ModelConvBidirect import ModelConvBidirect
 from models.experimental_simple_models.experiments_with_tf_keras_nn import get_compiled_model
 from models.experimental_simple_models import raw_models_sequentials
 from models.experimental_simple_models import model_dna_embedding_unidirect
-from models.WrapperRawModel import WrapperRawModel
 from models.ModelBidirectDNA import ModelBidirectDNA
 from models.ModelConvUnidirect import ModelConvUnidirect
 from models.ModelUnidirect import ModelUnidirect
 
-
-from models import sequence_oriented_model
 import os
 import pickle
 
@@ -21,17 +17,11 @@ class ModelFactory():
    @staticmethod
    def getModelByName(model_name: str, params: dict) -> object:
       
-      if model_name == 'ModelEmbeddingUnidirect':
-         return ModelFactory.getModelEmbeddingUnidirect(params)
-
       if model_name == 'ModelEmbeddingBidirect':
          return ModelFactory.getModelEmbeddingBidirect(params)
       
       if model_name == 'ModelOneHotProtein':
          return ModelFactory.getModelOneHotProtein(params)
-
-      if model_name == 'ModelOneHotUnidirect':
-         return ModelFactory.getModelOneHotUnidirect(params)
 
       if model_name == 'ModelConvBidirect':
          return ModelFactory.getModelConvBidirect(params)
