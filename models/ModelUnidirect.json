@@ -3,10 +3,6 @@
     "vocab_size": 5,
     "embedding_size": 5,
 
-    "lr": null,
-    "batch_size": null,
-    "epochs": null,    
-
     "rnns_units": [16],
     "recurrent_dropouts_rates": [0.4],
     "rnn_type": "lstm",
@@ -27,12 +23,5 @@
     "network_type": "ModelConvUnidirect",
     "model_path": null,
     
-    "meta_info": {
-        "recurrent_dropout_hidden_state": false,
-        "regularization": "l1_l2",
-        "dropout": true,
-        "one_hot": true,
-        "rnn_layers": 2,
-        "tf_keras_api": "functional"
-    }
+    "api": "functional"
 }

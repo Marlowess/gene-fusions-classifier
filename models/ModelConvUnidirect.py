@@ -443,7 +443,7 @@ class ModelConvUnidirect(object):
         assert self.model != None
 
         try:
-            type_api: str = self.params['meta_info']['api']
+            type_api: str = self.params['api']
             if type_api == 'functional':
                 return self._predict_classes_funcitonal_api(
                     x=x_test,

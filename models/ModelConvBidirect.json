@@ -1,26 +1,10 @@
 {
-    "batch_size": 20,
-    "epochs":null,
-    "learning_rate": null,
-    "embedding_size": null,
     "lstm_units":6,
     "weight_decay":1e-6,
-    "last_dense_l2_regularizer":null,
     "conv_num_filter": 50,
     "conv_kernel_size": 3,
-    "lstm_input_dropout":null,
     "dropout_1_rate": 0.5,
     "dropout_2_rate": 0.5,
     "dropout_3_rate": 0.5,
-    "recurrent_dropout_rate": null,
-    "maxlen": 3219,
-    "input_dim": null,
-    "output_dim": null,
-    "dropout_rates": null,
-    "seeds": null,    
-    "optimizer": "RMSprop",
-    "metrics": null,
-    "clip_norm": 1.0,
-    "loss": "binary_crossentropy",
-    "mask_zero": true
+    "maxlen": 3219
 }

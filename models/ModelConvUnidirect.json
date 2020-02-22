@@ -3,10 +3,6 @@
     "vocab_size": 5,
     "embedding_size": 5,
 
-    "lr": null,
-    "batch_size": null,
-    "epochs": null,    
-
     "conv_filters": [16, 32],
     "conv_kernel_size": [3, 3],
     "conv_activations": ["relu", "relu"],
@@ -29,14 +25,6 @@
     "num_classes": 2,
     "name": "model_conv_unidirect",
     "network_type": "ModelConvUnidirect",
-    "model_path": null,
 
-    "meta_info": {
-        "recurrent_dropout_hidden_state": false,
-        "regularization": "l1_l2",
-        "dropout": true,
-        "one_hot": true,
-        "rnn_layers": 2,
-        "tf_keras_api": "functional"
-    }
+    "api": "functional"
 }

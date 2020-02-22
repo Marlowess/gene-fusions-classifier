@@ -476,10 +476,8 @@ class ModelUnidirect(object):
         assert self.model != None
 
         try:
-            if 'tf_keras_api' in self.params['meta_info'].keys():
-                type_api: str = self.params['meta_info']['tf_keras_api']
-            elif 'api' in self.params['meta_info'].keys():
-                type_api: str = self.params['meta_info']['api']
+            if 'api' in self.params.keys():
+                type_api: str = self.params['api']
             print("type_api", type_api)
             if type_api == 'functional':
                 return self._predict_classes_funcitonal_api(
