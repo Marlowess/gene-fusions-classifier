@@ -200,6 +200,17 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
                 meta_info_project_dict,
                 main_logger,
             )
+        else:
+            _test(
+                model,
+                x_test,
+                y_test,
+                conf_load_dict,
+                cmd_line_params,
+                network_params,
+                meta_info_project_dict,
+                main_logger,
+            )
     return
 # =============================================================================================== #
 # Run pipeline on Datasets - Function                                                             #
@@ -264,6 +275,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     if cmd_line_params.test:
         # res_str_test = _pipeline_test(
         network_params['only_test'] = True
+        print('Doing Test:', network_params['only_test'])
         _pipeline_test(
             model,
             x_test,

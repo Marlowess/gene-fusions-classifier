@@ -6,6 +6,7 @@ import os
 import sys
 import pickle
 import json
+import pprint
 
 # Main Machine Learning Imports.
 import numpy as np
@@ -21,12 +22,17 @@ class ModelConvUnidirect(object):
 
     def __init__(self, params:dict):
         
+        self.weights_path = None
+        
         # Create a own personal copy of input params for building model.
-        _params = self._check_for_prentrained_model(params)
-        self.params = _params
+        self.params, pretrained_model_ = self._check_for_prentrained_model(params)
+        pretrained_model = params.get("pretrained_model", None)
+
+        
 
         # Get a new instance of a compiled model using tf functional API.
-        self.model = self._get_compiled_model(self.params)
+        # Check if the user wants a pre-trained model. If yes load the weights
+        self.model = self._get_compiled_model(self.params, pretrained_model_)
 
         # Get a copy of callbacks in order to modify later such list
         # whether to validate or purely train this model
@@ -41,22 +47,42 @@ class ModelConvUnidirect(object):
         else:
             results_base_dir = None
 
-        if 'only-test' in params.keys():
+        print('only_test', params['only_test'])
+        if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
             only_test = False
 
+        if 'rnn_type' in params.keys():
+            rnn_type = params['rnn_type']
+        else:
+            rnn_type = 'lstm'
+
         pretrained_model = params.get('pretrained_model', None)    
         if pretrained_model is not None:
             print("loading model")
-            train_dir = "/"
-            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            # train_dir = "/"
+            # train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            train_dir = params['pretrained_model']
             print(train_dir)
-            with open(os.path.join(train_dir, "results_train", "network_params.pickle"), 'rb') as params_pickle:
+            params_path = os.path.join(train_dir, "network_params.pickle")
+            print('params path:', params_path)
+            with open(params_path, 'rb') as params_pickle:
                 params = pickle.load(params_pickle)
+                # sys.exit(0)
             params['result_base_dir'] = results_base_dir
+            self.weights_path = os.path.join(train_dir, "my_model_weights.h5")
+            print('weights path:', self.weights_path)
+            # sys.exit(0)
+            params['only_test'] = only_test
+            params['rnn_type'] = rnn_type
+            return params, True
+
         params['only_test'] = only_test
-        return params
+        params['rnn_type'] = rnn_type
+
+        pprint.pprint(params)
+        return params, False
 
     def _build_model(self, model_params: dict):
 
@@ -225,9 +251,13 @@ class ModelConvUnidirect(object):
         )(x)
         return x
 
-    def _get_compiled_model(self, model_params: dict):
+    def _get_compiled_model(self, model_params: dict, pretrained_model):
         model = self._build_model(model_params)
 
+        if pretrained_model is True:
+            print('load weigths')
+            print(self.weights_path)
+            model.load_weights(self.weights_path)
         optimizer_name: str = model_params['optimizer']
         clip_norm: float = model_params['clip_norm']
         lr: float = model_params['lr']
@@ -240,7 +270,7 @@ class ModelConvUnidirect(object):
         model.compile(loss='binary_crossentropy',
             # optimizer=optimizer_name.lower(),
             optimizer=optimizer,
-            metrics=['accuracy', 'binary_crossentropy', f1_m, precision_m, recall_m])
+            metrics=['accuracy', f1_m, precision_m, recall_m])
 
         return model
 

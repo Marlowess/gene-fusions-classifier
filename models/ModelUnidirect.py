@@ -22,11 +22,13 @@ class ModelUnidirect(object):
 
     def __init__(self, params:dict):
         
+        self.weights_path = None
+        
         # Create a own personal copy of input params for building model.
         self.params, pretrained_model_ = self._check_for_prentrained_model(params)
         pretrained_model = params.get("pretrained_model", None)
 
-        self.weights_path = None
+        
 
         # Get a new instance of a compiled model using tf functional API.
         # Check if the user wants a pre-trained model. If yes load the weights
@@ -45,6 +47,7 @@ class ModelUnidirect(object):
         else:
             results_base_dir = None
 
+        print('only_test', params['only_test'])
         if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
@@ -68,14 +71,18 @@ class ModelUnidirect(object):
                 params = pickle.load(params_pickle)
                 # sys.exit(0)
             params['result_base_dir'] = results_base_dir
-            self.weights_path = os.path.join(train_dir, "my_model.h5")
+            self.weights_path = os.path.join(train_dir, "my_model_weights.h5")
             print('weights path:', self.weights_path)
             # sys.exit(0)
+            params['only_test'] = only_test
+            params['rnn_type'] = rnn_type
+            return params, True
+
         params['only_test'] = only_test
         params['rnn_type'] = rnn_type
 
         pprint.pprint(params)
-        return params, pretrained_model
+        return params, False
 
     def _build_model(self, model_params: dict):
 
@@ -280,7 +287,8 @@ class ModelUnidirect(object):
         model = self._build_model(model_params)
 
         if pretrained_model is True:
-            sys.exit(0)
+            print('load weigths')
+            print(self.weights_path)
             model.load_weights(self.weights_path)
 
         optimizer_name: str = model_params['optimizer']
@@ -295,7 +303,7 @@ class ModelUnidirect(object):
         model.compile(loss='binary_crossentropy',
             # optimizer=optimizer_name.lower(),
             optimizer=optimizer,
-            metrics=['accuracy', 'binary_crossentropy', f1_m, precision_m, recall_m])
+            metrics=['accuracy', f1_m, precision_m, recall_m])
 
         return model
 
@@ -468,7 +476,11 @@ class ModelUnidirect(object):
         assert self.model != None
 
         try:
-            type_api: str = self.params['meta_info']['api']
+            if 'tf_keras_api' in self.params['meta_info'].keys():
+                type_api: str = self.params['meta_info']['tf_keras_api']
+            elif 'api' in self.params['meta_info'].keys():
+                type_api: str = self.params['meta_info']['api']
+            print("type_api", type_api)
             if type_api == 'functional':
                 return self._predict_classes_funcitonal_api(
                     x=x_test,
