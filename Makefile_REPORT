@@ -91,7 +91,11 @@ arch_4_attention_lstm_holdout:
 	--batch_size 32 \
 	--num_epochs 100 \
 	--lr 5e-4 \
+<<<<<<< HEAD
 	--network_parameters ./models/ModelEmbeddingBidirect.json \
+=======
+	--network_parameters models/ModelEmbeddingBidirect.json \
+>>>>>>> 762d3011c0f6a90bc3b848278ddc2fa87e375973
 	--load_network ModelEmbeddingBidirect \
 	--path_source_data ./data/bins_translated
 
