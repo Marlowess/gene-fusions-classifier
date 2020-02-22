@@ -348,6 +348,7 @@ def _test(
         fig_name="roc_curve_eval",
         fig_dir=meta_info_project_dict['test_result_path'],
         savefig_flag=True,
+        showfig_flag=True,
     )
     _log_info_message(f"TEST_AUC: {auc_value}", logger)
 

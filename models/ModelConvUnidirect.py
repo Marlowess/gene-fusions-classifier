@@ -52,7 +52,7 @@ class ModelConvUnidirect(object):
             train_dir = "/"
             train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
             print(train_dir)
-            with open(os.path.join(train_dir, "network_params.pickle"), 'rb') as params_pickle:
+            with open(os.path.join(train_dir, "results_train", "network_params.pickle"), 'rb') as params_pickle:
                 params = pickle.load(params_pickle)
             params['result_base_dir'] = results_base_dir
         params['only_test'] = only_test

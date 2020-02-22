@@ -96,7 +96,6 @@ def plot_roc_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = Non
     fpr_model, tpr_model, _ = roc_curve(y_test, y_pred) # thresholds_keras
     auc_model = auc(fpr_model, tpr_model)
 
-    plt.clf()
     plt.figure(1)
     if dark_ppt is True:
         plt.plot([0, 1], [0, 1], 'w--')

@@ -1,5 +1,5 @@
 {
-    "maxlen": 5000,
+    "maxlen": 15000,
     "vocab_size": 5,
     "embedding_size": 5,
 
@@ -7,8 +7,8 @@
     "batch_size": null,
     "epochs": null,    
 
-    "rnns_units": [8, 16],
-    "recurrent_dropouts_rates": [0.4, 0.4],
+    "rnns_units": [16],
+    "recurrent_dropouts_rates": [0.4],
     "rnn_type": "lstm",
     
     "seeds": [42, 42, 42, 42],
