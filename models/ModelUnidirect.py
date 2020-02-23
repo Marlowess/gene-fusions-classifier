@@ -47,7 +47,10 @@ class ModelUnidirect(object):
         else:
             results_base_dir = None
 
+<<<<<<< HEAD
         # print('only_test', params['only_test'])
+=======
+>>>>>>> 217a2d99b9f6701daab108e9b12853bff02656b0
         if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
