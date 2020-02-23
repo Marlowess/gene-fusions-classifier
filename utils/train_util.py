@@ -183,7 +183,7 @@ def _holdout(
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
     results_dict: dict = model.evaluate(x_val, y_val)    
-    del results_dict['binary_crossentropy']
+    # del results_dict['binary_crossentropy']
     res_string = ", ".join(f'{k}:{v:.5f}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)

@@ -28,8 +28,6 @@ class ModelUnidirect(object):
         self.params, pretrained_model_ = self._check_for_prentrained_model(params)
         pretrained_model = params.get("pretrained_model", None)
 
-        
-
         # Get a new instance of a compiled model using tf functional API.
         # Check if the user wants a pre-trained model. If yes load the weights
         self.model = self._get_compiled_model(self.params, pretrained_model_)
