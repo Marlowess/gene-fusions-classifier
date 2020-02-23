@@ -47,7 +47,7 @@ class ModelConvUnidirect(object):
         else:
             results_base_dir = None
 
-        print('only_test', params['only_test'])
+        # print('only_test', params['only_test'])
         if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
@@ -443,7 +443,10 @@ class ModelConvUnidirect(object):
         assert self.model != None
 
         try:
-            type_api: str = self.params['api']
+            if 'api' in self.params.keys():
+                type_api: str = self.params['api']
+            else:
+                type_api: str = 'functional'
             if type_api == 'functional':
                 return self._predict_classes_funcitonal_api(
                     x=x_test,

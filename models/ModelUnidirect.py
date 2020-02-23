@@ -47,7 +47,7 @@ class ModelUnidirect(object):
         else:
             results_base_dir = None
 
-        print('only_test', params['only_test'])
+        # print('only_test', params['only_test'])
         if 'only_test' in params.keys():
             only_test = params['only_test']
         else:
@@ -478,6 +478,8 @@ class ModelUnidirect(object):
         try:
             if 'api' in self.params.keys():
                 type_api: str = self.params['api']
+            else:
+                type_api: str = 'functional'
             print("type_api", type_api)
             if type_api == 'functional':
                 return self._predict_classes_funcitonal_api(
