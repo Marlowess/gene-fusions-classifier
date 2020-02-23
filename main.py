@@ -141,9 +141,9 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'columns_names': [
             'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
         ],
-        'train_bins': [1,2,3],
-        'val_bins': [4],
-        'test_bins': [5],
+        'train_bins': [5,2,3],
+        'val_bins': [1],
+        'test_bins': [4],
     }
     
     # network_model_name: str = cmd_line_params.load_network
