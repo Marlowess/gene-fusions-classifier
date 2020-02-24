@@ -77,44 +77,6 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
         logger.info(message)
     pass
 
-def compile_model(
-    conf_load_dict,
-    conf_preprocess_dict,
-    cmd_line_params,
-    network_params,
-    meta_info_project_dict,
-    main_logger,
-    ) -> None:
-
-    logger = main_logger
-    
-    base_dir: str = meta_info_project_dict['base_dir']
-    results_dir = meta_info_project_dict['val_result_path']
-    history_filename: str = os.path.join(base_dir, 'history.csv')
-    network_params['result_base_dir'] = results_dir   
-
-    # TODO: callbacks are defined for each model --> remove them from all dictionaries
-    # callbacks_list = _get_callbacks_list(history_filename)
-
-    # Get Model from ModelFactory Static class.
-    network_model_name: str = cmd_line_params.load_network
-    if network_model_name == 'WrappedRawModel':
-        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
-    else:
-        model = ModelFactory.getModelByName(network_model_name, network_params)
-
-    # Build model.
-    _log_info_message(f"> build model (--compile).", logger)
-    
-    # It compiles the model and print its summary (architecture's structure)
-    model.build(logger)
-
-    # It plots on a file the model's structure
-    _log_info_message(f"> plot model architecture (--compile).", logger)
-    model.plot_model()
-
-    pass
-
 # =============================================================================================== #
 # MAIN FUNCTION                                                                                   #
 # =============================================================================================== #
@@ -131,7 +93,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
     # It defines the output file-system
     print(f"----> Set up analysis environment.")
     logger, meta_info_project_dict = setup_analysis_environment(logger_name=str(__name__), base_dir=base_dir, params=cmd_line_params)
-    # pprint(cmd_line_params)
     
     logger.info(f"Running on date: {curr_date_str}")
 
@@ -146,21 +107,12 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'test_bins': [5],
     }
     
-    # network_model_name: str = cmd_line_params.load_network
-    # if network_model_name == 'WrappedRawModel':
     network_params['batch_size'] = cmd_line_params.batch_size
     network_params['lr'] = cmd_line_params.lr
     network_params['sequence_type'] = cmd_line_params.sequence_type
     network_params['onehot_flag'] = cmd_line_params.sequence_type
-    # network_params['model_path'] = os.path.join(cmd_line_params.output_dir, network_params['name'])
     network_params['pretrained_model'] = cmd_line_params.pretrained_model
     network_params['onehot_flag'] = cmd_line_params.onehot_flag
-
-    if cmd_line_params.dropout_level is not None:
-        droputs_rates = [cmd_line_params.dropout_level] * len(network_params['droputs_rates'])
-        network_params['droputs_rates'] = droputs_rates
-    if cmd_line_params.seq_len is not None:
-        network_params['maxlen'] = cmd_line_params.seq_len
 
     conf_preprocess_dict: dict = {
         'padding': 'post',
@@ -169,17 +121,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
     }
 
     logger.info("\n" + json.dumps(network_params, indent=4))
-
-    if cmd_line_params.compile is True:
-        compile_model(
-           conf_load_dict=conf_load_dict,
-            conf_preprocess_dict=conf_preprocess_dict,
-           cmd_line_params=cmd_line_params,
-            network_params=network_params,
-            meta_info_project_dict=meta_info_project_dict,
-            main_logger=logger
-        ) 
-        sys.exit(0)
     
     # This function starts the training phases (holdout, validation or both)
     run_pipeline(
@@ -198,34 +139,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
 # =============================================================================================== #
 
 if __name__ == "__main__":
-    # Useless rigth now. Just ignore
-    dict_images: dict = {
-        'loss': {
-            'title': 'Training With Validation Loss',
-            'fig_name': 'train_val_loss',
-            'fig_format': 'png',
-            'savefig_flag': True
-        },
-        'acc': {
-            'title': 'Training With Validation Accuracy',
-            'fig_name': 'train_val_acc',
-            'fig_format': 'png',
-            'savefig_flag': True
-        },
-        'roc_curve': {
-            'title': 'Roc Curve',
-            'fig_name': 'roc_curve',
-            'fig_format': 'png',
-            'savefig_flag': True
-        },
-        'confusion_matrix': {
-            'title': 'Confusion Matrix',
-            'fig_name': 'confusion_matrix',
-            'fig_format': 'png',
-            'savefig_flag': True
-        }
-    }
-
     os.environ['TF_DETERMINISTIC_OPS'] = '1'
     cmd_line_params, _, curr_date_str = get_parsed_params()
     main(cmd_line_params, curr_date_str)
