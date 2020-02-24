@@ -98,10 +98,10 @@ class ModelOneHotProtein():
         - history: it contains the results of the training
         """
         callbacks_list = self._get_callbacks()
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=self.params['epochs'], shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 \
-            if callbacks_list[0].stopped_epoch != 0 else self.params['epochs']
+            if callbacks_list[0].stopped_epoch != 0 else epochs
         
         return history, trained_epochs
     
