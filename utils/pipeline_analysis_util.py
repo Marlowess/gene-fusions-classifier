@@ -130,9 +130,10 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
     # _log_info_message(network_params, main_logger)
+    res_str_holdout = ""
     
     if cmd_line_params.validation is True:
-        model, epochs_trained = _holdout(
+        model, epochs_trained, res_str_holdout = _holdout(
             x_train,
             y_train,
             x_val,
@@ -170,7 +171,7 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
     
-    return model
+    return model, res_str_holdout
 
 def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
                    network_params, meta_info_project_dict, main_logger):
@@ -188,7 +189,7 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
             network_params['result_base_dir'] = results_dir
             model = ModelFactory.getModelByName(cmd_line_params.load_network, network_params)
             model.build(main_logger)
-        
+                    
         _test(
             model,
             x_test,
@@ -199,6 +200,7 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
             meta_info_project_dict,
             main_logger,
         )
+    return
 # =============================================================================================== #
 # Run pipeline on Datasets - Function                                                             #
 # =============================================================================================== #
@@ -242,26 +244,36 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             '\n'.join([" > {}: {}".format(metric, value) for metric, value in zip(model.metrics_names, scores)])
         )
         return
-    model = _pipeline_train(
-        x_train,
-        y_train,
-        x_val,
-        y_val,
-        conf_load_dict,
-        cmd_line_params,
-        network_params,
-        meta_info_project_dict,
-        tokenizer,
-        main_logger)
-    
-    _pipeline_test(
-        model,
-        x_test,
-        y_test,
-        conf_load_dict,
-        cmd_line_params,
-        network_params,
-        meta_info_project_dict,
-        main_logger
-    )
+
+    if cmd_line_params.train or cmd_line_params.validation:
+        model, res_str_holdout = _pipeline_train(
+            x_train,
+            y_train,
+            x_val,
+            y_val,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            tokenizer,
+            main_logger)
+        _log_info_message("Holdout: " + res_str_holdout, main_logger)
+    else:
+        model = None
+        
+    if cmd_line_params.test:
+        # res_str_test = _pipeline_test(
+        network_params['only_test'] = True
+        print('Doing Test:', network_params['only_test'])
+        _pipeline_test(
+            model,
+            x_test,
+            y_test,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            main_logger
+        )
+        # _log_info_message("Test: " + res_str_test, main_logger)
     pass

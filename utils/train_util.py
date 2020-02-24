@@ -13,6 +13,7 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
 from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve
 
+from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
@@ -136,9 +137,6 @@ def _holdout(
     history_filename: str = os.path.join(base_dir, 'history.csv')
     network_params['result_base_dir'] = results_dir   
 
-    # TODO: callbacks are defined for each model --> remove them from all dictionaries
-    # callbacks_list = _get_callbacks_list(history_filename)
-
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
     model = ModelFactory.getModelByName(network_model_name, network_params)
@@ -181,12 +179,12 @@ def _holdout(
         pickle.dump(history.history, history_pickle)
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
-    results_dict = model.evaluate(x_val, y_val)    
-    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
+    results_dict: dict = model.evaluate(x_val, y_val)        
+    res_string = ", ".join(f'{k}:{v:.5f}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
     
-    return model, trained_epochs
+    return model, trained_epochs, res_string
 
 def _train(
     subtrain,
@@ -240,17 +238,18 @@ def _train(
 
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
-    if network_model_name == 'WrappedRawModel':
-        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
     # if early stopping with loss val load trained model from holdout
-    elif cmd_line_params.early_stopping_on_loss:
+    if cmd_line_params.early_stopping_on_loss:
+        # Algorithm 7.3
         _log_info_message("> loading holdout training weights", logger)
         # if train after validation in a single run 
         if network_params['pretrained_model'] == None:
             network_params['pretrained_model'] = os.path.join(base_dir,cmd_line_params.output_dir,
-                                                               "results_holdout_validation/my_model_weights.h5")
-        model = ModelFactory.getModelByName(network_model_name, network_params)
+                                                               "results_holdout_validation/my_model.h5")
+        else:
+            model = ModelFactory.getModelByName(network_model_name, network_params)
     else:
+        # Algorithm 7.2
         model = ModelFactory.getModelByName(network_model_name, network_params)
 
     # Build model.
@@ -261,13 +260,8 @@ def _train(
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
-    if network_model_name == 'WrappedRawModel':
-        history = model.train(x_train, y_train,
-            epochs=cmd_line_params.num_epochs,
-            batch_size=cmd_line_params.batch_size,
-            validation_data=validation_data,
-        )
-    elif cmd_line_params.early_stopping_on_loss:
+    if cmd_line_params.early_stopping_on_loss:
+        # Algorithm 7.3
         early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
         history = model.fit_early_stopping_by_loss_val(x_train, y_train,
             epochs=cmd_line_params.num_epochs,
@@ -275,6 +269,7 @@ def _train(
             callbacks_list=[], validation_data=validation_data
         )
     else:
+        # Algorithm 7.2
         history = model.fit_generator2(
             generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
             steps_per_epoch=np.floor(x_subtrain_size/network_params['batch_size']),
@@ -329,9 +324,16 @@ def _test(
     evaluation_metrics = model.evaluate(x_test, y_test)
     
     _log_info_message("Resulting metrics:", logger)
+    tmp_sol: list = list()
     for (k,v) in evaluation_metrics.items():
-        _log_info_message("{}: {:.2f}".format(k, v), logger)
-
+        _log_info_message("{}: {:.5f}".format(k, v), logger)
+        tmp_sol.append("{}: {:.5f}".format(k, v))
+    
+    res_str_test: str = ','.join([str(xi) for xi in tmp_sol])
+    _log_info_message(
+        res_str_test
+        , logger)
+    
     # plot roc curve and auc
     y_pred = model.predict(x_test)
     auc_value: float = plot_roc_curve(
@@ -341,6 +343,7 @@ def _test(
         fig_name="roc_curve_eval",
         fig_dir=meta_info_project_dict['test_result_path'],
         savefig_flag=True,
+        showfig_flag=True,
     )
     _log_info_message(f"TEST_AUC: {auc_value}", logger)
 
@@ -355,7 +358,6 @@ def _test(
 
     _log_info_message(
         "CONFUSION MATRIX\n" + \
-        '\n'.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
+        ','.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
-    pass

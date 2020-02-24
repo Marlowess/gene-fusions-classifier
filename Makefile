@@ -118,6 +118,97 @@ ARGS_TRAIN_ULSTM = --train \
 	--network_parameters models/experimental_simple_models/model_dna_embedding_unidirect.json \
 	--num_epochs 2 \
 	--batch_size 32 \
+
+# =============================================================================================== #
+LSTM_FRANK = genes_fusions_classifier
+ARGS_TRAIN_LSTM_FRANK_COMPILE_ = \
+	--output_dir tests \
+	--compile \
+	--validation \
+	--train \
+	--test \
+	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_COMPILE___ = \
+	--output_dir tests \
+	--compile \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_COMPILE = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvBidirect \
+	--network_parameters models/ModelConvBidirect.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+LSTM_FRANK = genes_fusions_classifier
+ARGS_TRAIN_LSTM_FRANK_RUN_ = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_RUN = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+	--dropout_level 0.3 \
+	--onehot_flag \
+	--seq_len 7000
+
+ARGS_TRAIN_LSTM_FRANK_RUN__ = \
+	--output_dir tests \
+	--validation \
+	--train \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--num_epochs 1 \
+
+ARGS_TRAIN_LSTM_FRANK_RUN_TEST_ = \
+	--output_dir tests \
+	--test \
+	--load_network WrappedRawModel \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--pretrained_model "./bioinfo_project/tests/2020_02_17/train_16_56_00/results_train/my_model_weights.h5" \
+	--onehot_flag
+
+ARGS_TRAIN_LSTM_FRANK_RUN_TEST = \
+	--output_dir tests \
+	--test \
+	--load_network ModelConvUnidirect \
+	--network_parameters models/sequence_oriented_model.json \
+	--sequence_type dna \
+	--pretrained_model "./bioinfo_project/tests/2020_02_17/train_16_56_00/results_train/my_model_weights.h5" \
+	--onehot_flag
+
 # =============================================================================================== #
 # TASKS SECTION                                                                                   #
 # =============================================================================================== #
@@ -185,6 +276,15 @@ test_spredsheet_creation_for_analysis: setup_before_run_task
 	$(SCRIPT_INTERPETER) $(SCRIPT_2_TEST) $(ARGS_TEST_SPREDSHEET)
 	rm -f $(SCRIPT_2_TEST)
 
+test_compile_frank:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_COMPILE)
+
+test_run_frank:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_RUN)
+
+test_run_frank_test_phase:
+	$(SCRIPT_INTERPETER) $(LSTM_FRANK) $(ARGS_TRAIN_LSTM_FRANK_RUN_TEST)
+
 # ---------------------------- ---------------------#
 # MANAGEMENT - SECTION                              #
 # ------------------------------------------------- #
@@ -213,6 +313,3 @@ clear_result_dirs_from_tests: setup_before_run_task
 build_zip_to_run_on_colab: clear_result_dirs
 	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
 	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
-
-
-

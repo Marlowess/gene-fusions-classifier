@@ -165,7 +165,7 @@ class ModelConvBidirect():
         return history
     
     def plot_model(self,) -> None:
-        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=False)
 
     def _get_callbacks(self, train=True):
         """

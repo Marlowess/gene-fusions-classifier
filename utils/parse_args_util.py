@@ -29,10 +29,6 @@ def _get_custom_parser(output_dir: str) -> object:
     parser.add_argument('--early_stopping_on_loss', default=False, help='If true, it perform early stopping during train based on train loss of holdout phase ', action='store_true')    
     parser.add_argument('--early_stopping_epoch', default=None, help='Number of epochs after holdout train stops for early stopping', type=int)
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
-
-    parser.add_argument('--create_spredsheet_report', default=False, help='Flag that allows to automatically generate a spredsheet-like report, when included esplicitly before running the program.', action='store_true')
-    parser.add_argument('--experimental_mode', default=False, help='Flag that allows to run analysis tool in a experimental manner, when included esplicitly before running the program.', action='store_true')
-    
  
     params = parser.parse_args()
 
@@ -49,4 +45,6 @@ def get_parsed_params() -> dict:
     if params.output_dir != output_dir:
         params.output_dir = \
             os.path.join(f"{params.output_dir}", f"{output_dir_date}", f"train_{output_dir_time}")
-    return params, parser
+
+    curr_date: str = output_dir
+    return params, parser, curr_date
