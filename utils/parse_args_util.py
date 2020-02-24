@@ -29,10 +29,6 @@ def _get_custom_parser(output_dir: str) -> object:
     parser.add_argument('--early_stopping_on_loss', default=False, help='If true, it perform early stopping during train based on train loss of holdout phase ', action='store_true')    
     parser.add_argument('--early_stopping_epoch', default=None, help='Number of epochs after holdout train stops for early stopping', type=int)
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
-
-    parser.add_argument('--seq_len', default=None,
-        type=int,
-        help='Additional information for creating subdirectory where storing results.')
  
     params = parser.parse_args()
 

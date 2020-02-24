@@ -1,5 +1,5 @@
 {
-    "maxlen": 7000,
+    "maxlen": 15000,
     "vocab_size": 5,
     "embedding_size": 5,
 

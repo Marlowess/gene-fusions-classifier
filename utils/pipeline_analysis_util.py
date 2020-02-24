@@ -189,28 +189,17 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
             network_params['result_base_dir'] = results_dir
             model = ModelFactory.getModelByName(cmd_line_params.load_network, network_params)
             model.build(main_logger)
-        
-            _test(
-                model,
-                x_test,
-                y_test,
-                conf_load_dict,
-                cmd_line_params,
-                network_params,
-                meta_info_project_dict,
-                main_logger,
-            )
-        else:
-            _test(
-                model,
-                x_test,
-                y_test,
-                conf_load_dict,
-                cmd_line_params,
-                network_params,
-                meta_info_project_dict,
-                main_logger,
-            )
+                    
+        _test(
+            model,
+            x_test,
+            y_test,
+            conf_load_dict,
+            cmd_line_params,
+            network_params,
+            meta_info_project_dict,
+            main_logger,
+        )
     return
 # =============================================================================================== #
 # Run pipeline on Datasets - Function                                                             #

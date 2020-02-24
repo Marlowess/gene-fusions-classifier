@@ -137,9 +137,6 @@ def _holdout(
     history_filename: str = os.path.join(base_dir, 'history.csv')
     network_params['result_base_dir'] = results_dir   
 
-    # TODO: callbacks are defined for each model --> remove them from all dictionaries
-    # callbacks_list = _get_callbacks_list(history_filename)
-
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
     model = ModelFactory.getModelByName(network_model_name, network_params)
@@ -182,8 +179,7 @@ def _holdout(
         pickle.dump(history.history, history_pickle)
     
     # scores contains [loss, accuracy, f1_score, precision, recall]
-    results_dict: dict = model.evaluate(x_val, y_val)    
-    # del results_dict['binary_crossentropy']
+    results_dict: dict = model.evaluate(x_val, y_val)        
     res_string = ", ".join(f'{k}:{v:.5f}' for k,v in results_dict.items())
     _log_info_message("{}".format(res_string), logger)
     _log_info_message(f" [*] {message} Done.", logger)
@@ -244,20 +240,17 @@ def _train(
     network_model_name: str = cmd_line_params.load_network
     # if early stopping with loss val load trained model from holdout
     if cmd_line_params.early_stopping_on_loss:
+        # Algorithm 7.3
         _log_info_message("> loading holdout training weights", logger)
         # if train after validation in a single run 
         if network_params['pretrained_model'] == None:
             network_params['pretrained_model'] = os.path.join(base_dir,cmd_line_params.output_dir,
-                                                               "results_holdout_validation/my_model_weights.h5")
-        if network_model_name == 'WrappedRawModel':
-            model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+                                                               "results_holdout_validation/my_model.h5")
         else:
             model = ModelFactory.getModelByName(network_model_name, network_params)
     else:
-        if network_model_name == 'WrappedRawModel':
-            model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
-        else:
-            model = ModelFactory.getModelByName(network_model_name, network_params)
+        # Algorithm 7.2
+        model = ModelFactory.getModelByName(network_model_name, network_params)
 
     # Build model.
     _log_info_message(f"> build model", logger)
@@ -268,6 +261,7 @@ def _train(
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
     if cmd_line_params.early_stopping_on_loss:
+        # Algorithm 7.3
         early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
         history = model.fit_early_stopping_by_loss_val(x_train, y_train,
             epochs=cmd_line_params.num_epochs,
@@ -275,6 +269,7 @@ def _train(
             callbacks_list=[], validation_data=validation_data
         )
     else:
+        # Algorithm 7.2
         history = model.fit_generator2(
             generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
             steps_per_epoch=np.floor(x_subtrain_size/network_params['batch_size']),
