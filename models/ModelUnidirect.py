@@ -518,7 +518,7 @@ class ModelUnidirect(object):
         assert self.model != None
 
         proba = self.predict(x, batch_size=batch_size, verbose=verbose)
-        return np.asarray(list(map(lambda xi: 1 if xi >= 0.50 else 0, proba)), dtype=np.int)
+        return np.asarray(list(map(lambda xi: 1 if xi > 0.50 else 0, proba)), dtype=np.int)
 
     def save_model(self):
 
