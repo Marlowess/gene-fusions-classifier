@@ -59,38 +59,6 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
         logger.info(message)
     pass
 
-def _experimental_train(
-    x_train,
-    y_train,
-    x_val,
-    y_val,
-    conf_load_dict: dict,
-    cmd_line_params,
-    network_params: dict,
-    meta_info_project_dict: dict,
-    tokenizer: Tokenizer,
-    logger: logging.Logger,
-    message: str = 'Performing Experimental Training...'
-    ):
-
-    _log_info_message(f" [*] {message}", logger)
-
-    network_model_name: str = cmd_line_params.load_network
-    model = ModelFactory.getModelByName(network_model_name, network_params)
-
-    # epochs: int = network_params['epochs']
-    batch_size: int = network_params['batch_size']
-
-    model.fit(
-        x_train,
-        y_train,
-        batch_size=batch_size,
-        validation_data=(x_val,y_val),
-        epochs=5,
-        verbose=1)
-    return model
-
-
 def _holdout(
     x_train,
     y_train,
@@ -246,8 +214,7 @@ def _train(
         if network_params['pretrained_model'] == None:
             network_params['pretrained_model'] = os.path.join(base_dir,cmd_line_params.output_dir,
                                                                "results_holdout_validation/model_checkpoint_weights.h5")
-        else:
-            model = ModelFactory.getModelByName(network_model_name, network_params)
+        model = ModelFactory.getModelByName(network_model_name, network_params)
     else:
         # Algorithm 7.2
         model = ModelFactory.getModelByName(network_model_name, network_params)
