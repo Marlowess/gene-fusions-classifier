@@ -63,7 +63,7 @@ class ModelUnidirect(object):
             # train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
             train_dir = params['pretrained_model']
             print(train_dir)
-            params_path = os.path.join(train_dir, "network_params.pickle")
+            params_path = os.path.join(train_dir, "network_params")
             print('params path:', params_path)
             with open(params_path, 'rb') as params_pickle:
                 params = pickle.load(params_pickle)
