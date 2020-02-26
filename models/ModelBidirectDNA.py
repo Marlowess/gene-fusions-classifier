@@ -192,7 +192,7 @@ class ModelBidirectDNA():
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(self.results_base_dir, 'my_model.h5'),
+                filepath=os.path.join(self.results_base_dir, 'model_checkpoint_weights.h5'),
                 monitor='val_loss',
                 save_best_only=True,
                 verbose=0

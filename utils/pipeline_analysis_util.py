@@ -106,7 +106,7 @@ def _get_callbacks_list(history_filename: str) -> list:
                         restore_best_weights=True
                     ),
                     keras.callbacks.ModelCheckpoint(
-                        filepath='my_model.h5',
+                        filepath='model_checkpoint_weights.h5',
                         monitor='val_loss',
                         save_best_only=True,
                         verbose=0
