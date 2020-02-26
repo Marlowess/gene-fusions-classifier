@@ -40,11 +40,7 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
 
     result_dict['base_dir'] = base_dir
 
-    if flag_test is True or params.experimental_mode is True:
-        flag_test = True
-        results_dir = os.path.join(base_dir, f"{params.output_dir}_test")
-    else:
-        results_dir = os.path.join(base_dir, params.output_dir)
+    results_dir = os.path.join(base_dir, params.output_dir)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     logger = _init_logger(results_dir, filename=filename, flag_test=flag_test)
