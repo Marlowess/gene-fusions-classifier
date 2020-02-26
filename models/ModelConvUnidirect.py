@@ -68,7 +68,7 @@ class ModelConvUnidirect(object):
                 params = pickle.load(params_pickle)
             
             params['result_base_dir'] = results_base_dir
-            self.weights_path = os.path.join(train_dir, "model_checkpoint_weights.h5")
+            self.weights_path = pretrained_model 
             print('weights path:', self.weights_path)
             # sys.exit(0)
             params['only_test'] = only_test
@@ -415,7 +415,7 @@ class ModelConvUnidirect(object):
         assert self.model != None
 
         results_base_dir: str = self.params['result_base_dir']
-        with open(os.path.join(results_base_dir, "network_params.pickle"), 'wb') as params_pickle:
+        with open(os.path.join(results_base_dir, "network_params"), 'wb') as params_pickle:
             pickle.dump(self.params, params_pickle)
 
         self.model.save_weights(os.path.join(f"{results_base_dir}", 'my_model_weights.h5'))
