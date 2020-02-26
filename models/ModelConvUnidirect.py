@@ -61,15 +61,12 @@ class ModelConvUnidirect(object):
         pretrained_model = params.get('pretrained_model', None)    
         if pretrained_model is not None:
             print("loading model")
-            # train_dir = "/"
-            # train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
-            train_dir = params['pretrained_model']
+            train_dir = "/"
+            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
             print(train_dir)
-            params_path = os.path.join(train_dir, "network_params.pickle")
-            print('params path:', params_path)
-            with open(params_path, 'rb') as params_pickle:
+            with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 params = pickle.load(params_pickle)
-                # sys.exit(0)
+            
             params['result_base_dir'] = results_base_dir
             self.weights_path = os.path.join(train_dir, "model_checkpoint_weights.h5")
             print('weights path:', self.weights_path)
