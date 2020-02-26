@@ -71,7 +71,7 @@ class ModelConvUnidirect(object):
                 params = pickle.load(params_pickle)
                 # sys.exit(0)
             params['result_base_dir'] = results_base_dir
-            self.weights_path = os.path.join(train_dir, "my_model_weights.h5")
+            self.weights_path = os.path.join(train_dir, "model_checkpoint_weights.h5")
             print('weights path:', self.weights_path)
             # sys.exit(0)
             params['only_test'] = only_test
@@ -305,7 +305,7 @@ class ModelConvUnidirect(object):
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
-                filepath=os.path.join(train_result_path, 'my_model.h5'),
+                filepath=os.path.join(train_result_path, 'model_checkpoint_weights.h5'),
                 monitor='val_loss',
                 save_best_only=True,
                 verbose=0

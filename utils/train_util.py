@@ -213,7 +213,7 @@ def _train(
         # if train after validation in a single run 
         if network_params['pretrained_model'] == None:
             network_params['pretrained_model'] = os.path.join(base_dir,cmd_line_params.output_dir,
-                                                               "results_holdout_validation/my_model.h5")
+                                                               "results_holdout_validation/model_checkpoint_weights.h5")
         model = ModelFactory.getModelByName(network_model_name, network_params)
     else:
         # Algorithm 7.2
