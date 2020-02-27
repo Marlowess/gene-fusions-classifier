@@ -11,8 +11,6 @@ import os
 import sys
 import time
 
-from latex import build_pdf
-
 from pylatex import Document, PageStyle, Head, Foot, MiniPage, \
     StandAloneGraphic, MultiColumn, Tabu, LongTabu, LargeText, MediumText, \
     LineBreak, NewPage, Tabularx, TextColor, simple_page_number, Package
