@@ -218,6 +218,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # Preprocessing Data.
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
+<<<<<<< HEAD
     # return
     
     #### DEBUG
@@ -225,6 +226,8 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
 
     # Print for debugging Data.
     # _test_dataset(x_train, y_train, x_val, y_val)
+=======
+>>>>>>> Completed Tests
 
     if cmd_line_params.train or cmd_line_params.validation:
         model, res_str_holdout = _pipeline_train(

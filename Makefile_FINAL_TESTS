@@ -25,7 +25,7 @@ arch_1_test:
 
 # --------------------------- #
 arch_2_holdout:
-    python3 main.py \
+	python3 main.py \
     --validation \
     --path_source_data ./data/bins_translated \
     --load_network ModelBidirectDNA \

@@ -327,4 +327,8 @@ exec_all_tests:
 	&& make -f Makefile_FINAL_TESTS arch_3_test \
 	&& make -f Makefile_FINAL_TESTS arch_4_A_holdout \
 	&& make -f Makefile_FINAL_TESTS arch_4_B_holdout \
+<<<<<<< HEAD
 >>>>>>> Test Added to this branch
+=======
+	
+>>>>>>> Completed Tests
