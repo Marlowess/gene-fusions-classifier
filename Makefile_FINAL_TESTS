@@ -1,6 +1,6 @@
 
 arch_1_holdout:
-    python3 main.py \
+	python3 main.py \
     --validation \
     --sequence_type dna \
     --path_source_data ./data/bins_translated \
@@ -10,3 +10,80 @@ arch_1_holdout:
     --batch_size 16 \
     --lr 1e-4 \
     --onehot_flag \
+
+
+
+arch_2_holdout:
+    python3 main.py \
+    --validation \
+    --path_source_data ./data/bins_translated \
+    --load_network ModelBidirectDNA \
+    --sequence_type dna \
+    --onehot_flag \
+    --num_epochs 2 \
+    --batch_size 20 \
+    --lr 5e-4 \
+    --network_parameters models/ModelBidirectDNA.json \
+arch_1_test:
+	python3 main.py \
+    --test \
+    --load_network ModelUnidirect \
+    --sequence_type dna \
+    --onehot_flag \
+    --network_parameters models/ModelUnidirect.json \
+    --early_stopping_on_loss \
+    --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
+
+arch_2_test:
+	python3 main.py \
+    --test \
+    --load_network ModelBidirectDNA \
+    --sequence_type dna \
+    --onehot_flag \
+    --network_parameters models/ModelBidirectDNA.json \
+    --early_stopping_on_loss \
+    --pretrained_model pretrained_models/ModelBidirectDNA/model_checkpoint_weights.h5 \
+
+arch_3_holdout:
+	python3 main.py \
+    --validation \
+    --path_source_data ./data/bins_translated \
+    --network_parameters models/ModelOneHotProtein.json \
+    --batch_size 32 \
+    --num_epochs 100 \
+    --lr 5e-4 \
+    --load_network ModelOneHotProtein \
+    --sequence_type protein \
+    --onehot_flag \
+
+
+arch_3_test:
+	python3 main.py \
+    --test \
+    --load_network ModelOneHotProtein \
+    --network_parameters models/ModelOneHotProtein.json \
+    --sequence_type protein \
+    --onehot_flag \
+    --num_epochs 100 \
+    --pretrained_model pretrained_models/ModelOneHotProtein/model_checkpoint_weights.h5 \
+
+arch_4_A_holdout:
+	python3 main.py \
+    --validation \
+    --path_source_data ./data/bins_translated \
+    --sequence_type protein \
+    --batch_size 32 \
+    --num_epochs 100 \
+    --lr 5e-4 \
+    --load_network ModelEmbeddingBidirect \
+
+arch_4_B_holdout:
+	python3 main.py \
+    --validation \
+    --sequence_type protein \
+    --batch_size 20 \
+    --num_epochs 100 \
+    --lr 5e-4 \
+    --onehot_flag \
+    --network_parameters /content/models/ModelConvBidirect.json \
+    --load_network ModelConvBidirect \
