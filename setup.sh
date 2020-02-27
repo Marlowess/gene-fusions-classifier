@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 pip install virtualenv
-virtualenv bioinfo_project
+virtualenv bioinfo_env
 echo "Virtual environment installed correctly."
 
 echo "Installing dependencies..."
-./bioinfo_project/bin/pip install -r requirements.txt
+./bioinfo_env/bin/pip install -r requirements.txt
 
 echo "Done"
 
