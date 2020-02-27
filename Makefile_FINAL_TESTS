@@ -1,4 +1,5 @@
 
+# --------------------------- #
 arch_1_holdout:
 	python3 main.py \
     --validation \
@@ -12,7 +13,17 @@ arch_1_holdout:
     --onehot_flag \
 
 
+arch_1_test:
+	python3 main.py \
+    --test \
+    --load_network ModelUnidirect \
+    --sequence_type dna \
+    --onehot_flag \
+    --network_parameters models/ModelUnidirect.json \
+    --early_stopping_on_loss \
+    --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
 
+# --------------------------- #
 arch_2_holdout:
     python3 main.py \
     --validation \
@@ -24,15 +35,6 @@ arch_2_holdout:
     --batch_size 20 \
     --lr 5e-4 \
     --network_parameters models/ModelBidirectDNA.json \
-arch_1_test:
-	python3 main.py \
-    --test \
-    --load_network ModelUnidirect \
-    --sequence_type dna \
-    --onehot_flag \
-    --network_parameters models/ModelUnidirect.json \
-    --early_stopping_on_loss \
-    --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
 
 arch_2_test:
 	python3 main.py \
@@ -44,6 +46,7 @@ arch_2_test:
     --early_stopping_on_loss \
     --pretrained_model pretrained_models/ModelBidirectDNA/model_checkpoint_weights.h5 \
 
+# --------------------------- #
 arch_3_holdout:
 	python3 main.py \
     --validation \
@@ -67,6 +70,7 @@ arch_3_test:
     --num_epochs 100 \
     --pretrained_model pretrained_models/ModelOneHotProtein/model_checkpoint_weights.h5 \
 
+# --------------------------- #
 arch_4_A_holdout:
 	python3 main.py \
     --validation \
