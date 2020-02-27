@@ -312,9 +312,6 @@ clear_result_dirs_from_tests: setup_before_run_task
 
 build_zip_to_run_on_colab: clear_result_dirs
 	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
-<<<<<<< HEAD
-	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
-=======
 	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
 
 
@@ -327,8 +324,3 @@ exec_all_tests:
 	&& make -f Makefile_FINAL_TESTS arch_3_test \
 	&& make -f Makefile_FINAL_TESTS arch_4_A_holdout \
 	&& make -f Makefile_FINAL_TESTS arch_4_B_holdout \
-<<<<<<< HEAD
->>>>>>> Test Added to this branch
-=======
-	
->>>>>>> Completed Tests
