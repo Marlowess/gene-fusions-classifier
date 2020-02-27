@@ -120,8 +120,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'onehot_flag': cmd_line_params.onehot_flag,
     }
 
-    logger.info("\n" + json.dumps(network_params, indent=4))
-    
     # This function starts the training phases (holdout, validation or both)
     run_pipeline(
         conf_load_dict=conf_load_dict,

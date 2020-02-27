@@ -328,6 +328,7 @@ class ModelConvUnidirect(object):
             # self.model.summary(print_fn=lambda x: logger.info(x))
             self.model.summary(print_fn=lambda x: summary_list.append(str(x)) )
             logger.info('\n' + '\n'.join([str(xi) for xi in summary_list]))
+            logger.info("\n" + json.dumps(self.params, indent=4))
         else:
             self.model.summary()
         pass
