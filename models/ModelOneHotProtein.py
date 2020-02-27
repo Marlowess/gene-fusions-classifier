@@ -29,7 +29,6 @@ class ModelOneHotProtein():
             with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
                 self.params = pickle.load(params_pickle)
             self.params['result_base_dir'] = self.results_base_dir
-            print(self.params)
         else:
             ## new model
             self.params = params
@@ -78,10 +77,11 @@ class ModelOneHotProtein():
                             optimizer=optimizer,
                             metrics=['accuracy', f1_m, precision_m, recall_m])#, f1_m, precision_m, recall_m])
 
-        self.model.summary(print_fn=lambda x:logger.info(x))
-        
         if logger is not None:
+            self.model.summary(print_fn=lambda x:logger.info(x))
             logger.info("\n" + json.dumps(self.params, indent=4))
+        else:
+            self.model.summary()
          
     def fit(self, X_tr, y_tr, epochs, callbacks_list, validation_data, shuffle=True, early_stopping_loss=False):
         """

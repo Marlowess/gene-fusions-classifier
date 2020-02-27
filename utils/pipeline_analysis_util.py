@@ -245,7 +245,6 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     if cmd_line_params.test:
         # res_str_test = _pipeline_test(
         network_params['only_test'] = True
-        print('Doing Test:', network_params['only_test'])
         _pipeline_test(
             model,
             x_test,
