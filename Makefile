@@ -112,7 +112,10 @@ ARGS_TRAIN_TEST_M2 = --train --test --load_network ModelOneHotProtein --sequence
 # Test Analys model one hot encoding dna (Frank-Added)        #
 # ----------------------------------------------------------- #
 ULSTM = genes_fusions_classifier
-ARGS_TRAIN_ULSTM = --train \
+ARGS_TRAIN_ULSTM = \
+	--validation \
+	--train \
+	--test \
 	--load_network WrappedRawModel \
 	--sequence_type dna \
 	--network_parameters models/experimental_simple_models/model_dna_embedding_unidirect.json \
@@ -313,3 +316,10 @@ clear_result_dirs_from_tests: setup_before_run_task
 build_zip_to_run_on_colab: clear_result_dirs
 	rm -f ../$(ARCHIVE_PROJECT_NAME_COLAB)
 	zip -r  ../$(ARCHIVE_PROJECT_NAME_COLAB) $(PROJECT_CODEBASE) -x $(EXCLUDED_FILES)
+
+
+exec_all_tests:
+	make -f Makefile_REPORT arch_1_onehot_conv_lstm_holdout \
+	&& make -f Makefile_REPORT arch_1_emb_conv_lstm_holdout \
+	&& make -f arch_2_onehot_bidirect_lstm_holdout \
+	&& make -f Makefile_REPORT arch_3_onehot_lstm_protein_holdout

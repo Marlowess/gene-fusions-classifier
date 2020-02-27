@@ -17,7 +17,11 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 from utils.preprocess_dataset_util import preprocess_data
 
 from utils.train_util import _holdout
+<<<<<<< HEAD
+from utils.train_util import _train, _test, _experimental_train, _holdout_dna
+=======
 from utils.train_util import _train, _test 
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
 
 from models.ModelFactory import ModelFactory
 
@@ -133,6 +137,35 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
     res_str_holdout = ""
     
     if cmd_line_params.validation is True:
+<<<<<<< HEAD
+        if 'custom_holdout' in network_params.keys():
+            if network_params['custom_holdout'] == 'holdout_dna':
+                # print(network_params['custom_holdout'])
+                # sys.exit(0)
+                model, epochs_trained, x_train_, x_val_, y_train_, y_val_ = _holdout_dna(
+                    x_train,
+                    y_train,
+                    x_val,
+                    y_val,
+                    conf_load_dict,
+                    cmd_line_params,
+                    network_params,
+                    meta_info_project_dict,
+                    tokenizer,
+                    main_logger)
+        else:
+            model, epochs_trained = _holdout(
+                x_train,
+                y_train,
+                x_val,
+                y_val,
+                conf_load_dict,
+                cmd_line_params,
+                network_params,
+                meta_info_project_dict,
+                tokenizer,
+                main_logger)
+=======
         model, epochs_trained, res_str_holdout = _holdout(
             x_train,
             y_train,
@@ -144,11 +177,60 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             meta_info_project_dict,
             tokenizer,
             main_logger)
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
         
         # calculate number of steps for early stopping in training
         steps = epochs_trained * np.ceil(x_train.shape[0] / network_params['batch_size'])
         _log_info_message("trained for {} steps".format(steps), main_logger) 
     if cmd_line_params.train is True:
+<<<<<<< HEAD
+        # we take steps from early stopping the holdout validation otherwise must be specified from command line 
+        if ('steps' not in locals()):
+            steps = cmd_line_params.steps
+
+        if 'custom_holdout' in network_params.keys():
+            if network_params['custom_holdout'] == 'holdout_dna':
+                if cmd_line_params.validation is True:
+                    model = _train(
+                    x_train_,
+                    y_train_,
+                    steps,
+                    conf_load_dict,
+                    cmd_line_params,
+                    network_params,
+                    meta_info_project_dict,
+                    tokenizer,
+                    logger=main_logger,
+                    validation_data=(x_val_, y_val_),
+                )
+                else:
+                    model = _train(
+                        x_train,
+                        y_train,
+                        steps,
+                        conf_load_dict,
+                        cmd_line_params,
+                        network_params,
+                        meta_info_project_dict,
+                        tokenizer,
+                        logger=main_logger,
+                        validation_data=(x_val, y_val),
+                    )
+                    
+        else:
+            model = _train(
+                x_train,
+                y_train,
+                steps,
+                conf_load_dict,
+                cmd_line_params,
+                network_params,
+                meta_info_project_dict,
+                tokenizer,
+                logger=main_logger,
+                validation_data=(x_val, y_val),
+            )
+=======
         # we take epochs from early stopping the holdout validation otherwise must be specified from command line 
         if ('epochs_trained' not in locals()):
             epochs_trained = cmd_line_params.early_stopping_epoch
@@ -168,6 +250,7 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
             main_logger,
             epochs_trained=epochs_trained,          
         )
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
     
     _log_info_message(f" [*] Perform Analysis: Done.", main_logger, skip_message=True)
     
@@ -218,6 +301,8 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # Preprocessing Data.
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
+<<<<<<< HEAD
+=======
     # return
     
     #### DEBUG
@@ -225,6 +310,7 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
 
     # Print for debugging Data.
     # _test_dataset(x_train, y_train, x_val, y_val)
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
 
     if cmd_line_params.train or cmd_line_params.validation:
         model, res_str_holdout = _pipeline_train(
@@ -256,5 +342,32 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             meta_info_project_dict,
             main_logger
         )
+<<<<<<< HEAD
+        return
+
+    model = _pipeline_train(
+        x_train,
+        y_train,
+        x_val,
+        y_val,
+        conf_load_dict,
+        cmd_line_params,
+        network_params,
+        meta_info_project_dict,
+        tokenizer,
+        main_logger)
+    
+    _pipeline_test(
+        model,
+        x_test,
+        y_test,
+        conf_load_dict,
+        cmd_line_params,
+        network_params,
+        meta_info_project_dict,
+        main_logger
+    )
+=======
         # _log_info_message("Test: " + res_str_test, main_logger)
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
     pass

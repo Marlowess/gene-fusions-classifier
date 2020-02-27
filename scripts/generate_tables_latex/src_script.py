@@ -73,6 +73,18 @@ def main(cmd_args, data_dict: dict):
     print("Create csv file with comined hyper-parameters to be tested...")
     df: pd.DataFrame = create_grid_search_table(data_dict, params_list, cmd_args.output_file)
 
+    from latex import build_pdf
+
+    # pdf = build_pdf(min_latex)
+    res = df.to_latex(index=False)
+    min_latex = (r"\documentclass{article}"
+             r"\begin{document}"
+             # r"Hello, world!"
+             r"\end{document}")
+
+    pdf = build_pdf(min_latex)
+
+    pdf.save_to('ex1.pdf')
     pass
 
 if __name__ == "__main__":

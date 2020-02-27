@@ -13,10 +13,29 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
 from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve
 
+<<<<<<< HEAD
+
+import sklearn.utils
+import sklearn
+import numpy as np
+
+def _train_test_split(x_train, y_train, validation_data, test_size: int = 0.33, random_state: int = 0):
+    x_val, y_val = validation_data
+    x_train_ = np.concatenate((x_train, x_val))
+    y_train_ = np.concatenate((y_train, y_val))
+    x_train_, y_train_ = sklearn.utils.shuffle(x_train, y_train, random_state=random_state)
+
+    x_train_, x_val_, y_train_, y_val_ = sklearn.model_selection.train_test_split(
+        x_train_, y_train_, test_size=test_size, random_state=random_state)
+    return x_train_, x_val_, y_train_, y_val_
+
+def gen(X, y, batch_size=32, shuffle=True, verbose=0, seed=None):
+=======
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
     """
     Convert dataset in generator for training model a specific number of step
     
@@ -59,6 +78,136 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
         logger.info(message)
     pass
 
+<<<<<<< HEAD
+def _experimental_train(
+    x_train,
+    y_train,
+    x_val,
+    y_val,
+    conf_load_dict: dict,
+    cmd_line_params,
+    network_params: dict,
+    meta_info_project_dict: dict,
+    tokenizer: Tokenizer,
+    logger: logging.Logger,
+    message: str = 'Performing Experimental Training...'
+    ):
+
+    _log_info_message(f" [*] {message}", logger)
+
+    network_model_name: str = cmd_line_params.load_network
+    model = ModelFactory.getModelByName(network_model_name, network_params)
+
+    # epochs: int = network_params['epochs']
+    batch_size: int = network_params['batch_size']
+
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        validation_data=(x_val,y_val),
+        epochs=5,
+        verbose=1)
+    return model
+
+
+
+def _holdout_dna(
+    x_train,
+    y_train,
+    x_val,
+    y_val,
+    conf_load_dict: dict,
+    cmd_line_params,
+    network_params: dict,
+    meta_info_project_dict: dict,
+    tokenizer: Tokenizer,
+    logger: logging.Logger,
+    message: str = 'Performing first phase (holdout - dna)...') -> object:
+    # Some logs recorded.
+    _log_info_message(f" [*] {message}", logger)
+
+    train_bins, val_bins = conf_load_dict['train_bins'], conf_load_dict['val_bins']
+    _log_info_message("Training on bins: {}, validation on {}".format(train_bins, val_bins), logger)
+
+    vocabulary_len: int = len(tokenizer.index_word) + 1
+    network_params['vocabulary_len'] = vocabulary_len
+
+    # Get Callbacks.
+    base_dir: str = meta_info_project_dict['base_dir']
+    results_dir = meta_info_project_dict['val_result_path']
+    history_filename: str = os.path.join(base_dir, 'history.csv')
+    network_params['result_base_dir'] = results_dir   
+
+    # TODO: callbacks are defined for each model --> remove them from all dictionaries
+    # callbacks_list = _get_callbacks_list(history_filename)
+
+    # Get Model from ModelFactory Static class.
+    network_model_name: str = cmd_line_params.load_network
+    if network_model_name == 'WrappedRawModel':
+        network_params["lr"] = cmd_line_params.lr
+        network_params["batch_size"] = cmd_line_params.batch_size
+        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    else:
+        model = ModelFactory.getModelByName(network_model_name, network_params)
+
+    # Build model.
+    _log_info_message(f"> build model (holdout - dna - custom).", logger)
+    
+    # It compiles the model and print its summary (architecture's structure)
+    model.build(logger)
+
+    # It plots on a file the model's structure
+    model.plot_model()
+
+    # Train model.
+    _log_info_message(f"> train model (holdout - dna - custom)...", logger)
+
+    if network_model_name == 'WrappedRawModel':
+        x_train_, x_val_, y_train_, y_val_ = _train_test_split(x_train, y_train, (x_val, y_val), test_size=0.10, random_state=0)
+        history, trained_epochs = model.train_for_holdout(
+            x_train_,
+            y_train_,
+            random_state=0,
+            epochs=cmd_line_params.num_epochs,
+            batch_size=cmd_line_params.batch_size,
+            validation_data=(x_val_, y_val_),
+        )
+    else:
+        history, trained_epochs = model.fit(
+            X_tr=x_train,
+            y_tr=y_train,
+            epochs=cmd_line_params.num_epochs,
+            callbacks_list=[],
+            validation_data=(x_val, y_val)
+        )
+    _log_info_message(f"> train model (holdout - dna - custom): Done.", logger)
+   
+    # log number of epochs trained 
+    _log_info_message("Trained for {} epochs".format(trained_epochs), logger)
+    
+    # Eval model.
+    _log_info_message(f"> eval model (holdout - dna - custom).", logger)
+
+    # plot graph of loss and accuracy
+    plot_loss(history, results_dir, "Training and validation losses", "loss",
+              savefig_flag=True, showfig_flag=False)
+    plot_accuracy(history, results_dir, "Training and validation accuracies", "accuracy",
+                  savefig_flag=True, showfig_flag=False)
+    # serialize history
+    with open(os.path.join(results_dir, "history"), 'wb') as history_pickle:
+        pickle.dump(history.history, history_pickle)
+    
+    # scores contains [loss, accuracy, f1_score, precision, recall]
+    results_dict = model.evaluate(x_val, y_val)
+    res_string = ", ".join(f'{k}:{v}' for k,v in results_dict.items())
+    _log_info_message("{}".format(res_string), logger)
+    _log_info_message(f" [*] {message} Done.", logger)
+    
+    return model, trained_epochs, x_train_, x_val_, y_train_, y_val_
+
+=======
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
 def _holdout(
     x_train,
     y_train,
@@ -107,7 +256,12 @@ def _holdout(
 
     # Get Model from ModelFactory Static class.
     network_model_name: str = cmd_line_params.load_network
-    model = ModelFactory.getModelByName(network_model_name, network_params)
+    if network_model_name == 'WrappedRawModel':
+        network_params["lr"] = cmd_line_params.lr
+        network_params["batch_size"] = cmd_line_params.batch_size
+        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    else:
+        model = ModelFactory.getModelByName(network_model_name, network_params)
 
     # Build model.
     _log_info_message(f"> build model (holdout).", logger)
@@ -120,13 +274,23 @@ def _holdout(
 
     # Train model.
     _log_info_message(f"> train model (holdout)...", logger)
-    
-    history, trained_epochs = model.fit(
-        X_tr=x_train,
-        y_tr=y_train,
-        epochs=cmd_line_params.num_epochs,
-        callbacks_list=[],
-        validation_data=(x_val, y_val)
+
+    if network_model_name == 'WrappedRawModel':
+        history, trained_epochs = model.train(
+            x_train,
+            y_train,
+            random_state=0,
+            epochs=cmd_line_params.num_epochs,
+            batch_size=cmd_line_params.batch_size,
+            validation_data=(x_val, y_val),
+        )
+    else:
+        history, trained_epochs = model.fit(
+            X_tr=x_train,
+            y_tr=y_train,
+            epochs=cmd_line_params.num_epochs,
+            callbacks_list=[],
+            validation_data=(x_val, y_val)
         )
     _log_info_message(f"> train model (holdout): Done.", logger)
    
@@ -153,6 +317,73 @@ def _holdout(
     _log_info_message(f" [*] {message} Done.", logger)
     
     return model, trained_epochs, res_string
+
+def _train_dna(
+    x_train,
+    y_train,
+    steps,
+    conf_load_dict: dict,
+    cmd_line_params,
+    network_params: dict,
+    meta_info_project_dict: dict,
+    tokenizer: Tokenizer,
+    logger: logging.Logger,
+    validation_data = None,
+    message: str = 'Performing training phase (dna)...'
+):
+    _log_info_message(f" [*] {message}", logger)
+
+    train_bins = conf_load_dict['train_bins']
+    _log_info_message("Training on bins: {}".format(train_bins), logger)
+
+    vocabulary_len: int = len(tokenizer.index_word) + 1
+    network_params['vocabulary_len'] = vocabulary_len
+
+    # Get Callbacks.
+    base_dir: str = meta_info_project_dict['base_dir']
+    results_dir = meta_info_project_dict['train_result_path']
+    # history_filename: str = os.path.join(base_dir, 'history.csv')
+    network_params['result_base_dir'] = results_dir   
+
+    # Get Model from ModelFactory Static class.
+    network_model_name: str = cmd_line_params.load_network
+    if network_model_name == 'WrappedRawModel':
+        model = ModelFactory.getRawModelByName(network_params, meta_info_project_dict)
+    else:
+        model = ModelFactory.getModelByName(network_model_name, network_params)
+
+    # Build model.
+    _log_info_message(f"> build model", logger)
+    model.build(logger)
+    model.plot_model()
+
+    # Train for the specified amount of steps.
+    # _log_info_message(f"> training model for {}".format(steps), logger)
+
+    if network_model_name == 'WrappedRawModel':
+        history = model.fit_generator(
+            generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
+            validation_data=validation_data,
+            steps=steps,
+        )
+    else:
+        history = model.fit_generator(
+            generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
+            steps=steps,
+            callbacks_list=[],
+        )
+
+    # plot graph of loss and accuracy
+    plot_loss(history, results_dir, "Training loss", "loss", savefig_flag=True, showfig_flag=False)
+    # plot_accuracy(history, results_dir, "Training and validation accuracies", "accuracy", save_fig_flag=True)
+    # serialize history
+    with open(os.path.join(results_dir, "history"), 'wb') as history_pickle:
+        pickle.dump(history.history, history_pickle)
+        
+    _log_info_message(f"> train model: Done.", logger)
+    _log_info_message(f" [*] {message} Done.", logger)
+    
+    return model
 
 def _train(
     subtrain,
@@ -227,6 +458,13 @@ def _train(
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
 
+<<<<<<< HEAD
+    if network_model_name == 'WrappedRawModel':
+        history = model.fit_generator(
+            generator=gen(x_train, y_train, batch_size=network_params['batch_size']),
+            validation_data=validation_data,
+            steps=steps,
+=======
     if cmd_line_params.early_stopping_on_loss:
         # Algorithm 7.3
         early_stopping_loss = model.evaluate(x_subtrain, y_subtrain)['loss']
@@ -234,6 +472,7 @@ def _train(
             epochs=cmd_line_params.num_epochs,
             early_stopping_loss=early_stopping_loss,
             callbacks_list=[], validation_data=validation_data
+>>>>>>> f7774347c9e835594810350a7e39653aebbfcc56
         )
     else:
         # Algorithm 7.2
