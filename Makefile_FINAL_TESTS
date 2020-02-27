@@ -91,3 +91,24 @@ arch_4_B_holdout:
     --onehot_flag \
     --network_parameters models/ModelConvBidirect.json \
     --load_network ModelConvBidirect \
+
+# --------------------------- #
+
+arch_4_A_test:
+	python3 main.py \
+    --test \
+    --path_source_data ./data/bins_translated \
+    --load_network ModelEmbeddingBidirect \
+    --network_parameters models/ModelEmbeddingBidirect.json \
+    --sequence_type protein \
+    --pretrained_model pretrained_models/ModelEmbeddingBidirect/model_checkpoint_weights.h5
+
+arch_4_B_test:
+	python3 main.py \
+	--test \
+	--path_source_data ./data/bins_translated \
+	--load_network ModelConvBidirect \
+    --network_parameters models/ModelConvBidirect.json \
+    --sequence_type protein \
+    --onehot_flag \
+    --pretrained_model pretrained_models/ModelConvBidirect/model_checkpoint_weights.h5 \

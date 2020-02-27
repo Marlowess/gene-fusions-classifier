@@ -213,6 +213,14 @@ ARGS_TRAIN_LSTM_FRANK_RUN_TEST = \
 # TASKS SECTION                                                                                   #
 # =============================================================================================== #
 
+install: install_libraries_for_graphviz
+	bash setup.sh
+
+install_libraries_for_graphviz:
+	@pip install pydot
+	@pip install pydotplus
+	sudo apt-get install graphviz -y
+
 # ---------------------------- ---------------------#
 # RUN ANALYSES - SECTION                            #
 # ------------------------------------------------- #
@@ -295,11 +303,6 @@ install_requirements_via_pip:
 	$(LOCAL_PIP) install -r $(REQUIREMNTES_FILE)
 install_requirements_via_conda:	
 	$(CONDA_PIP) install -r $(REQUIREMNTES_FILE)
-
-install_libraries_for_graphviz:
-	pip install pydot
-	pip install pydotplus
-	sudo apt-get install graphviz
 
 # Clear directory with subdirectories corresponind to
 # different runs with their results.
