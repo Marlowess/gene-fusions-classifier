@@ -135,10 +135,7 @@ class ModelOneHotProtein():
         scores = self.model.evaluate(X, y, verbose=1)
         metrics = dict(zip(self.model.metrics_names, scores))
 
-        return metrics
-    
-    def plot_model(self) -> None:
-        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+        return metrics        
 
     def _get_callbacks(self, train=False):
         """

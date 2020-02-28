@@ -6,6 +6,3 @@ matplotlib
 argparse
 pyyaml
 keras
-pydot
-pydotplus
-graphviz

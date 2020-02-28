@@ -198,10 +198,7 @@ class ModelEmbeddingBidirect():
     def fit_generator2(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
         history = self.model.fit_generator(generator, steps_per_epoch, epochs, shuffle=False, callbacks=self._get_callbacks(train=True),
                                            validation_data=validation_data)
-        return history
-    
-    def plot_model(self,) -> None:
-        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+        return history        
 
     def _get_callbacks(self, train=True):
         """

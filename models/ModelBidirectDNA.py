@@ -177,9 +177,7 @@ class ModelBidirectDNA():
         history = self.model.fit_generator(generator, steps_per_epoch, epochs, shuffle=False, callbacks=self._get_callbacks(train=True),
                                            validation_data=validation_data)
         return history
-    
-    def plot_model(self,) -> None:
-        tf.keras.utils.plot_model(self.model, 'model_graph.png', show_shapes=True)
+        
 
     def _get_callbacks(self, train=True):
         """

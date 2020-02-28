@@ -494,12 +494,5 @@ class ModelConvUnidirect(object):
             model=self.model,
             filepath=self.params["model_path"],
         )
-        pass  
-
-    def plot_model(self,) -> None:
-
-        assert self.model != None
-
-        full_model_image_path: str = os.path.join('', 'model_graph.png')
-        tf.keras.utils.plot_model(self.model, full_model_image_path, show_shapes=True)
+        pass      
     pass

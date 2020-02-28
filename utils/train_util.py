@@ -115,9 +115,6 @@ def _holdout(
     # It compiles the model and print its summary (architecture's structure)
     model.build(logger)
 
-    # It plots on a file the model's structure
-    model.plot_model()
-
     # Train model.
     _log_info_message(f"> train model (holdout)...", logger)
     
@@ -221,8 +218,7 @@ def _train(
 
     # Build model.
     _log_info_message(f"> build model", logger)
-    model.build(logger)
-    model.plot_model()
+    model.build(logger)    
 
     # Train for the specified amount of steps.
     # _log_info_message(f"> training model for {}".format(steps), logger)
