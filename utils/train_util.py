@@ -11,7 +11,7 @@ from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve
+from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_precision_recall_curve
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -263,7 +263,9 @@ def _test(
     network_params: dict,
     meta_info_project_dict: dict,
     logger: logging.Logger,
-    message: str = 'Performing test phase...') -> object:
+    message: str = 'Performing test phase...',
+    roc_curve: bool = False,
+    pr_curve: bool = True) -> object:
     """
     Test the model passed by argument and log evaluation metrics
     
@@ -299,19 +301,33 @@ def _test(
     
     # plot roc curve and auc
     y_pred = model.predict(x_test)
-    auc_value: float = plot_roc_curve(
-        y_test,
-        y_pred,
-        title="Roc Curve Eval",
-        fig_name="roc_curve_eval",
-        fig_dir=meta_info_project_dict['test_result_path'],
-        savefig_flag=True,
-        showfig_flag=True,
-    )
-    _log_info_message(f"TEST_AUC: {auc_value}", logger)
 
-    # plot conf matrix
-    target_names: list = ['Onco', 'Non-Onco']
+    if roc_curve :
+        auc_value: float = plot_roc_curve(
+            y_test,
+            y_pred,
+            title="Roc Curve Eval",
+            fig_name="roc_curve_eval",
+            fig_dir=meta_info_project_dict['test_result_path'],
+            savefig_flag=True,
+            showfig_flag=True,
+        )
+        _log_info_message(f"TEST_AUC: {auc_value}", logger)
+
+    if pr_curve:
+        # Plotting the precision-recall curve here    
+        avg_precision_score: float = plot_precision_recall_curve(
+            y_test,
+            y_pred,
+            title="Precision-Recall curve",
+            fig_name="precison_recall_eval",
+            fig_dir=meta_info_project_dict['test_result_path'],
+            savefig_flag=True,
+            showfig_flag=True,
+        )
+        _log_info_message(f"TEST_AVG_PREC_SCORE: {avg_precision_score}", logger)
+
+    # plot conf matrix    
     y_pred_classes = model.predict_classes(x_test)
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred_classes).ravel()
