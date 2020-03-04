@@ -10,6 +10,8 @@ from __future__ import print_function
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import average_precision_score
 
 from sklearn.model_selection import train_test_split
 
@@ -19,7 +21,7 @@ from sklearn.utils.multiclass import unique_labels
 #                                    Other Imports                                        #
 # ======================================================================================= #
 from matplotlib import pyplot as plt
-plt.style.use('dark_background')
+# plt.style.use('dark_background')
 
 import numpy as np
 import pandas as  pd
@@ -30,7 +32,7 @@ import pprint
 import random
 import sys
 
-dark_ppt = True # False
+dark_ppt = False # False
 
 # =============================================================================================== #
 #                              PLOTS: VALIDATION LOSS & ACCURACY                                  #
@@ -116,6 +118,39 @@ def plot_roc_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = Non
         plt.show()
     
     return auc_model
+
+
+# =========================================================================================== #
+#                                   PLOT PRECISION-RECALL CURVE                               #
+# =========================================================================================== #    
+def plot_precision_recall_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+    global dark_ppt
+
+    plt.clf()
+    
+    precision, recall, _ = precision_recall_curve(y_test, y_pred)
+    avg_precision_score = average_precision_score(y_test, y_pred)
+
+    plt.figure(1)
+    if dark_ppt is True:
+        plt.plot([0, 1], [0.5, 0.5], 'w--')
+    else:
+        plt.plot([0, 1], [0.5, 0.5], '--')
+    
+    plt.plot(recall, precision, label='Precision-Recall curve (AP = {:.3f})'.format(avg_precision_score))
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title(title)
+    plt.legend(loc='best')
+    
+    if savefig_flag is True:
+        full_fig_name = os.path.join(fig_dir, f"{fig_name}.{fig_format}")
+        plt.savefig(full_fig_name)
+    
+    if showfig_flag is True:
+        plt.show()
+    
+    return avg_precision_score
 
 # =========================================================================================== #
 #                                   PLOT CONFUSION MATRIX MODEL                               #
