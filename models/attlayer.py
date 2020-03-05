@@ -17,7 +17,7 @@ class AttentionWeightedAverage(Layer):
     """
 
     def __init__(self, return_attention=False, **kwargs):
-        self.init = initializers.get('uniform')
+        self.init = initializers.GlorotUniform(seed=101)
         self.supports_masking = True
         self.return_attention = return_attention
         super(AttentionWeightedAverage, self).__init__(** kwargs)
