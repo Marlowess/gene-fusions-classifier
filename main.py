@@ -19,6 +19,9 @@ from utils.setup_analysis_environment_util import setup_analysis_environment
 
 from models.ModelFactory import ModelFactory
 
+import numpy as np
+import random
+
 # =============================================================================================== #
 # UTILITY FUNCTIONS                                                                               #
 # =============================================================================================== #
@@ -83,7 +86,11 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
 
 def main(cmd_line_params: dict, curr_date_str: str):
 
+    random.seed(cmd_line_params.seed)
+    np.random.seed(cmd_line_params.seed)
+
     tf.random.set_seed(cmd_line_params.seed)
+    
 
     base_dir: str = 'bioinfo_project'
     status_analysis: str = "SUCCESS"   
@@ -138,6 +145,8 @@ def main(cmd_line_params: dict, curr_date_str: str):
 
 if __name__ == "__main__":
     os.environ['TF_DETERMINISTIC_OPS'] = '1'
+    os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
+
     cmd_line_params, _, curr_date_str = get_parsed_params()
     main(cmd_line_params, curr_date_str)
     pass
