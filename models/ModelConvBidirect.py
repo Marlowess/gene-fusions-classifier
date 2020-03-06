@@ -178,7 +178,7 @@ class ModelConvBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=30,
+                patience=10,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
