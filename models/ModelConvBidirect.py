@@ -54,6 +54,7 @@ class ModelConvBidirect():
 
         # Weights initialization
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
+        recurrent_init = tf.keras.initializers.orthogonal(seed=self.seed)
 
         # Model architecture
         self.model = tf.keras.Sequential()
@@ -68,6 +69,7 @@ class ModelConvBidirect():
         self.model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(self.params['lstm_units'], return_sequences=False, 
                                                                          kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                                                          kernel_initializer=weight_init,
+                                                                         recurrent_initializer=recurrent_init,
                                                                          recurrent_regularizer=tf.keras.regularizers.l2(weight_decay))))
         self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate'], seed=self.seed))
         self.model.add(tf.keras.layers.Dense(10, activation=tf.nn.leaky_relu,
@@ -178,7 +180,7 @@ class ModelConvBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=10,
+                patience=30,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(

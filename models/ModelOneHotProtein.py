@@ -35,6 +35,7 @@ class ModelOneHotProtein():
 
         self.batch_size = self.params['batch_size']
         weight_init = tf.keras.initializers.glorot_uniform(seed=42)
+        recurrent_init = tf.keras.initializers.orthogonal(seed=42)
 
         # It defines the initialization setup of weights
 
@@ -45,12 +46,14 @@ class ModelOneHotProtein():
                                          dropout=self.params['lstm1']['dropout'],
                                          kernel_regularizer=keras.regularizers.l2(l=self.params['lstm1']['kernel_l2']),
                                          recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm1']['recurrent_l2']),
+                                         recurrent_initializer=recurrent_init,
                                          kernel_initializer=weight_init                                         
                                          ))
         self.model.add(keras.layers.LSTM(units=self.params['lstm2']['units'], return_sequences = False,
                                          dropout=self.params['lstm2']['dropout'],
                                          kernel_regularizer=keras.regularizers.l2(l=self.params['lstm2']['kernel_l2']),
                                          recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2']),
+                                         recurrent_initializer=recurrent_init,
                                          kernel_initializer=weight_init                                        
                                          ))        
         self.model.add(keras.layers.Dropout(rate=self.params['dense1']['dropout'], seed=42))

@@ -50,6 +50,7 @@ class ModelBidirectDNA():
  
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform
+        recurrent_init = tf.keras.initializers.orthogonal(seed=42)
 
         # Model definition
         self.model = Sequential()
@@ -69,7 +70,7 @@ class ModelBidirectDNA():
         self.model.add(Bidirectional(LSTM((int)(self.params['lstm_units']), return_sequences=False,
                                                             dropout=self.params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
-                                                            recurrent_initializer=weight_init(self.seeds[1]),
+                                                            recurrent_initializer=recurrent_init,
                                                             kernel_regularizer=l2(self.params['weight_decay'])
                                                                 )))
         self.model.add(Dropout(self.params['lstm_output_dropout'], seed=self.seeds[2]))
