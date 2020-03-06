@@ -34,6 +34,7 @@ class ModelOneHotProtein():
             self.params = params
 
         self.batch_size = self.params['batch_size']
+        weight_init = tf.keras.initializers.glorot_uniform(seed=42)
 
         # It defines the initialization setup of weights
 
@@ -44,23 +45,21 @@ class ModelOneHotProtein():
                                          dropout=self.params['lstm1']['dropout'],
                                          kernel_regularizer=keras.regularizers.l2(l=self.params['lstm1']['kernel_l2']),
                                          recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm1']['recurrent_l2']),
-                                        #  activity_regularizer=keras.regularizers.l2(l=self.params['lstm1']['activation_l2'])
-                                        #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=1) 
+                                         kernel_initializer=weight_init                                         
                                          ))
         self.model.add(keras.layers.LSTM(units=self.params['lstm2']['units'], return_sequences = False,
                                          dropout=self.params['lstm2']['dropout'],
                                          kernel_regularizer=keras.regularizers.l2(l=self.params['lstm2']['kernel_l2']),
-                                         recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2'])
-                                        #  activity_regularizer=keras.regularizers.l2(l=self.params['lstm2']['activation_l2'])
-                                        #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=2)
-                                         ))
-        # self.model.add(keras.layers.Flatten())
-        self.model.add(keras.layers.Dropout(rate=self.params['dense1']['dropout']))
+                                         recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2']),
+                                         kernel_initializer=weight_init                                        
+                                         ))        
+        self.model.add(keras.layers.Dropout(rate=self.params['dense1']['dropout'], seed=42))
         self.model.add(keras.layers.Dense(units=self.params['dense1']['units'], activation='relu',
+                                          kernel_initializer=weight_init,
                                           kernel_regularizer=keras.regularizers.l2(self.params['dense1']['kernel_l2'])))
-        self.model.add(keras.layers.Dropout(self.params['dense2']['dropout']))
+        self.model.add(keras.layers.Dropout(self.params['dense2']['dropout'], seed=101))
         self.model.add(keras.layers.Dense(units=1, activation='sigmoid',
-                                        #   kernel_initializer=tf.keras.initializers.glorot_uniform(seed=17)
+                                        kernel_initializer=weight_init
                                         ))
     
         # Check if the user wants a pre-trained model. If yes load the weights
