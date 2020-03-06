@@ -60,7 +60,7 @@ class ModelConvBidirect():
         self.model = tf.keras.Sequential()
         self.model.add(tf.keras.layers.Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
-        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation=tf.nn.leaky_relu,
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                               kernel_initializer=weight_init, 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
@@ -72,7 +72,7 @@ class ModelConvBidirect():
                                                                          recurrent_initializer=recurrent_init,
                                                                          recurrent_regularizer=tf.keras.regularizers.l2(weight_decay))))
         self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate'], seed=self.seed))
-        self.model.add(tf.keras.layers.Dense(10, activation=tf.nn.leaky_relu,
+        self.model.add(tf.keras.layers.Dense(10, activation='relu',
                                             kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                             kernel_initializer=weight_init,
                                             activity_regularizer=tf.keras.regularizers.l2(weight_decay)))

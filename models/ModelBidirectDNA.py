@@ -56,13 +56,13 @@ class ModelBidirectDNA():
         self.model = Sequential()
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0.], 
             input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
-        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation=tf.nn.leaky_relu,
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                               kernel_initializer=weight_init(self.seeds[2]), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
         self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate'], seed=self.seeds[0]))
-        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation=tf.nn.leaky_relu,
+        self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
                                               kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
                                               kernel_initializer=weight_init(self.seeds[3]), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
@@ -74,7 +74,7 @@ class ModelBidirectDNA():
                                                             kernel_regularizer=l2(self.params['weight_decay'])
                                                                 )))
         self.model.add(Dropout(self.params['lstm_output_dropout'], seed=self.seeds[2]))
-        self.model.add(Dense(8, activation=tf.nn.leaky_relu, kernel_initializer=weight_init(self.seeds[0])))
+        self.model.add(Dense(8, activation='relu', kernel_initializer=weight_init(self.seeds[0])))
         self.model.add(Dropout(self.params['dense_dropout_rate'], seed=self.seeds[3]))
         self.model.add(Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init(self.seeds[4]),
