@@ -20,6 +20,7 @@
         "units":128
     },
     "dense2":{
+        "kernel_l2":0,
         "dropout":0.5   
     }
 }
