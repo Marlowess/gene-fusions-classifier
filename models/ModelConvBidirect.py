@@ -128,7 +128,7 @@ class ModelConvBidirect():
         print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, batch_size=self.batch_size, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)        
         return history
     
@@ -180,7 +180,7 @@ class ModelConvBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=30,
+                patience=10,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(
