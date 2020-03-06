@@ -73,7 +73,7 @@ class ModelBidirectDNA():
                                                             kernel_regularizer=l2(self.params['weight_decay'])
                                                                 )))
         self.model.add(Dropout(self.params['lstm_output_dropout'], seed=self.seeds[2]))
-        self.model.add(Dense(8, activation=tf.nn.leaky_relu))
+        self.model.add(Dense(8, activation=tf.nn.leaky_relu, kernel_initializer=weight_init(self.seeds[0])))
         self.model.add(Dropout(self.params['dense_dropout_rate'], seed=self.seeds[3]))
         self.model.add(Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init(self.seeds[4]),
