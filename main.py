@@ -147,6 +147,8 @@ if __name__ == "__main__":
     os.environ['TF_DETERMINISTIC_OPS'] = '1'
     os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
 
+    # os.environ['PYTHONHASHSEED'] = '0'
+
     cmd_line_params, _, curr_date_str = get_parsed_params()
     main(cmd_line_params, curr_date_str)
     pass
