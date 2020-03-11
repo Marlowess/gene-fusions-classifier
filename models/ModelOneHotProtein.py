@@ -168,7 +168,7 @@ class ModelOneHotProtein():
 
         else:
             callbacks_list = [
-                keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
+                tf.keras.callbacks.CSVLogger(os.path.join(self.results_base_dir, 'history.csv')),
                 tf.keras.callbacks.ReduceLROnPlateau(
                     patience=5,
                     monitor='val_loss',
