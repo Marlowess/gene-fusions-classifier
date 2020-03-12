@@ -16,6 +16,9 @@ from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
     """
     Convert dataset in generator for training model a specific number of step
@@ -301,6 +304,29 @@ def _test(
     
     # plot roc curve and auc
     y_pred = model.predict(x_test)
+    data = list(zip(y_test, y_pred))
+    predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
+    C_dfs = predict[predict['Label'] == 1]
+    N_dfs = predict[predict['Label'] == 0]
+
+
+    # bins=[0.0, 0.1, 0.4, 0.6, 0.8, 1]
+    # bins = [x for x in range(0, 1, 0.2)]
+    bins = np.linspace(0, 1, num=11)
+    print(bins)
+
+    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
+        fill=True, label=['NotOnco','Onco'],
+        edgecolor='black',
+        linewidth=1.2,
+        width=0.05,
+        align='mid')
+
+    plt.legend(prop={'size': 10})
+    plt.title('Probability Confindence')
+    plt.savefig('confidence.png')
+    plt.show()
+    sys.exit()
 
     if roc_curve :
         auc_value: float = plot_roc_curve(
