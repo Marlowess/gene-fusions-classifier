@@ -18,6 +18,8 @@ from sklearn.metrics import confusion_matrix
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
     """
@@ -315,14 +317,17 @@ def _test(
     bins = np.linspace(0, 1, num=11)
     print(bins)
 
-    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
-        fill=True, label=['NotOnco','Onco'],
-        edgecolor='black',
-        linewidth=1.2,
-        width=0.05,
-        align='mid')
+    fig, ax = plt.subplots()
+    ax.set_xticks(bins)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: "%.1f" % x))
 
-    plt.legend(prop={'size': 10})
+    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
+         fill=True, label=['NotOnco','Onco'], edgecolor='black', linewidth=1.3, width=0.05, rwidth=0.5, align='mid')
+
+
+    plt.legend(prop={'size': 9})
+    plt.xlabel('Prediction scores')
+    plt.ylabel('Number of samples')
     plt.title('Probability Confindence')
     plt.savefig('confidence.png')
     plt.show()
