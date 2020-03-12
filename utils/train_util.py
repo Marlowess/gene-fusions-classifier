@@ -15,6 +15,10 @@ from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -47,7 +51,7 @@ def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
             yield (X[i:i+batch_size], y[i:i+batch_size])
         
         if (verbose != 0):
-            print("epoch finished")
+            print("\nepoch finished")
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
@@ -312,6 +316,17 @@ def _test(
     test_dir: str = meta_info_project_dict['test_result_path']
     predict.to_csv(f"{test_dir}/predicted.csv")
 
+    _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
+    conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
+    conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
+
+    threshold_y_pred = np.rint(conf_y_prediction)
+    _log_info_message("samples classified: {:.5f}".format(len(conf_y_prediction)/len(y_test)), logger)
+    _log_info_message("accuracy {:.5f}".format(accuracy_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("precision {:.5f}".format(precision_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("recall {:.5f}".format(recall_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("f1-score {:.5f}".format(f1_score(conf_y_test, threshold_y_pred)), logger)    
+    
     plot_confidence_graph(predict,
         fig_dir=test_dir,
         fig_name="confidence_image",
@@ -319,6 +334,8 @@ def _test(
         savefig_flag=True
         )
     sys.exit(0)
+
+    
 
     if roc_curve :
         auc_value: float = plot_roc_curve(

@@ -243,7 +243,6 @@ def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = Non
     N_dfs = predict[predict['Label'] == 0]
 
     bins = np.linspace(0, 1, num=11)
-    print(bins)
 
     fig, ax = plt.subplots()
     ax.set_xticks(bins)
