@@ -314,7 +314,7 @@ def _test(
 
     plot_confidence_graph(predict,
         fig_dir=test_dir,
-        fig_name="confidence_image"
+        fig_name="confidence_image",
         title="Probability Confindence",
         savefig_flag=True
         )
