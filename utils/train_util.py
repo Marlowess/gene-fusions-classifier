@@ -11,7 +11,7 @@ from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_precision_recall_curve
+from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_precision_recall_curve, plot_confidence_graph
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -308,30 +308,12 @@ def _test(
     y_pred = model.predict(x_test)
     data = list(zip(y_test, y_pred))
     predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
-    C_dfs = predict[predict['Label'] == 1]
-    N_dfs = predict[predict['Label'] == 0]
 
+    test_dir_result: str = meta_info_project_dict['test_result_path']
+    predict.to_csv(f"{test_dir_result}/predicted.csv")
 
-    # bins=[0.0, 0.1, 0.4, 0.6, 0.8, 1]
-    # bins = [x for x in range(0, 1, 0.2)]
-    bins = np.linspace(0, 1, num=11)
-    print(bins)
-
-    fig, ax = plt.subplots()
-    ax.set_xticks(bins)
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: "%.1f" % x))
-
-    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
-         fill=True, label=['NotOnco','Onco'], edgecolor='black', linewidth=1.3, width=0.05, rwidth=0.5, align='mid')
-
-
-    plt.legend(prop={'size': 9})
-    plt.xlabel('Prediction scores')
-    plt.ylabel('Number of samples')
-    plt.title('Probability Confindence')
-    plt.savefig('confidence.png')
-    plt.show()
-    sys.exit()
+    plot_confidence_graph(predict, test_dir_result)
+    sys.exit(0)
 
     if roc_curve :
         auc_value: float = plot_roc_curve(

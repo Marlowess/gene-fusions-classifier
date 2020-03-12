@@ -32,6 +32,8 @@ import pprint
 import random
 import sys
 
+from matplotlib.ticker import FuncFormatter
+
 dark_ppt = False # False
 
 # =============================================================================================== #
@@ -234,3 +236,28 @@ def _plot_confusion_matrix(y_true, y_pred, classes, fig_dir: str, title: str, fi
         full_fig_name = os.path.join(fig_dir, f"{fig_name}.{fig_format}")
         plt.savefig(full_fig_name)
     return ax, cm
+
+def plot_confidence_graph(predict, test_dir_result):
+
+    C_dfs = predict[predict['Label'] == 1]
+    N_dfs = predict[predict['Label'] == 0]
+
+    bins = np.linspace(0, 1, num=11)
+    print(bins)
+
+    fig, ax = plt.subplots()
+    ax.set_xticks(bins)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: "%.1f" % x))
+
+    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
+         fill=True, label=['NotOnco','Onco'], edgecolor='black', linewidth=1.3, width=0.05, rwidth=0.5, align='mid')
+
+
+    plt.legend(prop={'size': 9})
+    plt.xlabel('Prediction scores')
+    plt.ylabel('Number of samples')
+    plt.title('Probability Confindence')
+    plt.savefig('confidence.png')
+    plt.show()
+    
+    pass
