@@ -256,7 +256,7 @@ def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = Non
     plt.legend(prop={'size': 9})
     plt.xlabel('Prediction scores')
     plt.ylabel('Number of samples')
-    plt.title('Probability Confindence')
+    plt.title(f'{title}')
 
     full_name: str = os.path.join(fig_dir, fig_name)
     plt.savefig(f'{full_name}.{fig_format}')

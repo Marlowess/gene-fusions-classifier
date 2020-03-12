@@ -313,8 +313,9 @@ def _test(
     predict.to_csv(f"{test_dir}/predicted.csv")
 
     plot_confidence_graph(predict,
-        fig_dir=fig_dir,
-        title="confidence_image",
+        fig_dir=test_dir,
+        fig_name="confidence_image"
+        title="Probability Confindence",
         savefig_flag=True
         )
     sys.exit(0)
