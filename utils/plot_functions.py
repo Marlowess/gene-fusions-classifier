@@ -237,7 +237,7 @@ def _plot_confusion_matrix(y_true, y_pred, classes, fig_dir: str, title: str, fi
         plt.savefig(full_fig_name)
     return ax, cm
 
-def plot_confidence_graph(predict, test_dir_result):
+def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False):
 
     C_dfs = predict[predict['Label'] == 1]
     N_dfs = predict[predict['Label'] == 0]
@@ -257,7 +257,9 @@ def plot_confidence_graph(predict, test_dir_result):
     plt.xlabel('Prediction scores')
     plt.ylabel('Number of samples')
     plt.title('Probability Confindence')
-    plt.savefig('confidence.png')
+
+    full_name: str = os.path.join(fig_dir, fig_name)
+    plt.savefig(f'{full_name}.{fig_format}')
     plt.show()
-    
+
     pass

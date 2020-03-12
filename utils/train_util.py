@@ -309,10 +309,14 @@ def _test(
     data = list(zip(y_test, y_pred))
     predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
 
-    test_dir_result: str = meta_info_project_dict['test_result_path']
-    predict.to_csv(f"{test_dir_result}/predicted.csv")
+    test_dir: str = meta_info_project_dict['test_result_path']
+    predict.to_csv(f"{test_dir}/predicted.csv")
 
-    plot_confidence_graph(predict, test_dir_result)
+    plot_confidence_graph(predict,
+        fig_dir=fig_dir,
+        title="confidence_image",
+        savefig_flag=True
+        )
     sys.exit(0)
 
     if roc_curve :
