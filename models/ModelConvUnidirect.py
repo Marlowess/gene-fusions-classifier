@@ -389,7 +389,8 @@ class ModelConvUnidirect(object):
         print(f"early stopping loss{early_stopping_loss}")
         callbacks_list = copy.deepcopy(self.callbacks)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+        batch_size = self.params['batch_size']
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, batch_size=batch_size, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)
         
         return history

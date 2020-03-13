@@ -11,10 +11,19 @@ from models.ModelFactory import ModelFactory
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
-from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_precision_recall_curve
+from utils.plot_functions import plot_loss, plot_accuracy, plot_roc_curve, plot_precision_recall_curve, plot_confidence_graph
 
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
 
 def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
     """
@@ -42,7 +51,7 @@ def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
             yield (X[i:i+batch_size], y[i:i+batch_size])
         
         if (verbose != 0):
-            print("epoch finished")
+            print("\nepoch finished")
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
@@ -301,7 +310,7 @@ def _test(
     
     # plot roc curve and auc
     y_pred = model.predict(x_test)
-
+    
     if roc_curve :
         auc_value: float = plot_roc_curve(
             y_test,
@@ -340,3 +349,29 @@ def _test(
         ','.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
+
+    test_dir: str = meta_info_project_dict['test_result_path']
+    _calculate_confidence(y_test, y_pred, test_dir, logger)
+    pass
+
+def _calculate_confidence(y_test, y_pred, test_dir, logger):
+    _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
+    conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
+    conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
+
+    threshold_y_pred = np.rint(conf_y_prediction)
+    _log_info_message("samples classified: {:.5f}".format(len(conf_y_prediction)/len(y_test)), logger)
+    _log_info_message("accuracy {:.5f}".format(accuracy_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("precision {:.5f}".format(precision_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("recall {:.5f}".format(recall_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("f1-score {:.5f}".format(f1_score(conf_y_test, threshold_y_pred)), logger)    
+    
+    plot_confidence_graph(
+        pd.DataFrame(data=list(zip(y_test, y_pred)), columns=['Label', 'Prob']),
+        fig_dir=test_dir,
+        fig_name="scores_by_threshold",
+        title="",
+        savefig_flag=True,
+        showfig_flag=False
+        )
+    pass

@@ -21,7 +21,9 @@ arch_1_test:
     --onehot_flag \
     --network_parameters models/ModelUnidirect.json \
     --early_stopping_on_loss \
-    --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
+    --pretrained_model pretrained_models/ModelUnidirect/my_model_weights.h5 \
+
+# --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
 
 # --------------------------- #
 arch_2_holdout:
@@ -44,7 +46,9 @@ arch_2_test:
     --onehot_flag \
     --network_parameters models/ModelBidirectDNA.json \
     --early_stopping_on_loss \
-    --pretrained_model pretrained_models/ModelBidirectDNA/model_checkpoint_weights.h5 \
+    --pretrained_model pretrained_models/ModelBidirectDNA/my_model_weights.h5 \
+
+# --pretrained_model pretrained_models/ModelBidirectDNA/model_checkpoint_weights.h5 \
 
 # --------------------------- #
 arch_3_holdout:
@@ -67,7 +71,9 @@ arch_3_test:
     --network_parameters models/ModelOneHotProtein.json \
     --sequence_type protein \
     --onehot_flag \
-    --pretrained_model pretrained_models/ModelOneHotProtein/model_checkpoint_weights.h5 \
+    --pretrained_model pretrained_models/ModelOneHotProtein/my_model_weights.h5 \
+
+# --pretrained_model pretrained_models/ModelOneHotProtein/model_checkpoint_weights.h5 \
 
 # --------------------------- #
 arch_4_A_holdout:
@@ -101,7 +107,9 @@ arch_4_A_test:
     --load_network ModelEmbeddingBidirect \
     --network_parameters models/ModelEmbeddingBidirect.json \
     --sequence_type protein \
-    --pretrained_model pretrained_models/ModelEmbeddingBidirect/model_checkpoint_weights.h5
+    --pretrained_model pretrained_models/ModelEmbeddingBidirect/my_model_weights.h5
+
+# --pretrained_model pretrained_models/ModelEmbeddingBidirect/model_checkpoint_weights.h5
 
 arch_4_B_test:
 	python3 main.py \
@@ -111,4 +119,6 @@ arch_4_B_test:
     --network_parameters models/ModelConvBidirect.json \
     --sequence_type protein \
     --onehot_flag \
-    --pretrained_model pretrained_models/ModelConvBidirect/model_checkpoint_weights.h5 \
+    --pretrained_model pretrained_models/ModelConvBidirect/my_model_weights.h5 \
+
+# --pretrained_model pretrained_models/ModelConvBidirect/model_checkpoint_weights.h5 \

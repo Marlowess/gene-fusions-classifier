@@ -3,7 +3,7 @@
     "vocab_size": 5,
     "embedding_size": 5,
 
-    "rnns_units": [64],
+    "rnns_units": [16],
     "recurrent_dropouts_rates": [0.4],
     "rnn_type": "lstm",
     

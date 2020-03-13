@@ -50,28 +50,31 @@ class ModelBidirectDNA():
  
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform
+        recurrent_init = tf.keras.initializers.orthogonal(seed=42)
 
         # Model definition
         self.model = Sequential()
         self.model.add(Masking(mask_value = [1., 0., 0., 0., 0.], 
             input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
         self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
-                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                              kernel_initializer=weight_init(self.seeds[2]), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate']))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate'], seed=self.seeds[0]))
         self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
-                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                              kernel_initializer=weight_init(self.seeds[3]), 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())        
         self.model.add(Bidirectional(LSTM((int)(self.params['lstm_units']), return_sequences=False,
                                                             dropout=self.params['lstm_input_dropout'],
                                                             kernel_initializer=weight_init(self.seeds[0]),
-                                                            recurrent_initializer=weight_init(self.seeds[1]),
+                                                            recurrent_initializer=recurrent_init,
                                                             kernel_regularizer=l2(self.params['weight_decay'])
                                                                 )))
         self.model.add(Dropout(self.params['lstm_output_dropout'], seed=self.seeds[2]))
-        self.model.add(Dense(8, activation='relu'))
+        self.model.add(Dense(8, activation='relu', kernel_initializer=weight_init(self.seeds[0])))
         self.model.add(Dropout(self.params['dense_dropout_rate'], seed=self.seeds[3]))
         self.model.add(Dense(1, activation='sigmoid',
                                             kernel_initializer=weight_init(self.seeds[4]),
@@ -133,7 +136,7 @@ class ModelBidirectDNA():
         print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, batch_size=self.batch_size, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)        
         return history
     
@@ -186,7 +189,7 @@ class ModelBidirectDNA():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=30,
+                patience=10,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(

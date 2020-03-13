@@ -52,25 +52,34 @@ class ModelConvBidirect():
         # Weight_decay
         weight_decay = self.params['weight_decay']
 
+        # Weights initialization
+        weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
+        recurrent_init = tf.keras.initializers.orthogonal(seed=self.seed)
+
         # Model architecture
         self.model = tf.keras.Sequential()
         self.model.add(tf.keras.layers.Masking(mask_value = [1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
             0., 0., 0., 0.], input_shape=(self.params['maxlen'], self.params['vocabulary_len'])))
         self.model.add(tf.keras.layers.Conv1D(self.params['conv_num_filter'], self.params['conv_kernel_size'], activation='relu',
-                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay), 
+                                              kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                              kernel_initializer=weight_init, 
                                               activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
         self.model.add(tf.keras.layers.MaxPool1D())
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate']))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_1_rate'], seed=self.seed))
         self.model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(self.params['lstm_units'], return_sequences=False, 
                                                                          kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                                                         kernel_initializer=weight_init,
+                                                                         recurrent_initializer=recurrent_init,
                                                                          recurrent_regularizer=tf.keras.regularizers.l2(weight_decay))))
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate']))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_2_rate'], seed=self.seed))
         self.model.add(tf.keras.layers.Dense(10, activation='relu',
                                             kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            kernel_initializer=weight_init,
                                             activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
-        self.model.add(tf.keras.layers.Dropout(self.params['dropout_3_rate']))
+        self.model.add(tf.keras.layers.Dropout(self.params['dropout_3_rate'], seed=self.seed))
         self.model.add(tf.keras.layers.Dense(1, activation='sigmoid',
                                             kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                                            kernel_initializer=weight_init,
                                             activity_regularizer=tf.keras.regularizers.l2(weight_decay)))
 
         # Check if the user wants a pre-trained model. If yes load the weights
@@ -119,7 +128,7 @@ class ModelConvBidirect():
         print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, batch_size=self.batch_size, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)        
         return history
     
@@ -171,7 +180,7 @@ class ModelConvBidirect():
         callbacks_list = [            
             keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=30,
+                patience=10,
                 restore_best_weights=True
             ),
             keras.callbacks.ModelCheckpoint(

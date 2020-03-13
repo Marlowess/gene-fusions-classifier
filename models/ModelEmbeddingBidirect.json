@@ -6,8 +6,7 @@
     "l2_regularizer": 0.01,
     "last_dense_l2_regularizer": 2e-06,
     "lstm_input_dropout": 0.2,
-    "lstm_1_dropout_rate": 0.6,
-    "lstm_2_dropout_rate": 0.6,
-    "attention_dropout": 0.5,
+    "lstm_1_dropout_rate": 0.2,
+    "lstm_2_dropout_rate": 0.1,
     "maxlen": 3219
 }

@@ -52,6 +52,7 @@ class ModelEmbeddingBidirect():
 
         # Architecture --- emoji network
         weight_init = tf.keras.initializers.glorot_uniform(seed=self.seed)
+        recurrent_init = tf.keras.initializers.orthogonal(seed=self.seed)
 
         # Variable-length int sequences.
         query_input = tf.keras.layers.Input(shape=(self.params['maxlen'],))
@@ -76,7 +77,7 @@ class ModelEmbeddingBidirect():
         lstm_1 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,
                                                                     dropout=self.params['lstm_input_dropout'],
                                                                     kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
+                                                                    recurrent_initializer=recurrent_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], self.params['l2_regularizer'])
                                                                      ))(value_embeddings)
 
@@ -86,7 +87,7 @@ class ModelEmbeddingBidirect():
         # Second LSTM layer
         lstm_2 = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM((int)(self.params['embedding_size']/2), return_sequences=True,                                                                    
                                                                     kernel_initializer=weight_init,
-                                                                    recurrent_initializer=weight_init,
+                                                                    recurrent_initializer=recurrent_init,
                                                                     kernel_regularizer=tf.keras.regularizers.l1_l2(self.params['l1_regularizer'], 
                                                                         self.params['l2_regularizer'])
                                                                     ))(dropout_lstm_1)
@@ -155,7 +156,7 @@ class ModelEmbeddingBidirect():
         print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
-        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True,
+        history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, batch_size=self.batch_size, shuffle=True,
                     callbacks=callbacks_list, validation_data=validation_data)        
         return history
     

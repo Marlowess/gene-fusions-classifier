@@ -32,6 +32,8 @@ import pprint
 import random
 import sys
 
+from matplotlib.ticker import FuncFormatter
+
 dark_ppt = False # False
 
 # =============================================================================================== #
@@ -234,3 +236,31 @@ def _plot_confusion_matrix(y_true, y_pred, classes, fig_dir: str, title: str, fi
         full_fig_name = os.path.join(fig_dir, f"{fig_name}.{fig_format}")
         plt.savefig(full_fig_name)
     return ax, cm
+
+def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True):
+
+    C_dfs = predict[predict['Label'] == 1]
+    N_dfs = predict[predict['Label'] == 0]
+
+    bins = np.linspace(0, 1, num=11)
+
+    fig, ax = plt.subplots()
+    ax.set_xticks(bins)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: "%.1f" % x))
+
+    plt.hist([N_dfs['Prob'], C_dfs['Prob']], bins, histtype='bar', stacked=True,
+         fill=True, label=['NotOnco','Onco'], edgecolor='black', linewidth=1.3, width=0.05, rwidth=0.5, align='mid')
+
+
+    plt.legend(prop={'size': 9})
+    plt.xlabel('Prediction scores')
+    plt.ylabel('Number of samples')
+    plt.title(f'{title}')
+
+    full_name: str = os.path.join(fig_dir, fig_name)
+    plt.savefig(f'{full_name}.{fig_format}')
+
+    if showfig_flag is True:
+        plt.show()
+
+    pass
