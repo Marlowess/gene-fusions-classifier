@@ -310,7 +310,6 @@ def _test(
     
     # plot roc curve and auc
     y_pred = model.predict(x_test)
-    data = list(zip(y_test, y_pred))
     
     if roc_curve :
         auc_value: float = plot_roc_curve(
@@ -351,15 +350,11 @@ def _test(
         ,logger
     )
 
-    predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
-
     test_dir: str = meta_info_project_dict['test_result_path']
-    predict.to_csv(f"{test_dir}/predicted.csv")
-    
-    _calculate_confidence(y_test, y_pred, predict, test_dir, logger)
+    _calculate_confidence(y_test, y_pred, test_dir, logger)
     pass
 
-def _calculate_confidence(y_test, y_pred, predict, test_dir, logger):
+def _calculate_confidence(y_test, y_pred, test_dir, logger):
     _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
     conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
     conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
@@ -371,10 +366,11 @@ def _calculate_confidence(y_test, y_pred, predict, test_dir, logger):
     _log_info_message("recall {:.5f}".format(recall_score(conf_y_test, threshold_y_pred)), logger)
     _log_info_message("f1-score {:.5f}".format(f1_score(conf_y_test, threshold_y_pred)), logger)    
     
-    plot_confidence_graph(predict,
+    plot_confidence_graph(
+        pd.DataFrame(data=list(zip(y_test, y_pred)), columns=['Label', 'Prob']),
         fig_dir=test_dir,
-        fig_name="confidence_image",
-        title="Probability Confindence",
+        fig_name="scores_by_threshold",
+        title="",
         savefig_flag=True,
         showfig_flag=False
         )
