@@ -311,32 +311,7 @@ def _test(
     # plot roc curve and auc
     y_pred = model.predict(x_test)
     data = list(zip(y_test, y_pred))
-    predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
-
-    test_dir: str = meta_info_project_dict['test_result_path']
-    predict.to_csv(f"{test_dir}/predicted.csv")
-
-    _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
-    conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
-    conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
-
-    threshold_y_pred = np.rint(conf_y_prediction)
-    _log_info_message("samples classified: {:.5f}".format(len(conf_y_prediction)/len(y_test)), logger)
-    _log_info_message("accuracy {:.5f}".format(accuracy_score(conf_y_test, threshold_y_pred)), logger)
-    _log_info_message("precision {:.5f}".format(precision_score(conf_y_test, threshold_y_pred)), logger)
-    _log_info_message("recall {:.5f}".format(recall_score(conf_y_test, threshold_y_pred)), logger)
-    _log_info_message("f1-score {:.5f}".format(f1_score(conf_y_test, threshold_y_pred)), logger)    
     
-    plot_confidence_graph(predict,
-        fig_dir=test_dir,
-        fig_name="confidence_image",
-        title="Probability Confindence",
-        savefig_flag=True,
-        showfig_flag=False
-        )
-
-    
-
     if roc_curve :
         auc_value: float = plot_roc_curve(
             y_test,
@@ -375,3 +350,32 @@ def _test(
         ','.join([f"{k} {v}" for k,v in conf_matrix_elem_pairs.items()])
         ,logger
     )
+
+    predict = pd.DataFrame(data=data, columns=['Label', 'Prob'])
+
+    test_dir: str = meta_info_project_dict['test_result_path']
+    predict.to_csv(f"{test_dir}/predicted.csv")
+    
+    _calculate_confidence(y_test, y_pred, predict, test_dir, logger)
+    pass
+
+def _calculate_confidence(y_test, y_pred, predict, test_dir, logger):
+    _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
+    conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
+    conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
+
+    threshold_y_pred = np.rint(conf_y_prediction)
+    _log_info_message("samples classified: {:.5f}".format(len(conf_y_prediction)/len(y_test)), logger)
+    _log_info_message("accuracy {:.5f}".format(accuracy_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("precision {:.5f}".format(precision_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("recall {:.5f}".format(recall_score(conf_y_test, threshold_y_pred)), logger)
+    _log_info_message("f1-score {:.5f}".format(f1_score(conf_y_test, threshold_y_pred)), logger)    
+    
+    plot_confidence_graph(predict,
+        fig_dir=test_dir,
+        fig_name="confidence_image",
+        title="Probability Confindence",
+        savefig_flag=True,
+        showfig_flag=False
+        )
+    pass
