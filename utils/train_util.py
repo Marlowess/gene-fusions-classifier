@@ -316,9 +316,9 @@ def _test(
         fig_dir=test_dir,
         fig_name="confidence_image",
         title="Probability Confindence",
-        savefig_flag=True
+        savefig_flag=True,
+        showfig_flag=False
         )
-    sys.exit(0)
 
     if roc_curve :
         auc_value: float = plot_roc_curve(

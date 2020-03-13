@@ -237,7 +237,7 @@ def _plot_confusion_matrix(y_true, y_pred, classes, fig_dir: str, title: str, fi
         plt.savefig(full_fig_name)
     return ax, cm
 
-def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False):
+def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True):
 
     C_dfs = predict[predict['Label'] == 1]
     N_dfs = predict[predict['Label'] == 0]
@@ -260,6 +260,8 @@ def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = Non
 
     full_name: str = os.path.join(fig_dir, fig_name)
     plt.savefig(f'{full_name}.{fig_format}')
-    plt.show()
+
+    if showfig_flag is True:
+        plt.show()
 
     pass
