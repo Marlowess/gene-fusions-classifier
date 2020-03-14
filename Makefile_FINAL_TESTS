@@ -145,12 +145,11 @@ arch_4_B_test:
 arch_k_mers_holdout:
 	python3 main.py \
     --validation \
-    --sequence_type protein \
+    --sequence_type kmers \
     --batch_size 16 \
     --num_epochs 2 \
     --lr 1e-3 \
     --network_parameters models/ModelKMers.json \
-    --k_mers \
     --load_network ModelKMers \
 
 arch_k_mers_test:
@@ -159,7 +158,6 @@ arch_k_mers_test:
 	--path_source_data ./data/bins_translated \
 	--load_network ModelKMers \
     --network_parameters models/ModelKMers.json \
-    --sequence_type protein \
-    --k_mers \
+    --sequence_type kmers \
     --pretrained_model pretrained_models/ModelKMers/my_model_weights.h5 \
 

@@ -35,13 +35,12 @@ class ModelKMers():
             self.params = params
 
         self.batch_size: int = self.params['batch_size']
-        self.seeds = [42, 101, 142, 23, 53]
+        self.seeds = [42, 101, 142, 23, 53, 77]
         self.learning_rate: float = self.params['lr']
         
         weight_init = tf.keras.initializers.glorot_uniform
         recurrent_init = tf.keras.initializers.orthogonal
 
-        self.results_base_dir: str = self.params['results_base_dir']
         self.vocab_size = self.params['vocabulary_len']
 
     
