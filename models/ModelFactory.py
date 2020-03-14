@@ -5,6 +5,7 @@ from models.ModelConvBidirect import ModelConvBidirect
 from models.ModelBidirectDNA import ModelBidirectDNA
 from models.ModelConvUnidirect import ModelConvUnidirect
 from models.ModelUnidirect import ModelUnidirect
+from models.ModelKMers import ModelKMers
 
 import os
 import pickle
@@ -31,6 +32,9 @@ class ModelFactory():
 
       if model_name == 'ModelUnidirect':
          return ModelFactory.getModelUnidirect(params)
+      
+      if model_name == 'ModelKMers':
+         return ModelFactory.getModelKMers(params)
       
       raise ValueError(f'ERROR: {model_name} is not allowed!')
 
@@ -70,3 +74,7 @@ class ModelFactory():
    @staticmethod
    def getModelOneHotUnidirect(params: dict):
        return None # ModelOneHotUnidirect(params)
+   
+   @staticmethod
+   def getModelKMers(params: dict):
+       return ModelKMers(params) # ModelOneHotUnidirect(params)

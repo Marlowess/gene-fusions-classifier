@@ -73,8 +73,8 @@ def _pipeline_load_data(conf_load_dict, main_logger) -> object:
 
     _log_info_message(f"----> Dataset Load.", main_logger)
 
-    k_mer_flag = conf_load_dict['k_mers']
-    data = load_dataset(conf_load_dict, main_logger=main_logger, k_mer_flag)
+    k_mer_flag = conf_load_dict['k_mers_flag']
+    data = load_dataset(conf_load_dict, main_logger=main_logger, k_mer_flag=k_mer_flag)
 
     _log_info_message(f" [*] Dataset Load: Done.", main_logger, skip_message=True)
 

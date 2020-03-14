@@ -14,17 +14,15 @@ from tensorflow.keras.layers import Embedding
 
 class ModelKMers():
 
-    def __init__(self,):
+    def __init__(self, params: dict):
         self.model = None
+        self.params: dict = params
 
-        self.learning_rate: float = None
-        self.batch_size: int = None
+        self.learning_rate: float = self.params['lr']
+        self.batch_size: int = self.params['batch_size']
 
-        self.results_base_dir: str = None
-        self.params: dict = None
-
-        
-        self.vocab_size = self.params['']
+        self.results_base_dir: str = self.params['results_base_dir']
+        self.vocab_size = self.params['vocabulary_len']
 
         model = keras.Sequential()
 
