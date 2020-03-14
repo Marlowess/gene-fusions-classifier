@@ -12,7 +12,7 @@ def _get_custom_parser(output_dir: str) -> object:
 
     parser.add_argument('--output_dir', default=output_dir, help='Directory path for storing all results gained from running this analysis tool.')
     parser.add_argument('--path_source_data', default='./data/bins_translated', help='Path that specifies the location of source datasets.', type=str)
-    parser.add_argument('--sequence_type', default='protein', choices=['dna', 'protein', 'kmers'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
+    parser.add_argument('--sequence_type', default='protein', choices=['dna', 'protein', 'kmers'], help='Type of sequence to process in the model: "dna","protein" or "kmers"', type=str)
 
     parser.add_argument('--train', default=False, help='Train model on whole training data and save it', action='store_true')
     parser.add_argument('--validation', default=False, help='Perform Holdout-Validation for hyperparameter selection', action='store_true')
