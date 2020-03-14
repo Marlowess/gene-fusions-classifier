@@ -10,11 +10,11 @@
     },
     "dense1":{
         "kernel_l2":0.01,
-        "dropout":0.3,
+        "dropout":0.5,
         "units":32
     },
     "dense2":{
         "kernel_l2":0.01,
-        "dropout":0.3   
+        "dropout":0.5   
     }
 }
