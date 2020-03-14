@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 import os
+import sys
 import pickle
 import numpy as np
 from tensorflow.keras.layers import Masking
@@ -15,79 +16,70 @@ from tensorflow.keras.layers import Embedding
 class ModelKMers():
 
     def __init__(self, params: dict):
-        self.model = None
-        self.params: dict = params
 
-        self.learning_rate: float = self.params['lr']
+        self.results_base_dir = params['result_base_dir']
+
+        # if pretrained model is defined i overwrite params with the ones of loaded model
+        self.pretrained_model = params.get('pretrained_model', None)
+        if self.pretrained_model is not None:
+            # pretrained model load params from pickle
+            print("loading model")
+            train_dir = "/"
+            train_dir = train_dir.join(params['pretrained_model'].split("/")[:-1])                                              
+            print(train_dir)
+            with open(os.path.join(train_dir, "network_params"), 'rb') as params_pickle:
+                self.params = pickle.load(params_pickle)
+            self.params['result_base_dir'] = self.results_base_dir
+        else:
+            ## new model
+            self.params = params
+
         self.batch_size: int = self.params['batch_size']
+        self.seeds = [42, 101, 142, 23, 53]
+        self.learning_rate: float = self.params['lr']
+        
+        weight_init = tf.keras.initializers.glorot_uniform
+        recurrent_init = tf.keras.initializers.orthogonal
 
         self.results_base_dir: str = self.params['results_base_dir']
         self.vocab_size = self.params['vocabulary_len']
 
-        model = keras.Sequential()
+    
+         
+        self.model = keras.Sequential()
 
-        history_filename = "le1-3history.txt"
-
-        model.add(tf.keras.Input(shape=(15000,)))
-        # model.add(Masking(mask_value=0, name="masking_layer"))
-        model.add(Embedding(input_dim=self.vocab_size, output_dim=16, mask_zero=True))
-        # model.add(Embedding(1000, 64, input_length=10))
-
-        # self.model.add(keras.layers.LSTM(units=self.params['lstm1']['units'], return_sequences = True,
-                                #  dropout=self.params['lstm1']['dropout'],
-                                #  kernel_regularizer=keras.regularizers.l1l2(l1=0.0001, l2=0.001)
-                                #  recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm1']['recurrent_l2']),
-                                #  activity_regularizer=keras.regularizers.l2(l=self.params['lstm1']['activation_l2'])
-                                #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=1) 
-                                #  ))
-        model.add(tf.keras.layers.Bidirectional(keras.layers.LSTM(units=16, return_sequences = False,
-                                  dropout=0.3,
-                                #  kernel_regularizer=keras.regularizers.l2(l=self.params['lstm2']['kernel_l2']),
-                                  kernel_regularizer=keras.regularizers.l2(0.01),
-                                  recurrent_regularizer=keras.regularizers.l2(0.01)
-                                  # recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2'])
+        self.model.add(tf.keras.Input(shape=(self.params['maxlen'])))
+        self.model.add(Embedding(input_dim=self.vocab_size, output_dim=16, mask_zero=True))
+        self.model.add(tf.keras.layers.Bidirectional(
+            tf.keras.layers.LSTM(units=self.params['lstm1']['units'], return_sequences = False,
+                                  dropout=self.params['lstm1']['dropout'],
+                                  kernel_regularizer=tf.keras.regularizers.l2(l=self.params['lstm1']['kernel_l2']),
+                                  recurrent_regularizer=tf.keras.regularizers.l2(l=self.params['lstm1']['recurrent_l2']),
+                                  recurrent_initializer=recurrent_init(seed=self.seeds[0]),
+                                  kernel_initializer=weight_init(seed=self.seeds[1])
                                   )))
-        # self.model.add(keras.layers.Flatten())
-        model.add(keras.layers.Dropout(rate=0.3))
-        model.add(keras.layers.Dense(units=32, activation='relu',
-                                  kernel_regularizer=keras.regularizers.l2(0.01)))
-                                #   kernel_regularizer=keras.regularizers.l2(self.params['dense1']['kernel_l2'])))
-        model.add(keras.layers.Dropout(0.3))
-        model.add(keras.layers.Dense(units=1, activation='sigmoid',
-                                  kernel_regularizer=keras.regularizers.l2(0.01)))
-                                #   kernel_initializer=tf.keras.initializers.glorot_uniform(seed=17)
-                                # ))
-
-        callbacks_list = [
-                 keras.callbacks.EarlyStopping(
-                     monitor='val_loss',
-                     patience=10,
-                     restore_best_weights=True
-                 ),
-                 keras.callbacks.ModelCheckpoint(
-                     filepath='my_model.h5',
-                     monitor='val_loss',
-                     save_best_only=True,
-                     verbose=1
-                 ),
-                  keras.callbacks.CSVLogger(history_filename),
-                  keras.callbacks.ReduceLROnPlateau(
-                      patience=5,
-                      monitor='val_loss',
-                      factor=0.75,
-                      verbose=1,
-                      min_lr=5e-6)
-        ]
-
-        self.model = model
-
+        self.model.add(keras.layers.Dropout(rate=self.params['dense1']['dropout'], seed=self.seeds[2]))
+        self.model.add(keras.layers.Dense(units=self.params['dense1']['units'], activation='relu',
+                                          kernel_initializer=weight_init(seed=self.seeds[3]),
+                                          kernel_regularizer=tf.keras.regularizers.l2(self.params['dense1']['kernel_l2'])
+                                          ))
+        self.model.add(tf.keras.layers.Dropout(self.params['dense2']['dropout'], seed=self.seeds[4]))
+        self.model.add(keras.layers.Dense(units=1, activation='sigmoid',
+                                          kernel_initializer=weight_init(seed=self.seeds[5]),
+                                          kernel_regularizer=tf.keras.regularizers.l2(self.params['dense2']['kernel_l2'])
+                                ))
+        
+        # Check if the user wants a pre-trained model. If yes load the weights
+        if self.pretrained_model is not None:
+            self.model.load_weights(self.pretrained_model)
         pass
 
     def build(self, logger=None):
         """
         It compiles the model by defining optimizer, loss and learning rate
         """
-        optimizer = tf.keras.optimizers.RMSprop(lr=self.learning_rate, clipnorm=1.0)
+        # optimizer = tf.keras.optimizers.RMSprop(lr=self.learning_rate, clipnorm=1.0)
+        optimizer = tf.keras.optimizers.Adam(lr=self.learning_rate, clipnorm=1.0)
         self.model.compile(loss='binary_crossentropy',
                             optimizer=optimizer,
                             metrics=['accuracy', f1_m, precision_m, recall_m])
@@ -115,16 +107,6 @@ class ModelKMers():
         - history: it contains the results of the training
         """
         callbacks_list = self._get_callbacks()
-        # print(X_tr.shape)
-        # X_tr = np.reshape(X_tr, (X_tr.shape[0], X_tr.shape[1], -1))
-
-        # X_val = validation_data[0]
-        # y_val = validation_data[1]
-
-        # X_val = np.reshape(X_val, (X_val.shape[0], X_val.shape[1], -1))
-
-        # validation_data = (X_val, y_val)
-        
         history = self.model.fit(x=X_tr, y=y_tr, epochs=epochs, shuffle=True, batch_size=self.batch_size,
                     callbacks=callbacks_list, validation_data=validation_data)
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs

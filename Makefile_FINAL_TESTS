@@ -1,5 +1,7 @@
+# ---------------------------------------- #
+# Arch 1 NN Model - Holdout & Test Targets #
+# ---------------------------------------- #
 
-# --------------------------- #
 arch_1_holdout:
 	python3 main.py \
     --validation \
@@ -25,7 +27,11 @@ arch_1_test:
 
 # --pretrained_model pretrained_models/ModelUnidirect/model_checkpoint_weights.h5 \
 
-# --------------------------- #
+
+# ---------------------------------------- #
+# Arch 2 NN Model - Holdout & Test Targets #
+# ---------------------------------------- #
+
 arch_2_holdout:
 	python3 main.py \
     --validation \
@@ -50,7 +56,10 @@ arch_2_test:
 
 # --pretrained_model pretrained_models/ModelBidirectDNA/model_checkpoint_weights.h5 \
 
-# --------------------------- #
+# ---------------------------------------- #
+# Arch 3 NN Model - Holdout & Test Targets #
+# ---------------------------------------- #
+
 arch_3_holdout:
 	python3 main.py \
     --validation \
@@ -75,7 +84,10 @@ arch_3_test:
 
 # --pretrained_model pretrained_models/ModelOneHotProtein/model_checkpoint_weights.h5 \
 
-# --------------------------- #
+# --------------------------------- #
+# Arch 4 (A & B) NN Model - Holdout #
+# --------------------------------- #
+
 arch_4_A_holdout:
 	python3 main.py \
     --validation \
@@ -98,7 +110,9 @@ arch_4_B_holdout:
     --network_parameters models/ModelConvBidirect.json \
     --load_network ModelConvBidirect \
 
-# --------------------------- #
+# ------------------------------- #
+# Arch 4 (A & B) NN Model - Tests #
+# ------------------------------- #
 
 arch_4_A_test:
 	python3 main.py \
@@ -122,3 +136,28 @@ arch_4_B_test:
     --pretrained_model pretrained_models/ModelConvBidirect/my_model_weights.h5 \
 
 # --pretrained_model pretrained_models/ModelConvBidirect/model_checkpoint_weights.h5 \
+
+
+# -------------------------------------------- #
+# K-Mers based NN Model holdout & Test Targets #
+# -------------------------------------------- #
+
+arch_k_mers_holdout:
+	python3 main.py \
+    --validation \
+    --sequence_type protein \
+    --batch_size 16 \
+    --num_epochs 2 \
+    --lr 1e-3 \
+    --network_parameters models/ModelKMers.json \
+    --load_network ModelKMers \
+
+arch_k_mers_test:
+	python3 main.py \
+	--test \
+	--path_source_data ./data/bins_translated \
+	--load_network ModelKMers \
+    --network_parameters models/ModelKMers.json \
+    --sequence_type protein \
+    --pretrained_model pretrained_models/ModelKMers/my_model_weights.h5 \
+
