@@ -8,17 +8,80 @@ from models.metrics import f1_m, precision_m, recall_m
 from utils.early_stopping_by_loss_val import EarlyStoppingByLossVal
 import json
 
+from tensorflow.keras.initializers import glorot_uniform
+from tensorflow.keras.layers import Masking
+from tensorflow.keras.layers import Embedding
+
 class ModelKMers():
 
     def __init__(self,):
         self.model = None
-        
+
         self.learning_rate: float = None
         self.batch_size: int = None
 
         self.results_base_dir: str = None
         self.params: dict = None
 
+        
+        self.vocab_size = self.params['']
+
+        model = keras.Sequential()
+
+        history_filename = "le1-3history.txt"
+
+        model.add(tf.keras.Input(shape=(15000,)))
+        # model.add(Masking(mask_value=0, name="masking_layer"))
+        model.add(Embedding(input_dim=self.vocab_size, output_dim=16, mask_zero=True))
+        # model.add(Embedding(1000, 64, input_length=10))
+
+        # self.model.add(keras.layers.LSTM(units=self.params['lstm1']['units'], return_sequences = True,
+                                #  dropout=self.params['lstm1']['dropout'],
+                                #  kernel_regularizer=keras.regularizers.l1l2(l1=0.0001, l2=0.001)
+                                #  recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm1']['recurrent_l2']),
+                                #  activity_regularizer=keras.regularizers.l2(l=self.params['lstm1']['activation_l2'])
+                                #  kernel_initializer=tf.keras.initializers.glorot_uniform(seed=1) 
+                                #  ))
+        model.add(tf.keras.layers.Bidirectional(keras.layers.LSTM(units=16, return_sequences = False,
+                                  dropout=0.3,
+                                #  kernel_regularizer=keras.regularizers.l2(l=self.params['lstm2']['kernel_l2']),
+                                  kernel_regularizer=keras.regularizers.l2(0.01),
+                                  recurrent_regularizer=keras.regularizers.l2(0.01)
+                                  # recurrent_regularizer=keras.regularizers.l2(l=self.params['lstm2']['recurrent_l2'])
+                                  )))
+        # self.model.add(keras.layers.Flatten())
+        model.add(keras.layers.Dropout(rate=0.3))
+        model.add(keras.layers.Dense(units=32, activation='relu',
+                                  kernel_regularizer=keras.regularizers.l2(0.01)))
+                                #   kernel_regularizer=keras.regularizers.l2(self.params['dense1']['kernel_l2'])))
+        model.add(keras.layers.Dropout(0.3))
+        model.add(keras.layers.Dense(units=1, activation='sigmoid',
+                                  kernel_regularizer=keras.regularizers.l2(0.01)))
+                                #   kernel_initializer=tf.keras.initializers.glorot_uniform(seed=17)
+                                # ))
+
+        callbacks_list = [
+                 keras.callbacks.EarlyStopping(
+                     monitor='val_loss',
+                     patience=10,
+                     restore_best_weights=True
+                 ),
+                 keras.callbacks.ModelCheckpoint(
+                     filepath='my_model.h5',
+                     monitor='val_loss',
+                     save_best_only=True,
+                     verbose=1
+                 ),
+                  keras.callbacks.CSVLogger(history_filename),
+                  keras.callbacks.ReduceLROnPlateau(
+                      patience=5,
+                      monitor='val_loss',
+                      factor=0.75,
+                      verbose=1,
+                      min_lr=5e-6)
+        ]
+
+        self.model = model
 
         pass
 

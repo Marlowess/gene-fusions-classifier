@@ -73,7 +73,11 @@ def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None, k_mer
             logger=main_logger)
     else:
         x_train, y_train, x_val, y_val, x_test, y_test = \
-            _load_training_data(train_bins_list, val_bins_list, test_bins_list, sequence_type)
+            _load_training_data(train_bins_list,
+                val_bins_list,
+                test_bins_list,
+                sequence_type,
+                path)
 
     return {
         'x_train': x_train,
@@ -167,8 +171,9 @@ def _load_bins(bins, sequence_type, path):
     :return: concatenated data read from file
 
     """
+
     bin_dfs = [pd.read_csv(path + 'bin_' + str(i) +
-        '_translated k3.csv') for i in bins]
+        '_translated.csv') for i in bins]
     
     if (sequence_type == 'dna'):
         Xs = [bin_dfs[i]['k_mer_sequences'] for i in range(len(bin_dfs))]
