@@ -12,7 +12,7 @@ def _get_custom_parser(output_dir: str) -> object:
 
     parser.add_argument('--output_dir', default=output_dir, help='Directory path for storing all results gained from running this analysis tool.')
     parser.add_argument('--path_source_data', default='./data/bins_translated', help='Path that specifies the location of source datasets.', type=str)
-    parser.add_argument('--sequence_type', default='protein', choices=['dna', 'protein'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
+    parser.add_argument('--sequence_type', default='protein', choices=['dna', 'protein', 'kmers'], help='Type of sequence to process in the model: "dna" or "protein"', type=str)
 
     parser.add_argument('--train', default=False, help='Train model on whole training data and save it', action='store_true')
     parser.add_argument('--validation', default=False, help='Perform Holdout-Validation for hyperparameter selection', action='store_true')
@@ -29,7 +29,7 @@ def _get_custom_parser(output_dir: str) -> object:
     parser.add_argument('--early_stopping_on_loss', default=False, help='If true, it perform early stopping during train based on train loss of holdout phase ', action='store_true')    
     parser.add_argument('--early_stopping_epoch', default=None, help='Number of epochs after holdout train stops for early stopping', type=int)
     parser.add_argument('--pretrained_model', help='Path where to find the weights of a pre-trained model', type=str, default=None)
-    parser.add_argument('--k_mers', help='K-mer data representation enabling', default=False, action='store_true')
+    # parser.add_argument('--k_mers', help='K-mer data representation enabling', default=False, action='store_true')
  
     params = parser.parse_args()
 

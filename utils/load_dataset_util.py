@@ -25,7 +25,7 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
         logger.info(message)
     pass
 
-def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None, k_mer_flag: bool = False) -> dict:
+def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None) -> dict:
     """Function `load_dataset` takes as input parameters a single argument which is just a Python dictionary,
     that is involved into describig how to load or fetch the requested data samples, for performing some kind of
     analysis, later.
@@ -47,38 +47,30 @@ def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None, k_mer
     val_bins_list: list = conf_load_dict['val_bins']
     test_bins_list: list = conf_load_dict['test_bins']
 
-    if k_mer_flag is False:
-        x_train, y_train = _prepared_data(
-            path=path,
-            sequence_type=sequence_type,
-            bins_list=train_bins_list,
-            names=columns_names,
-            message='Loading Training Bins...',
-            logger=main_logger)
-    
-        x_val, y_val = _prepared_data(
-            path=path,
-            sequence_type=sequence_type,
-            bins_list=val_bins_list,
-            names=columns_names,
-            message='Loading Validation Bins...',
-            logger=main_logger)
-    
-        x_test, y_test = _prepared_data(
-            path=path,
-            sequence_type=sequence_type,
-            bins_list=test_bins_list,
-            names=columns_names,
-            message='Loading Test Bins...',
-            logger=main_logger)
-    else:
-        x_train, y_train, x_val, y_val, x_test, y_test = \
-            _load_training_data(train_bins_list,
-                val_bins_list,
-                test_bins_list,
-                sequence_type,
-                path)
+    x_train, y_train = _prepared_data(
+        path=path,
+        sequence_type=sequence_type,
+        bins_list=train_bins_list,
+        names=columns_names,
+        message='Loading Training Bins...',
+        logger=main_logger)
 
+    x_val, y_val = _prepared_data(
+        path=path,
+        sequence_type=sequence_type,
+        bins_list=val_bins_list,
+        names=columns_names,
+        message='Loading Validation Bins...',
+        logger=main_logger)
+    
+    x_test, y_test = _prepared_data(
+        path=path,
+        sequence_type=sequence_type,
+        bins_list=test_bins_list,
+        names=columns_names,
+        message='Loading Test Bins...',
+        logger=main_logger)
+    
     return {
         'x_train': x_train,
         'y_train': y_train,
@@ -108,7 +100,12 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
 
     _log_info_message(f" [*] {message}", logger)
     df = _get_full_dataframe(path, bins_list, names, logger)
-    sequence_column = 'Sequences' if sequence_type == 'dna' else 'Translated_sequences'
+    switcher = {
+        'dna':'Sequences',
+        'protein':'Translated_sequences',
+        'kmers':'k_mer_sequences'
+    }
+    sequence_column = switcher[sequence_type]
     
     sequences = df[sequence_column].values
     labels = df['Label'].values
@@ -145,46 +142,3 @@ def _get_full_dataframe(path: str, bins_list: list, names: list, logger: logging
         _log_info_message(f" > Added bin: {bin_path}, Done.", logger, skip_message=True)
     result_df = pd.concat(df_list)
     return result_df
-
-def _load_training_data(train_bins_list: list, val_bins_list: list, test_bins_list: list, sequence_type: str, path: str):
-    """
-    Load all the training-data or validation-data for the amino-acid data-set.
-    Returns the sequence and oncogenic, non-oncogenic class-labels.
-
-    Inputs:
-        - train: (optional) List of bins to use as validation set
-        - validation: (optional) List of bins to use as validation set
-    """
-    X_train, y_train, X_val, y_val, X_test, y_test = None, None, None, None, None, None
-    if (len(train_bins_list) >= 1):
-        X_train, y_train = _load_bins(train_bins_list, sequence_type,path)
-    if (len(val_bins_list) >= 1):
-        X_val, y_val = _load_bins(val_bins_list, sequence_type, path) 
-    if (len(test_bins_list) >= 1):
-        X_test, y_test = _load_bins(test_bins_list, sequence_type, path)
-    return X_train, y_train, X_val, y_val, X_test, y_test
-
-def _load_bins(bins, sequence_type, path):
-    """
-    Load bins from file and concatenate them
-    :param bins: bin numbers to read from file
-    :return: concatenated data read from file
-
-    """
-
-    bin_dfs = [pd.read_csv(path + 'bin_' + str(i) +
-        '_translated.csv') for i in bins]
-    
-    if (sequence_type == 'dna'):
-        Xs = [bin_dfs[i]['k_mer_sequences'] for i in range(len(bin_dfs))]
-    elif (sequence_type == 'protein'):
-        Xs = [bin_dfs[i]['Translated_sequences'] for i in range(len(bin_dfs))]
-    else:
-        raise ValueError("sequence_type must be 'protein' or 'dna'")
-    ys = [bin_dfs[i]['Label'] for i in range(len(bin_dfs))]
-    Xs = pd.concat(Xs, axis=0)
-    ys = pd.concat(ys, axis=0)
-    X = Xs.values
-    y = ys.values
-        
-    return X, y

@@ -48,14 +48,13 @@ def _tokenize(data_samples, conf_tok_dict: dict, data_tokenizer = None) -> objec
     padding: str = conf_tok_dict['padding']
     maxlen: int = conf_tok_dict['maxlen']
     onehot_flag: bool = conf_tok_dict['onehot_flag']
-    k_mers_flag: bool = conf_tok_dict['k_mers']
-
+    sequence_type: str = conf_tok_dict['sequence_type']
     if data_tokenizer is None:
-      if k_mers_flag is False:
-        data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True, char_level=True)
-      else:
-        data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True, char_level=False, split=' ')
-      data_tokenizer.fit_on_texts(data_samples)
+        if sequence_type == 'kmers':
+            data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True, char_level=False, split=' ')
+        else:
+            data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True, char_level=True)
+        data_tokenizer.fit_on_texts(data_samples)
     
     tensor = data_tokenizer.texts_to_sequences(data_samples)
     

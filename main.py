@@ -112,7 +112,6 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'train_bins': [1,2,3],
         'val_bins': [4],
         'test_bins': [5],
-        'k_mers_flag': cmd_line_params.k_mers
     }
     
     network_params['batch_size'] = cmd_line_params.batch_size
@@ -126,7 +125,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'padding': 'post',
         'maxlen': network_params['maxlen'],
         'onehot_flag': cmd_line_params.onehot_flag,
-        'k_mers_flag': cmd_line_params.k_mers
+        'sequence_type': cmd_line_params.sequence_type
     }
 
     # This function starts the training phases (holdout, validation or both)
