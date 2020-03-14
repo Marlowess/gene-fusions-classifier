@@ -150,6 +150,7 @@ arch_k_mers_holdout:
     --num_epochs 2 \
     --lr 1e-3 \
     --network_parameters models/ModelKMers.json \
+    --k_mers \
     --load_network ModelKMers \
 
 arch_k_mers_test:
@@ -159,5 +160,6 @@ arch_k_mers_test:
 	--load_network ModelKMers \
     --network_parameters models/ModelKMers.json \
     --sequence_type protein \
+    --k_mers \
     --pretrained_model pretrained_models/ModelKMers/my_model_weights.h5 \
 
