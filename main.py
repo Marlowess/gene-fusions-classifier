@@ -107,7 +107,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'sequence_type': cmd_line_params.sequence_type,
         'path': cmd_line_params.path_source_data,
         'columns_names': [
-            'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length'
+            'Sequences','Count','Unnamed: 0','Label','Translated_sequences','Protein_length', 'k_mer_sequences'
         ],
         'train_bins': [1,2,3],
         'val_bins': [4],
@@ -125,6 +125,7 @@ def main(cmd_line_params: dict, curr_date_str: str):
         'padding': 'post',
         'maxlen': network_params['maxlen'],
         'onehot_flag': cmd_line_params.onehot_flag,
+        'sequence_type': cmd_line_params.sequence_type
     }
 
     # This function starts the training phases (holdout, validation or both)

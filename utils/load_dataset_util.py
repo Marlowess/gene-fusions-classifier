@@ -54,7 +54,7 @@ def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None) -> di
         names=columns_names,
         message='Loading Training Bins...',
         logger=main_logger)
-    
+
     x_val, y_val = _prepared_data(
         path=path,
         sequence_type=sequence_type,
@@ -70,7 +70,7 @@ def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None) -> di
         names=columns_names,
         message='Loading Test Bins...',
         logger=main_logger)
-
+    
     return {
         'x_train': x_train,
         'y_train': y_train,
@@ -100,7 +100,12 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
 
     _log_info_message(f" [*] {message}", logger)
     df = _get_full_dataframe(path, bins_list, names, logger)
-    sequence_column = 'Sequences' if sequence_type == 'dna' else 'Translated_sequences'
+    switcher = {
+        'dna':'Sequences',
+        'protein':'Translated_sequences',
+        'kmers':'k_mer_sequences'
+    }
+    sequence_column = switcher[sequence_type]
     
     sequences = df[sequence_column].values
     labels = df['Label'].values
