@@ -125,6 +125,22 @@ class ModelConvBidirect():
         return history, trained_epochs
 
     def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
+        """
+        Train model until current validation loss reaches holdout training loss specified by early_stopping_loss parameter. 
+        
+        Algorithm 7.3 (Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)
+        
+        Params:
+        -------
+            :X_tr: training samples
+            :y_tr: training labels
+            :epochs: number of epochs training is performed on
+            :early_stopping_loss: threshold loss - Once reached this loss the training is stopped
+            :callbacks_list: list of callbacks to use in the training phase
+            :validation_data: data to evaluate the model on at the end of each epoch
+            :shuffle: if True, it shuffles data before starting the training
+        
+        """
         print(f"early stopping loss: {early_stopping_loss}")
         callbacks_list = self._get_callbacks(train=True)
         callbacks_list.append(EarlyStoppingByLossVal(monitor='val_loss', value=early_stopping_loss))
@@ -155,6 +171,9 @@ class ModelConvBidirect():
         print('{}: {}'.format(name, value))
 
     def save_weights(self):
+        """
+        It saves the model's weights into a hd5 file
+        """
         with open(os.path.join(self.results_base_dir, "network_params"), 'wb') as params_pickle:
             pickle.dump(self.params, params_pickle)
 
@@ -163,12 +182,12 @@ class ModelConvBidirect():
         with open(os.path.join(self.results_base_dir, "model.json"), "w") as json_file:
             json_file.write(model_json)    
 
-    def fit_generator(self, generator, steps, validation_data=None, shuffle=True, callbacks_list=None):
-        history = self.model.fit_generator(generator, steps, shuffle=True, callbacks=self._get_callbacks(train=True),
-                                           validation_data=validation_data)
-        return history 
-
-    def fit_generator2(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
+    def fit_generator(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
+        """
+        Train the model for the same number of update step as in holdout validation phase
+        
+        Algorithm 7.2(Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)
+        """
         history = self.model.fit_generator(generator, steps_per_epoch, epochs, shuffle=False, callbacks=self._get_callbacks(train=True),
                                            validation_data=validation_data)
         return history    
@@ -200,7 +219,16 @@ class ModelConvBidirect():
         return callbacks_list
 
     def predict(self,  x_test, batch_size: int = 32, verbose: int = 0) -> np.array:
-        # return np.asarray([])
+        """
+        Wrapper method for Keras model's method 'precict'
+
+        Params:
+        -------
+            :x_test: test samples
+            :batch_size: default=32
+            :verbose: verbosity level
+        """
+        
         return self.model.predict(
             x_test,
             batch_size=batch_size,
@@ -208,7 +236,18 @@ class ModelConvBidirect():
             ).ravel()
 
     def predict_classes(self,  x_test, batch_size: int = 32, verbose: int = 1) -> np.array:
-        # return np.asarray([])
+        """
+        Wrapper method for Keras model's method 'precict_classes'
+
+        Params:
+        -------
+            :x_test: test samples
+            :batch_size: default=32
+            :verbose: verbosity level
+
+        Raise:
+            Exception
+        """
         try:
             return self.model.predict_classes(x_test)
         except Exception as err:

@@ -6,14 +6,11 @@ import sys
 import time
 
 
-def _init_logger(log_dir: str, filename: str = 'main.log', flag_test: bool = False) -> logging.Logger:
+def _init_logger(log_dir: str, filename: str = 'main.log') -> logging.Logger:
     """
     Initialize main logger
     :param log_dir: directory where to save log file
     """
-
-    if flag_test is True:
-        filename = f"test_{filename}"
 
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -33,7 +30,17 @@ def _init_logger(log_dir: str, filename: str = 'main.log', flag_test: bool = Fal
     logger.info('logger initialization done!')
     return logger
 
-def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, params: dict, filename: str = 'main.log', flag_test: bool = False) -> object:
+def setup_analysis_environment(logger_name: str, base_dir: str, params: dict, filename: str = 'main.log') -> object:
+    """
+    It prepares folder for saving log file and execution outcome depending on whether validation, train or test is performed.
+    
+    Params:
+    -------
+        :logger_name: logger name.
+        :base_dir: str, base output directory folder path.
+        :params: dictionary, command line parameters.
+        :filename:, str, log file name.
+    """
     print(" [*] Creating environment for saving current analysis results...")
 
     result_dict : dict = dict()
@@ -43,10 +50,12 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
     results_dir = os.path.join(base_dir, params.output_dir)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    logger = _init_logger(results_dir, filename=filename, flag_test=flag_test)
+    logger = _init_logger(results_dir, filename=filename)
 
     logger.info(params)
 
+    # if params.validation is true setups or prepares an output
+    # directory where validation results will be stored.
     if params.validation is True:
         try:
             val_result_path: str = os.path.join(results_dir, f"results_holdout_validation")
@@ -55,6 +64,8 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
         except:
             pass
     
+    # if params.train is true setups or prepares an output
+    # directory where training results will be stored.
     if params.train is True:
         try:
             train_result_path: str = os.path.join(results_dir, f"results_train")
@@ -63,6 +74,8 @@ def setup_analysis_environment(logger_name: logging.Logger, base_dir: str, param
         except:
             pass
 
+    # if params.test is true setups or prepares an output
+    # directory where test results will be stored.
     if params.test is True:
         try:
             test_result_path: str = os.path.join(results_dir, f"results_test")

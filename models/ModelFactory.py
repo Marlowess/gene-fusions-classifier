@@ -11,9 +11,26 @@ import os
 import pickle
 
 class ModelFactory():
+
+   """
+   Static class used for providing Custom NN models.
+   """
    
    @staticmethod
    def getModelByName(model_name: str, params: dict) -> object:
+
+      """
+      It is used to get a NN model specifing its name and providing
+      a dictionary object with the specification of the NN model.
+
+      Params:
+         :model_name: string object, representing the name of the model
+         it's required for performing train or test phases.\n
+         :params: dictionary object, representing information necessay to build a selected NN model.
+      Returns:
+      --------
+         :object: representing the custom created NN model.
+      """
       
       if model_name == 'ModelEmbeddingBidirect':
          return ModelFactory.getModelEmbeddingBidirect(params)
@@ -51,10 +68,6 @@ class ModelFactory():
    def getModelEmbeddingBidirect(params: dict):
        return ModelEmbeddingBidirect(params)
 
-   @staticmethod
-   def getModelEmbeddingUnidirect(params: dict):
-       return ModelEmbeddingUnidirect(params)
-   
    @staticmethod
    def getModelOneHotProtein(params: dict):
        return ModelOneHotProtein(params)

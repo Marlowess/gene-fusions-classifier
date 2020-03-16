@@ -39,6 +39,18 @@ class ModelUnidirect(object):
         pass
     
     def _check_for_prentrained_model(self, _params: dict):
+        """
+        It checks if a pretrained model has been made available
+        for exploiting its NN params and later also pretrained model's weights.
+
+        Params:
+        -------
+            :_params: temporary dictionary object used for updating it
+            if a pretrained model has been specified.\n
+        Returns:
+            :_params, bool: first element returned is the update params dict, the second is instead a bool value
+            to suggest whether a pretrained model has been specified from command line.\n
+        """
         params = copy.deepcopy(_params)
         if 'result_base_dir' in params.keys():
             results_base_dir = params['result_base_dir']
@@ -320,7 +332,9 @@ class ModelUnidirect(object):
         return optimizer
 
     def _getcallbacks(self, model_params) -> list:
-
+        """
+            It defines the callbacks for this specific architecture
+        """
         if model_params['only_test'] is True:
             return None
 
@@ -349,6 +363,18 @@ class ModelUnidirect(object):
         return callbacks_list
 
     def evaluate(self, x_test, y_test) -> dict:
+        """
+        It evalutes the trained model onto the provided data
+        Inputs:
+        - features: sample of data to validate
+        - labels: classes the data belong to
+        Outputs:
+        - loss
+        - accuracy
+        - f1_score
+        - precision
+        - recall
+        """
         scores = self.model.evaluate(x_test, y_test, verbose=0)
         results_dict = dict(zip(self.model.metrics_names, scores))
         return results_dict
@@ -393,8 +419,12 @@ class ModelUnidirect(object):
         trained_epochs = callbacks_list[0].stopped_epoch - callbacks_list[0].patience +1 if callbacks_list[0].stopped_epoch != 0 else epochs
         return history, trained_epochs
 
-    def fit_generator2(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
-
+    def fit_generator(self, generator, steps_per_epoch, epochs, validation_data=None, shuffle=True, callbacks_list=None):
+        """
+        Train the model for the same number of update step as in holdout validation phase
+        
+        Algorithm 7.2(Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)
+        """
         assert self.model != None
 
         # Remove early stopping
@@ -415,7 +445,24 @@ class ModelUnidirect(object):
         return history
 
     def fit_early_stopping_by_loss_val(self, X_tr, y_tr, epochs, early_stopping_loss, callbacks_list, validation_data, shuffle=True):
+
+        """
+        Train model until current validation loss reaches holdout training loss specified by early_stopping_loss parameter. 
         
+        Algorithm 7.3 (Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)
+        
+        Params:
+        -------
+            :X_tr: training samples
+            :y_tr: training labels
+            :epochs: number of epochs training is performed on
+            :early_stopping_loss: threshold loss - Once reached this loss the training is stopped
+            :callbacks_list: list of callbacks to use in the training phase
+            :validation_data: data to evaluate the model on at the end of each epoch
+            :shuffle: if True, it shuffles data before starting the training
+        
+        """
+
         assert self.model != None
 
         print(f"early stopping loss{early_stopping_loss}")

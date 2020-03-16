@@ -9,6 +9,11 @@ import os
 from itertools import islice
 
 def main(params):
+    """
+    It creates the folder where to save the pre-processed data, and translate DNA into
+    proteins.
+    """
+
     input_dir = params.in_path
     output_dir = params.out_path
 
@@ -20,6 +25,17 @@ def main(params):
     bin_translate(os.path.join(input_dir,'bin_5.csv'), output_dir)
 
 def bin_translate(bin_path, save_path, min_length_truncation=6):
+    """
+    It translates each DNA sequence into a protein.
+    Proteins shorter than 6 amminoacids are discarded.
+
+    Params:
+    -------
+        :bin_path: folder where to find input data.\n
+        :save_path: where to save formatted data.\n
+        :min_lenght_truncation: proteins shorter than this value are discarted.\n
+    """
+
     filename = ntpath.basename(bin_path)
     save_filename = filename.split('.csv')[0] + '_translated.csv'
     save_name = os.path.join(save_path, save_filename)
@@ -44,6 +60,14 @@ def bin_translate(bin_path, save_path, min_length_truncation=6):
 
 # escape from sequences all unnecessary characters and make a list of sequences
 def escape_sequences(str):
+    """
+    It replaces symbols not related to DNA and proteins.
+
+    Params:
+    -------
+        :str: the string to modify.\n
+    """
+
     str = str.replace("'", "")
     str = str.replace("[", "")
     str = str.replace("]", "")
@@ -51,11 +75,27 @@ def escape_sequences(str):
     return str.split(",")
 
 def translate(sequence):
-  sequence = Seq(sequence, generic_dna)
-  protein = sequence.translate(to_stop=True)
-  return protein.__str__()
+    """
+    It takes a DNA sequence and translate it to protein.
+
+    Params:
+    -------
+        :sequence: DNA sequence to translate.\n
+    """
+
+    sequence = Seq(sequence, generic_dna)
+    protein = sequence.translate(to_stop=True)
+    return protein.__str__()
 
 def k_mers(sequence, k):
+    """
+    This function extracts subsequences (of len k) from the raw sequence.
+
+    Params:
+    -------
+        :sequence: DNA or protein sequence to handle.\n
+        :k: k-mer's size.\n
+    """
     j = 0
     it = iter(sequence)
     result = tuple(islice(it, k))
@@ -65,14 +105,22 @@ def k_mers(sequence, k):
         result = result[1:] + (elem,)
         j += 1
         yield "".join(result)
-
+        
 def get_k_mers_str(sequence, k=3):
-  gen = k_mers(sequence, k)
-  gen_list = list(gen)
-  k_mers_str = " ".join(gen_list)
-  return k_mers_str
+    """
+    Wrapper function for generating k-mer sequences.
+    It converts the sequence into k-mer subsequences and put them into a list.
 
+    Params:
+    -------
+        :sequence: the sequence to convert.\n
+        :k: k-mer lenght.\n
+    """
 
+    gen = k_mers(sequence, k)
+    gen_list = list(gen)
+    k_mers_str = " ".join(gen_list)
+    return k_mers_str
 
 if __name__ == "__main__":
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
@@ -81,4 +129,3 @@ if __name__ == "__main__":
     params = parser.parse_args()
 
     main(params)
-

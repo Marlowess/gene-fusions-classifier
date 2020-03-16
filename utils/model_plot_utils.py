@@ -1,10 +1,21 @@
 from utils.models.model_utils.plot_utils.plot_functions import *
 from pprint import pprint
 
-# =========================================================================================== #
-#                                   PLOT LOSS AND ACCURACY                                    #
-# =========================================================================================== #
 def plot_loss_and_accuracy(model, x_test, y_test, history, epochs: int, directory_figures: str, conf_images: dict = None) -> None:
+    """
+    This function creates and saves the plots about loss and accuracy
+
+    Params:
+    -------
+        :model: The model used for testing data\n
+        :x_test: Test samples' features\n
+        :y_test: Test samples' labels\n
+        :history: A dictionary containing loss and accuracy variation\n
+        :epochs: Duration of the training in epochs\n
+        :directory_figures: Path where to save figures\n
+        :conf_images: Settings of images to create\n
+    """
+    
     print("\n", "-" * 100, sep="")
     
     # Loss Image
@@ -44,12 +55,21 @@ def plot_loss_and_accuracy(model, x_test, y_test, history, epochs: int, director
         savefig_flag=savefig_flag)
     pass
 
-# =========================================================================================== #
-#                                   PLOT ROC CURVE MODEL                                      #
-# =========================================================================================== #
-def plot_roc_curve_model( model, x_test, y_test, directory_figures: str, conf_images: dict, postfix: str = 'Train'):
+def plot_roc_curve_model(model, x_test, y_test, directory_figures: str, conf_images: dict, postfix: str = 'Train'):
 
     # fig_name : can NOT be empty since plot_roc_curce requires a not empty fig_name.
+    """
+    This function creates and saves the ROC curve plot
+
+    Params:
+    -------
+        :model: The model used for testing data\n
+        :x_test: Test samples' features\n
+        :y_test: Test samples' labels\n
+        :directory_figures: Path where to save figures\n
+        :conf_images: Settings of images to create\n
+        :postfix: Just a string used for the plot's title\n
+    """
 
     print("\n", "-" * 100, sep="")
     
@@ -77,12 +97,21 @@ def plot_roc_curve_model( model, x_test, y_test, directory_figures: str, conf_im
 
     return auc
     
-# =========================================================================================== #
-#                                   PLOT CONFUSION MATRIX MODEL                               #
-# =========================================================================================== #
 def plot_confusion_matrix_model(model, x_test, y_test, directory_figures: str, conf_images: dict, postfix: str = 'Train', sequential_model_flag: bool = True):
     
     # fig_name : can NOT be empty since plot_confusion_matrix requires a not empty fig_name.
+    """
+    This function creates and saves the confusion matrix of the model
+
+    Params:
+    -------
+        :model: The model used for testing data\n
+        :x_test: Test samples' features\n
+        :y_test: Test samples' labels\n
+        :directory_figures: Path where to save figures\n
+        :conf_images: Settings of images to create\n
+        :postfix: Just a string used for the plot's title\n
+    """
 
     print("\n", "-" * 100, sep="")
 

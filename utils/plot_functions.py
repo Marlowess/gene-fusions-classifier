@@ -1,27 +1,13 @@
-# ======================================================================================= #
-#                                    plot_functions.py                                         #
-# ======================================================================================= #
-
 from __future__ import print_function
-
-# ======================================================================================= #
-#                                    SciKit - Learn                                       #
-# ======================================================================================= #
 from sklearn.metrics import auc
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import average_precision_score
-
 from sklearn.model_selection import train_test_split
-
 from sklearn.utils.multiclass import unique_labels
 
-# ======================================================================================= #
-#                                    Other Imports                                        #
-# ======================================================================================= #
 from matplotlib import pyplot as plt
-# plt.style.use('dark_background')
 
 import numpy as np
 import pandas as  pd
@@ -36,10 +22,10 @@ from matplotlib.ticker import FuncFormatter
 
 dark_ppt = False # False
 
-# =============================================================================================== #
-#                              PLOTS: VALIDATION LOSS & ACCURACY                                  #
-# =============================================================================================== #
 def plot_loss(history, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+    """
+    plot training and validation loss graph from keras history
+    """
     plt.clf()
 
     loss = history.history['loss']
@@ -65,6 +51,9 @@ def plot_loss(history, fig_dir: str, title: str, fig_name: str = None, fig_forma
     pass
 
 def plot_accuracy(history, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+    """
+    plot training and validation accuracy graph from keras history
+    """
     plt.clf()
 
     acc = history.history['accuracy']
@@ -89,10 +78,11 @@ def plot_accuracy(history, fig_dir: str, title: str, fig_name: str = None, fig_f
         plt.show()
     pass
 
-# =========================================================================================== #
-#                                   PLOT ROC CURVE                                            #
-# =========================================================================================== #    
 def plot_roc_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+    """
+    Function to plot roc_curve
+    """
+    
     global dark_ppt
 
     plt.clf()
@@ -121,11 +111,10 @@ def plot_roc_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = Non
     
     return auc_model
 
-
-# =========================================================================================== #
-#                                   PLOT PRECISION-RECALL CURVE                               #
-# =========================================================================================== #    
 def plot_precision_recall_curve(y_test, y_pred, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True) -> None:
+    """
+    This function plots precision recall curve
+    """
     global dark_ppt
 
     plt.clf()
@@ -154,11 +143,10 @@ def plot_precision_recall_curve(y_test, y_pred, fig_dir: str, title: str, fig_na
     
     return avg_precision_score
 
-# =========================================================================================== #
-#                                   PLOT CONFUSION MATRIX MODEL                               #
-# =========================================================================================== #
-
 def plot_confusion_matrix(y_test, y_pred, class_names, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True):
+    """
+    This wrapper function for plotting confusion matrix
+    """
     cm_title = f"{title}"
     ax, cm = _plot_confusion_matrix(
         y_test, y_pred,
@@ -238,7 +226,9 @@ def _plot_confusion_matrix(y_true, y_pred, classes, fig_dir: str, title: str, fi
     return ax, cm
 
 def plot_confidence_graph(predict, fig_dir: str, title: str, fig_name: str = None, fig_format: str = 'png', savefig_flag: bool = False, showfig_flag: bool = True):
-
+    """
+    This function plots hinstogram of predicted class w.r.t. different confidence levels.
+    """
     C_dfs = predict[predict['Label'] == 1]
     N_dfs = predict[predict['Label'] == 0]
 

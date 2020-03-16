@@ -55,12 +55,15 @@ def gen(X, y, batch_size, shuffle=True, verbose=0, seed=None):
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
+    It writes any log either on a logger or on stdout 
+
     Params:
     -------
-        :message: str,
-        :logger: logging.Logger,
-        :skip_message: bool, default = False
+        :message: str.\n
+        :logger: logging.Logger.\n
+        :skip_message: bool, default = False.\n
     """
+
     if logger is None:
         if skip_message is True: return
         print(message)
@@ -82,22 +85,26 @@ def _holdout(
     message: str = 'Performing first phase (holdout)...') -> object:
     
     """
-    Instantiate a new model and train it for the number of epoch specified in the model 
+    It instantiates a new model and train it for the number of epoch specified in the model 
     configuration file in order to subsequently validate
     
     Params:
     -------
-    :x_train: training feature matrix X
-    :y_train: training class labels
-    :x_val: validation feature matrix X
-    :y_val: validation class labels
-    :conf_load_dict:
-    :cmd_line_params: command line parameters
-    :network_params: model configuration read from file
-    :meta_info_project_dict:
-    :tokenizer: tokenizer for translating text to sequences
-    :logger:
-    :message:
+    :x_train: training feature matrix X.\n
+    :y_train: training class labels.\n
+    :x_val: validation feature matrix X.\n
+    :y_val: validation class labels.\n
+    :conf_load_dict: dictionary containing information about how input data have been loaded from source directory of data.\n
+    :cmd_line_params: command line parameters.\n
+    :network_params: model configuration read from file.\n
+    :meta_info_project_dict: dictionary containing information about how project layout has been setted for collecting output data.\n
+    :tokenizer: tokenizer for translating text to sequences.\n
+    :logger: object used for loggin info, it might be None, if None it is just ignored by functions that are dealing with it.\n
+    :message: str object used to either log or display on stdout a message about the fact train-phase is running.\n
+
+    Returns:
+    --------
+        :object: representing the trained model by means of holdout procedure.
     """
      
     # Some logs recorded.
@@ -174,20 +181,31 @@ def _train(
     message: str = 'Performing training phase...') -> object:
     
     """
-    Instantiate a new model and train it for a specified number of update steps
+    It instantiates a new model and train it for a specified number of update steps. The training phase executes:
+
+    - either `algorithm 7.2*` if the command line flag specified for this phase is `--early_stopping_epoch`,
+    - or `algorithm 7.3**` if the command line flag specified for this phase is `--early_stopping_on_loss`.
+
+    * Algorithm 7.2 (Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)\n
+    ** Algorithm 7.3 (Ian Goodfellow, Yoshua Bengio, and Aaron Courville. 2016. Deep Learning. The MIT Press, pp. 246-250.)
+
     
     Params:
     -------
-    :x_train: training feature matrix X
-    :y_train: training class labels
-    :steps: number of steps of training
-    :conf_load_dict:
-    :cmd_line_params: command line parameters
-    :network_params: model configuration read from file
-    :meta_info_project_dict:
-    :tokenizer: tokenizer for translating text to sequences
-    :logger:
-    :message:
+    :x_train: training feature matrix X.\n
+    :y_train: training class labels.\n
+    :steps: number of steps of training.\n
+    :conf_load_dict: dictionary containing information about how input data have been loaded from source directory of data.\n
+    :cmd_line_params: command line parameters.\n
+    :network_params: model configuration read from file.\n
+    :meta_info_project_dict: dictionary containing information about how project layout has been setted for collecting output data.\n
+    :tokenizer: tokenizer for translating text to sequences.\n
+    :logger: object used for loggin info, it might be None, if None it is just ignored by functions that are dealing with it.\n
+    :message: str object used to either log or display on stdout a message about the fact train-phase is running.\n
+
+    Returns:
+    --------
+        :object: representing the trained model.\n
     """
     # Some logs recorded.
     _log_info_message(f" [*] {message}", logger)
@@ -242,7 +260,7 @@ def _train(
         )
     else:
         # Algorithm 7.2
-        history = model.fit_generator2(
+        history = model.fit_generator(
             generator=gen(x_train, y_train, batch_size=network_params['batch_size'], verbose=1),
             steps_per_epoch=np.floor(x_subtrain_size/network_params['batch_size']),
             epochs=epochs_trained,
@@ -275,19 +293,20 @@ def _test(
     message: str = 'Performing test phase...',
     roc_curve: bool = False,
     pr_curve: bool = True) -> object:
+
     """
     Test the model passed by argument and log evaluation metrics
     
     Params:
     -------
-    :x_test: test feature matrix X
-    :param y: test class labels
-    :conf_load_dict:
-    :cmd_line_params: command line parameters
-    :network_params: model configuration read from file
-    :meta_info_project_dict:
-    :logger:
-    :message:
+    :x_test: test feature matrix X.\n
+    :param y: test class labels.\n
+    :conf_load_dict: dictionary containing information about how input data have been loaded from source directory of data.\n
+    :cmd_line_params: command line parameters.\n
+    :network_params: model configuration read from file.\n
+    :meta_info_project_dict: dictionary containing information about how project layout has been setted for collecting output data.\n
+    :logger: object used for loggin info, it might be None, if None it is just ignored by functions that are dealing with it.\n
+    :message: str object used to either log or display on stdout a message about the fact test-phase is running.\n
     """     
     # Some logs recorded.
     _log_info_message(f" [*] {message}", logger)
@@ -355,6 +374,18 @@ def _test(
     pass
 
 def _calculate_confidence(y_test, y_pred, test_dir, logger):
+    """
+    It writes any log either on a logger or on stdout 
+
+    Params:
+    -------
+        :y_test: Actual labels.\n
+        :y_pred: Predicted labels.\n
+        :test_dir: Folder where to put the images.\n
+        :logger: Logger object.\n
+    """
+
+
     _log_info_message("\n\nMetrics for element predicted with strong confidence (0.8 threshold)", logger)
     conf_y_prediction = y_pred[(y_pred < 0.2) | (y_pred >= 0.8)]
     conf_y_test = y_test[(y_pred < 0.2) | (y_pred >= 0.8)] 
