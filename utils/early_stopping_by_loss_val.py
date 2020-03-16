@@ -3,6 +3,9 @@ from tensorflow.keras.callbacks import Callback
 import warnings
 
 class EarlyStoppingByLossVal(Callback):
+    """
+    Custom callback: the training proceeds until the passed loss is reached on the validation set.    
+    """
     def __init__(self, monitor='val_loss', value=0.00001, verbose=0):
         super(Callback, self).__init__()
         self.monitor = monitor

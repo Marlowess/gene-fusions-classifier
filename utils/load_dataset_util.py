@@ -1,10 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-
 import os
 import logging
-
 import numpy as np
 import pandas as pd
 
@@ -12,6 +10,8 @@ import matplotlib as plt
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
+    It writes any log either on a logger or on stdout
+
     Params:
     -------
         :message: str,
@@ -46,7 +46,7 @@ def load_dataset(conf_load_dict: dict, main_logger: logging.Logger = None) -> di
     train_bins_list: list = conf_load_dict['train_bins']
     val_bins_list: list = conf_load_dict['val_bins']
     test_bins_list: list = conf_load_dict['test_bins']
-
+    
     x_train, y_train = _prepared_data(
         path=path,
         sequence_type=sequence_type,
@@ -109,10 +109,6 @@ def _prepared_data(path: str, sequence_type: str, bins_list: list, names: list, 
     
     sequences = df[sequence_column].values
     labels = df['Label'].values
-    
-    # len_sequences_list = list(map(lambda xi: len(xi), sequences))
-    # tmp_df = pd.DataFrame(len_sequences_list)
-    # print(tmp_df.describe())
     
     return sequences, labels
 

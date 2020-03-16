@@ -7,6 +7,18 @@ import time
 
 def _get_custom_parser(output_dir: str) -> object:
 
+    """
+    It is used to obtain na object with the values provided from command line, and set the default value
+    of the output directory providing it as input params to the function itself.
+
+    Params:
+    -------
+        :output_dir: default value for the output dir.\n
+    Returns:
+    --------
+        :object: with the values provided from command line.\n
+    """
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
     parser.add_argument('--seed', default=1234, help='Value assigned to global seed for initializing tensorflow module entirely.', type=int)
 
@@ -35,6 +47,16 @@ def _get_custom_parser(output_dir: str) -> object:
     return params, parser
 
 def get_parsed_params() -> dict:
+    """
+    It is used to get the dictionary containing the command line values passed
+    as input parameters to the program
+
+        
+    Returns:
+    --------
+        :dict: dictionary containing command line values passed
+    as input parameters to the program.\n
+    """
 
     output_dir: str = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d_%H%M%S')
     output_dir_date: str = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d') 

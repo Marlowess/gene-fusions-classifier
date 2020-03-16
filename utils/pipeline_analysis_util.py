@@ -23,12 +23,9 @@ from models.ModelFactory import ModelFactory
 
 import numpy as np
 
-# =============================================================================================== #
-# Utils Functions                                                                                 #
-# =============================================================================================== #
-
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
     """
+    Log message on stdout and on log file
     Params:
     -------
         :message: str,
@@ -42,34 +39,20 @@ def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool 
         logger.info(message)
     pass
 
-def _test_dataset(x_train, y_train, x_val, y_val) -> None:
-    BATCH_SIZE_TRAIN = 64
-    BATCH_SIZE_VAL = 64
-    BUFFER_SIZE = 100
-    embedding_dim = 256
-
-    dataset: tf.data.Dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-
-    # dataset_list: list = list(dataset)
-    # for ii, element in enumerate(dataset_list):
-    for ii, element in enumerate(dataset.as_numpy_iterator()):
-        if ii == 5: break
-        print(element)
-
-    # ----> Shuffle and batch
-    # Prepare the training dataset
-    train_dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE_TRAIN)
-
-    # Prepare the validation dataset
-    val_dataset = tf.data.Dataset.from_tensor_slices((x_val, y_val))
-    val_dataset = val_dataset.batch(BATCH_SIZE_VAL)
-    pass
-
-# =============================================================================================== #
-# Load Datasets - Functions                                                                       #
-# =============================================================================================== #
-
 def _pipeline_load_data(conf_load_dict, main_logger) -> object:
+    """
+    It is used to load data from a given source directory, and this data
+    will be used for either train, test, or both phases.
+
+    Params:
+    -------
+        :conf_load_dict: dictionary object used for knowing where to load and how to load input data.\n
+        :main_logger: logger object that might be None, if it is None it will be ignored by those functions dealing with it
+        and information to be displayed will be displayed directly to standard output.\n
+    Returns:
+    --------
+        :object: dictionary containing the loaded input data.
+    """
 
     _log_info_message(f"----> Dataset Load.", main_logger)
 
@@ -79,53 +62,58 @@ def _pipeline_load_data(conf_load_dict, main_logger) -> object:
 
     return data
 
-# =============================================================================================== #
-# Preprocess Datasets - Functions                                                                 #
-# =============================================================================================== #
-
 def _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger):
+    """
+    It is used to preprocess data loaded previously from a given source directory, and this data
+    will be used for either train, test, or both phases. The constraints about how to treat and preprocess
+    data are defined within `conf_preprocess_dict` input dictionary to this function.
 
-   _log_info_message(f"----> Preprocess Data.", main_logger)
+    Params:
+    -------
+        :data: object containing data to be preprocessed.\n
+        :conf_preprocess_dict: dictionary object used for knowing how to preprocess input data.\n
+        :main_logger: logger object that might be None, if it is None it will be ignored by those functions dealing with it
+        and information to be displayed will be displayed directly to standard output.\n
+    
+    Returns:
+    --------
+        x_train, y_train, x_val, y_val, x_test, y_test, tokenizer: preprocessed data, and tokenizer used for preprocessing input data
+    """
 
-   x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
+    _log_info_message(f"----> Preprocess Data.", main_logger)
+
+    x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
 
-   _log_info_message(f" [*] Preprocess Data: Done.", main_logger, skip_message=True)
+    _log_info_message(f" [*] Preprocess Data: Done.", main_logger, skip_message=True)
 
-   return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer
-
-# =============================================================================================== #
-# Train Datasets - Functions                                                                      #
-# =============================================================================================== #
-
-def _get_callbacks_list(history_filename: str) -> list:
-    callbacks_list: list = [
-                    keras.callbacks.EarlyStopping(
-                        monitor='val_loss',
-                        patience=2,
-                        restore_best_weights=True
-                    ),
-                    keras.callbacks.ModelCheckpoint(
-                        filepath='model_checkpoint_weights.h5',
-                        monitor='val_loss',
-                        save_best_only=True,
-                        verbose=0
-                    ),
-                    keras.callbacks.CSVLogger(history_filename),
-                    keras.callbacks.ReduceLROnPlateau(
-                        patience=5,
-                        monitor='val_loss',
-                        factor=0.75,
-                        verbose=1,
-                        min_lr=5e-6)
-    ]
-    return callbacks_list
-
-
+    return x_train, y_train, x_val, y_val, x_test, y_test, tokenizer
 
 def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_params,
                     network_params, meta_info_project_dict, tokenizer, main_logger):
 
+    """
+    Perform holdout and/or train depending on chosen step in cmd_line_params
+    
+    Params:
+    -------
+        :x_train: training samples
+        :y_train: training labels
+        :x_val: validation samples
+        :y_val: validation labels
+        :conf_load_dict: dict, configuration for loading the dataset: it specify the bin to use, the sequence type, dataset path 
+        :cmd_line_params: dictionary, command line arguments
+        :network_params:, dictionary, model configuration depending on the neural network architecture used 
+        :meta_info_project_dict: dictionary, it contains path for the output for each stage of the pipeline 
+        :tokenizer: object containing tokenization settings (vocabulary and mappings)
+        :main_logger: output logger
+        
+    Returns:
+    -------
+        :model: model with trained weights
+        :res_str_holdout: summary str for holdout
+    """
+    
     model = None
     _log_info_message(f"----> Perform Analysis...", main_logger)
 
@@ -176,6 +164,21 @@ def _pipeline_train(x_train, y_train, x_val, y_val, conf_load_dict, cmd_line_par
 def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
                    network_params, meta_info_project_dict, main_logger):
     
+    """
+    Perform holdout and/or train depending on chosen step in cmd_line_params
+    
+    Params:
+    -------
+        :model: model to test 
+        :x_train: testing samples
+        :y_train: testing labels        
+        :conf_load_dict: dict, configuration for loading the dataset: it specify the bin to use, the sequence type, dataset path 
+        :cmd_line_params: dictionary, command line arguments
+        :network_params:, dictionary, model configuration depending on the neural network architecture used 
+        :meta_info_project_dict: dictionary, it contains path for the output for each stage of the pipeline         
+        :main_logger: output logger
+    """        
+
     if cmd_line_params.test is True:
         if ('model' not in locals() or model is None):
             if (cmd_line_params.pretrained_model is None):
@@ -201,12 +204,20 @@ def _pipeline_test(model, x_test, y_test, conf_load_dict, cmd_line_params,
             main_logger,
         )
     return
-# =============================================================================================== #
-# Run pipeline on Datasets - Function                                                             #
-# =============================================================================================== #
 
 def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_params, network_params: dict, meta_info_project_dict: dict, main_logger: logging.Logger = None) -> None:
-    """Run pipeline."""
+    """
+    Run holdout validation and/or training and/or test depending on the choosen pipeline by command line parameters.
+    
+    Params:
+    -------
+        :conf_load_dict: dict, configuration for loading the dataset: it specify the bin to use, the sequence type, dataset path 
+        :conf_preprocess_dict: dictionary, configuration for preprocessing in which we specify padding length, encoding, and sequence type (dna, protein, kmer)
+        :cmd_line_params: dictionary, command line arguments
+        :network_params:, dictionary, model configuration depending on the neural network architecture used 
+        :meta_info_project_dict: dictionary, it contains path for the output for each stage of the pipeline 
+        :main_logger: logging.Logger, logger reference
+    """
     
     pprint(conf_load_dict)
 
@@ -218,13 +229,6 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
     # Preprocessing Data.
     x_train, y_train, x_val, y_val, x_test, y_test, tokenizer = \
         _pipeline_preprocess_data(data, conf_preprocess_dict, main_logger=main_logger)
-    # return
-    
-    #### DEBUG
-    # network_params['testset'] = (x_test, y_test)
-
-    # Print for debugging Data.
-    # _test_dataset(x_train, y_train, x_val, y_val)
 
     if cmd_line_params.train or cmd_line_params.validation:
         model, res_str_holdout = _pipeline_train(
@@ -243,7 +247,6 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
         model = None
         
     if cmd_line_params.test:
-        # res_str_test = _pipeline_test(
         network_params['only_test'] = True
         _pipeline_test(
             model,
@@ -255,5 +258,4 @@ def run_pipeline(conf_load_dict: dict, conf_preprocess_dict: dict, cmd_line_para
             meta_info_project_dict,
             main_logger
         )
-        # _log_info_message("Test: " + res_str_test, main_logger)
     pass

@@ -6,6 +6,16 @@ import numpy as np
 from pprint import pprint
 
 def _log_info_message(message: str, logger:  logging.Logger, skip_message: bool = False) -> None:
+    """
+    It writes any log either on a logger or on stdout.
+
+    Params:
+    -------
+        :message: str\n
+        :logger: logging.Logger\n
+        :skip_message: bool, default = False\n
+    """
+
     if logger is None:
         if skip_message is True: return
         print(message)
@@ -19,7 +29,7 @@ def _labels_text2num(labels_list: list) -> np.array:
 
     Params:
     -------
-        :labels_list: non empty Python list.
+        :labels_list: non empty Python list.\n
     Return:
     -------
         :np.array: a numpy iterable array of non-negative integers.
@@ -36,12 +46,12 @@ def _tokenize(data_samples, conf_tok_dict: dict, data_tokenizer = None) -> objec
 
     Params:
     -------
-        :data_samples: iterable object, containing biological sequences.
-        :conf_tok_dict: Python dict, with the options describing how to perform tokenization task.
+        :data_samples: iterable object, containing biological sequences.\n
+        :conf_tok_dict: Python dict, with the options describing how to perform tokenization task.\n
     Return:
     -------
-        :tensor: result provided by tokenization task, if specified this result might be onehot-encoded too.
-        :data_tokenizer: `tf.keras.preprocessing.text.Tokenizer` object with the specification describing how tokenization task has been performed.
+        :tensor: result provided by tokenization task, if specified this result might be onehot-encoded too.\n
+        :data_tokenizer: `tf.keras.preprocessing.text.Tokenizer` object with the specification describing how tokenization task has been performed.\n
     """
 
 
@@ -49,6 +59,7 @@ def _tokenize(data_samples, conf_tok_dict: dict, data_tokenizer = None) -> objec
     maxlen: int = conf_tok_dict['maxlen']
     onehot_flag: bool = conf_tok_dict['onehot_flag']
     sequence_type: str = conf_tok_dict['sequence_type']
+
     if data_tokenizer is None:
         if sequence_type == 'kmers':
             data_tokenizer = tf.keras.preprocessing.text.Tokenizer(filters='', lower=True, char_level=False, split=' ')
@@ -74,8 +85,8 @@ def preprocess_data(data: dict, conf_tok_dict: dict, main_logger: logging.Logger
     Params:
     -------
         :data: a Python dictionary within which there are as keys the train, val and test set of features samples, and as values the related iterable objects,
-        for which there are also the corresponding train, val, test labels iterable objects referring to the related keys.
-        :conf_tok_dict: a Python dictionary containing the specification that describes how to perform preprocessing phase
+        for which there are also the corresponding train, val, test labels iterable objects referring to the related keys.\n
+        :conf_tok_dict: a Python dictionary containing the specification that describes how to perform preprocessing phase\n
     Return:
         x_train, y_train, x_val, y_val, x_test, y_test
     """
@@ -83,12 +94,15 @@ def preprocess_data(data: dict, conf_tok_dict: dict, main_logger: logging.Logger
     _log_info_message(f" [*] Preprocessing data...", main_logger)
     # pprint(conf_tok_dict)
   
+    # Preprocess data for training set
     x_train, tokenizer = _tokenize(data['x_train'], conf_tok_dict)
     y_train = _labels_text2num(data['y_train'])
 
+    # Preprocess data used for validation set
     x_val, _ = _tokenize(data['x_val'], conf_tok_dict, tokenizer)
     y_val = _labels_text2num(data['y_val'])
 
+    # Preprocess data used for test set
     x_test, _ = _tokenize(data['x_test'], conf_tok_dict, tokenizer)
     y_test = _labels_text2num(data['y_test'])
   
